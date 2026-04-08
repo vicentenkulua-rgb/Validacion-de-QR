@@ -96,7 +96,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--c-bg);color:va
 .stat-label{font-size:11px;color:var(--c-muted);margin-top:2px}
 .drop-zone{border:2px dashed var(--c-border);border-radius:var(--r);padding:32px 16px;text-align:center;cursor:pointer;transition:var(--trans);position:relative;overflow:hidden}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--c-accent);background:var(--c-surface2)}
-.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
 .drop-icon{font-size:32px;margin-bottom:8px}
 .drop-title{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:4px}
 .drop-sub{font-size:12px;color:var(--c-muted)}
@@ -239,8 +239,8 @@ td{padding:8px 10px;border-top:1px solid var(--c-border)}
 
       <div class="card" style="margin-bottom:12px">
         <div class="section-title">Importar datos CSV</div>
-        <div class="drop-zone" id="drop-zone">
-          <input type="file" id="csv-input" accept=".csv,text/csv">
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()">
+          <input type="file" id="csv-input" accept=".csv,text/csv" style="display:none">
           <div class="drop-icon">📄</div>
           <div class="drop-title">Cargar archivo CSV</div>
           <div class="drop-sub">Arrastra aquí o toca para seleccionar<br>Columnas: id, qr_code, status, passenger_name, route…</div>
@@ -554,13 +554,14 @@ function flipCamera() {
 // QR SCANNING
 // ═══════════════════════════════════════════
 function scanFrame() {
-  if (!state.scanning || state.paused) {
-    if (state.scanning) requestAnimationFrame(scanFrame);
+  if (!state.scanning) return;
+  if (state.paused) {
+    requestAnimationFrame(scanFrame);
     return;
   }
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
-  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+  if (!video || video.readyState !== video.HAVE_ENOUGH_DATA || video.videoWidth === 0) {
     requestAnimationFrame(scanFrame);
     return;
   }
@@ -569,10 +570,10 @@ function scanFrame() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0);
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
   if (code && code.data) {
     const now = Date.now();
-    if (now - state.lastScan > 1500) {
+    if (now - state.lastScan > 2000 && !document.getElementById('result-overlay').classList.contains('show')) {
       state.lastScan = now;
       handleQRCode(code.data);
     }
@@ -584,7 +585,8 @@ function scanFrame() {
 // VALIDATION LOGIC
 // ═══════════════════════════════════════════
 async function handleQRCode(qrValue) {
-  if (document.getElementById('result-overlay').classList.contains('show')) return;
+  if (!qrValue || !qrValue.trim()) return;
+  qrValue = qrValue.trim();
   document.getElementById('scan-status').textContent = 'Procesando...';
   document.getElementById('scan-spinner').style.display = 'block';
 
@@ -878,10 +880,11 @@ document.getElementById('csv-input').addEventListener('change', e => {
 
 // Drag and drop
 const dropZone = document.getElementById('drop-zone');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', e => { e.stopPropagation(); dropZone.classList.remove('drag'); });
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
+  e.stopPropagation();
   dropZone.classList.remove('drag');
   const file = e.dataTransfer.files[0];
   if (file) handleCSV(file);
