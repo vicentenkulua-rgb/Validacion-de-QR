@@ -94,12 +94,14 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--c-bg);color:va
 .stat-num.orange{color:var(--c-orange)}
 .stat-num.blue{color:var(--c-accent)}
 .stat-label{font-size:11px;color:var(--c-muted);margin-top:2px}
-.drop-zone{border:2px dashed var(--c-border);border-radius:var(--r);padding:32px 16px;text-align:center;cursor:pointer;transition:var(--trans);position:relative;overflow:hidden}
+
+/* ── DROP ZONE FIX ── */
+.drop-zone{border:2px dashed var(--c-border);border-radius:var(--r);padding:32px 16px;text-align:center;cursor:pointer;transition:var(--trans)}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--c-accent);background:var(--c-surface2)}
-.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
 .drop-icon{font-size:32px;margin-bottom:8px}
 .drop-title{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:4px}
 .drop-sub{font-size:12px;color:var(--c-muted)}
+
 .btn{border:none;padding:11px 18px;border-radius:var(--r-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:var(--trans)}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--c-blue);color:#fff}
@@ -184,14 +186,17 @@ td{padding:8px 10px;border-top:1px solid var(--c-border)}
         <div class="loading-spinner"></div>
       </div>
     </div>
-<div class="no-camera" id="no-camera">
-        <div style="font-size:48px">📷</div>
-        <h3>Cámara no disponible</h3>
-        <p>Asegúrate de dar permisos de cámara y usar HTTPS.</p>
-        <button class="btn btn-primary" onclick="startCamera()" style="margin-top:10px">Reintentar</button>
-      </div>
+
+    <div class="no-camera" id="no-camera">
+      <div style="font-size:48px">📷</div>
+      <h3>Cámara no disponible</h3>
+      <p>Asegúrate de dar permisos de cámara y usar HTTPS.</p>
+      <button class="btn btn-primary" onclick="startCamera()" style="margin-top:10px">Reintentar</button>
+    </div>
+
     <div class="manual-input-wrap">
-      <input class="manual-input" id="manual-input" type="text" placeholder="Ingrese código QR manualmente..." autocomplete="off">
+      <input class="manual-input" id="manual-input" type="text"
+        placeholder="Ingrese código QR manualmente..." autocomplete="off">
     </div>
     <div class="scan-controls">
       <button class="ctrl-btn" id="btn-flip">
@@ -207,6 +212,7 @@ td{padding:8px 10px;border-top:1px solid var(--c-border)}
         <span class="ctrl-icon">🔊</span><span>Sonido</span>
       </button>
     </div>
+
     <!-- Result Modal -->
     <div class="result-overlay" id="result-overlay">
       <div class="result-card" id="result-card">
@@ -239,12 +245,18 @@ td{padding:8px 10px;border-top:1px solid var(--c-border)}
 
       <div class="card" style="margin-bottom:12px">
         <div class="section-title">Importar datos CSV</div>
-        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()">
-          <input type="file" id="csv-input" accept=".csv,text/csv" style="display:none">
+
+        <!-- FIXED: drop zone no longer wraps the input to avoid click conflicts -->
+        <div class="drop-zone" id="drop-zone">
           <div class="drop-icon">📄</div>
           <div class="drop-title">Cargar archivo CSV</div>
-          <div class="drop-sub">Arrastra aquí o toca para seleccionar<br>Columnas: id, qr_code, status, passenger_name, route…</div>
+          <div class="drop-sub">Arrastra aquí o toca el botón de abajo<br>Columna requerida: <strong>codigo_qr</strong></div>
         </div>
+
+        <!-- Hidden file input triggered by button -->
+        <input type="file" id="csv-input" accept=".csv,text/csv,application/csv" style="display:none">
+        <button class="btn btn-primary btn-full" id="btn-select-csv">📂 Seleccionar archivo CSV</button>
+
         <div id="import-result" style="margin-top:8px;font-size:13px;color:var(--c-green);display:none"></div>
         <button class="btn btn-danger btn-full" id="btn-clear-db" style="display:none">🗑 Limpiar base de datos</button>
       </div>
@@ -298,7 +310,7 @@ td{padding:8px 10px;border-top:1px solid var(--c-border)}
 const state = {
   db: null,
   stream: null,
-  scanning: true,
+  scanning: false,   // true only when rAF loop is running
   paused: false,
   torchOn: false,
   facingMode: 'environment',
@@ -312,11 +324,34 @@ const state = {
 };
 
 // ═══════════════════════════════════════════
+// HELPERS — QR value extraction
+// ═══════════════════════════════════════════
+/**
+ * The CSV column "codigo_qr" contains a URL like:
+ *   https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=Pasajero%3A...
+ * The physical QR code encodes the value of the "data" parameter.
+ * This function returns the canonical lookup key for any input.
+ */
+function normalizeQR(raw) {
+  if (!raw) return '';
+  raw = String(raw).trim();
+  // If it looks like a qrserver.com URL, extract the data param
+  try {
+    if (raw.includes('qrserver.com') || raw.includes('data=')) {
+      const url = new URL(raw);
+      const data = url.searchParams.get('data');
+      if (data) return data.trim();
+    }
+  } catch(e) {}
+  return raw;
+}
+
+// ═══════════════════════════════════════════
 // INDEXEDDB
 // ═══════════════════════════════════════════
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('ViteocaQR', 2);
+    const req = indexedDB.open('ViteocaQR', 3);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('qr_codes')) {
@@ -381,18 +416,18 @@ function dbClear() {
 
 async function updateStats() {
   const total = await dbCount();
-  const used = await dbCount('status', 'used');
+  const used  = await dbCount('status', 'used');
   const valid = total - used;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-valid').textContent = valid;
-  document.getElementById('stat-used').textContent = used;
+  document.getElementById('stat-used').textContent  = used;
   const pct = total > 0 ? (used / total * 100) : 0;
   document.getElementById('usage-bar').style.width = pct + '%';
   if (total > 0) document.getElementById('preview-card').style.display = 'block';
 }
 
 // ═══════════════════════════════════════════
-// AUDIO (Web Audio API)
+// AUDIO
 // ═══════════════════════════════════════════
 function getAudioCtx() {
   if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -406,13 +441,10 @@ function playTone(type) {
     if (ctx.state === 'suspended') ctx.resume();
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
-
     if (type === 'valid') {
-      // Ascending double beep
       [880, 1100].forEach((freq, i) => {
         const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
+        osc.type = 'sine'; osc.frequency.value = freq;
         osc.connect(gain);
         gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
         gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + i * 0.12 + 0.02);
@@ -421,11 +453,9 @@ function playTone(type) {
         osc.stop(ctx.currentTime + i * 0.12 + 0.12);
       });
     } else if (type === 'used') {
-      // Double mid beep
       [660, 660].forEach((freq, i) => {
         const osc = ctx.createOscillator();
-        osc.type = 'square';
-        osc.frequency.value = freq;
+        osc.type = 'square'; osc.frequency.value = freq;
         osc.connect(gain);
         gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.2);
         gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.2 + 0.02);
@@ -434,7 +464,6 @@ function playTone(type) {
         osc.stop(ctx.currentTime + i * 0.2 + 0.2);
       });
     } else if (type === 'notfound') {
-      // Descending buzz
       const osc = ctx.createOscillator();
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(400, ctx.currentTime);
@@ -442,17 +471,14 @@ function playTone(type) {
       osc.connect(gain);
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
     } else if (type === 'error') {
       const osc = ctx.createOscillator();
-      osc.type = 'square';
-      osc.frequency.value = 220;
+      osc.type = 'square'; osc.frequency.value = 220;
       osc.connect(gain);
       gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.5);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
     }
   } catch(e) {}
 }
@@ -481,12 +507,13 @@ function flashScreen(color) {
 // CAMERA
 // ═══════════════════════════════════════════
 async function startCamera() {
+  // Stop any existing stream
   if (state.stream) {
     state.stream.getTracks().forEach(t => t.stop());
     state.stream = null;
   }
+  state.scanning = false; // stop old rAF loop
 
-  // Verificar si el navegador soporta la cámara
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     document.getElementById('no-camera').classList.add('show');
     document.getElementById('scan-status').textContent = 'Navegador no compatible';
@@ -495,10 +522,10 @@ async function startCamera() {
   }
 
   const constraints = {
-    video: { 
-      facingMode: state.facingMode, 
-      width: { ideal: 1280 }, 
-      height: { ideal: 720 } 
+    video: {
+      facingMode: state.facingMode,
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
     }
   };
 
@@ -507,30 +534,24 @@ async function startCamera() {
     state.stream = stream;
     const video = document.getElementById('video');
     video.srcObject = stream;
-    
-    // Asegurar que el video se reproduzca correctamente
-    video.setAttribute('playsinline', true); // Requerido para iOS
+    video.setAttribute('playsinline', true);
     await video.play();
-    
     document.getElementById('no-camera').classList.remove('show');
     document.getElementById('scan-status').textContent = 'Escaneando...';
+    state.scanning = true;
     requestAnimationFrame(scanFrame);
   } catch(e) {
-    console.error('Error al acceder a la cámara:', e);
+    console.error('Camera error:', e);
     document.getElementById('no-camera').classList.add('show');
-    
-    let errorMsg = 'Cámara no disponible';
+    let msg = 'Cámara no disponible';
     if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-      errorMsg = 'Permiso denegado';
-      showToast('❌ Por favor, permite el acceso a la cámara');
+      msg = 'Permiso denegado'; showToast('❌ Permite el acceso a la cámara');
     } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-      errorMsg = 'Cámara no encontrada';
+      msg = 'Cámara no encontrada';
     } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-      errorMsg = 'Requiere HTTPS';
-      showToast('❌ La cámara solo funciona en sitios seguros (HTTPS)');
+      msg = 'Requiere HTTPS'; showToast('❌ La cámara solo funciona en sitios seguros (HTTPS)');
     }
-    
-    document.getElementById('scan-status').textContent = errorMsg;
+    document.getElementById('scan-status').textContent = msg;
   }
 }
 
@@ -551,29 +572,31 @@ function flipCamera() {
 }
 
 // ═══════════════════════════════════════════
-// QR SCANNING
+// QR SCANNING — FIXED loop
 // ═══════════════════════════════════════════
 function scanFrame() {
-  if (!state.scanning) return;
+  if (!state.scanning) return; // loop terminated
   if (state.paused) {
     requestAnimationFrame(scanFrame);
     return;
   }
-  const video = document.getElementById('video');
+  const video  = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   if (!video || video.readyState !== video.HAVE_ENOUGH_DATA || video.videoWidth === 0) {
     requestAnimationFrame(scanFrame);
     return;
   }
-  canvas.width = video.videoWidth;
+  canvas.width  = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0);
-  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+
   if (code && code.data) {
     const now = Date.now();
-    if (now - state.lastScan > 2000 && !document.getElementById('result-overlay').classList.contains('show')) {
+    const resultVisible = document.getElementById('result-overlay').classList.contains('show');
+    if (now - state.lastScan > 2000 && !resultVisible) {
       state.lastScan = now;
       handleQRCode(code.data);
     }
@@ -584,9 +607,10 @@ function scanFrame() {
 // ═══════════════════════════════════════════
 // VALIDATION LOGIC
 // ═══════════════════════════════════════════
-async function handleQRCode(qrValue) {
-  if (!qrValue || !qrValue.trim()) return;
-  qrValue = qrValue.trim();
+async function handleQRCode(rawValue) {
+  if (!rawValue || !rawValue.trim()) return;
+  // Normalize: if the QR encoded a qrserver URL, extract the data param
+  const qrValue = normalizeQR(rawValue);
   document.getElementById('scan-status').textContent = 'Procesando...';
   document.getElementById('scan-spinner').style.display = 'block';
 
@@ -598,11 +622,16 @@ async function handleQRCode(qrValue) {
 
   document.getElementById('scan-spinner').style.display = 'none';
 
+  if (!state.dbReady && !sessionDup) {
+    playTone('error');
+    showToast('⚠ Cargue un CSV primero');
+    document.getElementById('scan-status').textContent = 'Sin datos — cargue CSV';
+    return;
+  }
+
   if (!record && !sessionDup) {
     // NOT FOUND
-    playTone('notfound');
-    vibrate('notfound');
-    flashScreen('#EF4444');
+    playTone('notfound'); vibrate('notfound'); flashScreen('#EF4444');
     showResult('notfound', qrValue, null);
     addHistory({ qr: qrValue, status: 'notfound', name: '—', route: '—', ts: new Date() });
   } else if (record && record.status === 'valid') {
@@ -610,23 +639,15 @@ async function handleQRCode(qrValue) {
     const usedRecord = { ...record, status: 'used', date_used: new Date().toISOString() };
     await dbPut(usedRecord);
     updateStats();
-    playTone('valid');
-    vibrate('valid');
-    flashScreen('#22C55E');
+    playTone('valid'); vibrate('valid'); flashScreen('#22C55E');
     showResult('valid', qrValue, record);
     addHistory({ qr: qrValue, status: 'valid', name: record.passenger_name || '—', route: record.route || '—', ts: new Date() });
   } else if ((record && record.status === 'used') || sessionDup) {
-    // USED / DUPLICATE
-    playTone('used');
-    vibrate('used');
-    flashScreen('#F97316');
-    showResult('used', qrValue, record || (sessionDup ? { passenger_name: sessionDup.name, route: sessionDup.route, date_used: sessionDup.ts?.toISOString() } : null));
+    // ALREADY USED
+    playTone('used'); vibrate('used'); flashScreen('#F97316');
+    const info = record || (sessionDup ? { passenger_name: sessionDup.name, route: sessionDup.route, date_used: sessionDup.ts?.toISOString() } : null);
+    showResult('used', qrValue, info);
     addHistory({ qr: qrValue, status: 'used', name: record?.passenger_name || '—', route: record?.route || '—', ts: new Date() });
-  } else {
-    // DB not loaded
-    playTone('error');
-    showToast('⚠ Cargue un CSV primero');
-    document.getElementById('scan-status').textContent = 'Sin datos — cargue CSV';
   }
 }
 
@@ -635,36 +656,36 @@ async function handleQRCode(qrValue) {
 // ═══════════════════════════════════════════
 function showResult(type, qrValue, record) {
   const overlay = document.getElementById('result-overlay');
-  const card = document.getElementById('result-card');
-  const icon = document.getElementById('result-icon');
-  const title = document.getElementById('result-title');
-  const qrEl = document.getElementById('result-qr');
-  const fields = document.getElementById('result-fields');
+  const card    = document.getElementById('result-card');
+  const icon    = document.getElementById('result-icon');
+  const title   = document.getElementById('result-title');
+  const qrEl    = document.getElementById('result-qr');
+  const fields  = document.getElementById('result-fields');
 
   card.className = 'result-card ' + type;
-
   const configs = {
-    valid:    { icon: '✓', title: 'CÓDIGO VÁLIDO', bg: '#22C55E' },
-    used:     { icon: '⚠', title: 'YA USADO', bg: '#F97316' },
-    notfound: { icon: '✗', title: 'NO ENCONTRADO', bg: '#EF4444' },
+    valid:    { icon: '✓', title: 'CÓDIGO VÁLIDO' },
+    used:     { icon: '⚠', title: 'YA USADO' },
+    notfound: { icon: '✗', title: 'NO ENCONTRADO' },
   };
   const cfg = configs[type];
-  icon.textContent = cfg.icon;
+  icon.textContent  = cfg.icon;
   title.textContent = cfg.title;
-  qrEl.textContent = qrValue.length > 60 ? qrValue.substring(0, 57) + '...' : qrValue;
+  qrEl.textContent  = qrValue.length > 60 ? qrValue.substring(0, 57) + '...' : qrValue;
 
   let html = '';
   if (record) {
     if (record.passenger_name) html += field('Pasajero', record.passenger_name);
-    if (record.route) html += field('Ruta', record.route);
-    if (record.date_created) html += field('Emisión', fmtDate(record.date_created));
+    if (record.route)          html += field('Compra', record.route);
+    if (record.monto)          html += field('Monto', record.monto);
+    if (record.metodo_pago)    html += field('Método', record.metodo_pago);
+    if (record.date_created)   html += field('Emisión', fmtDate(record.date_created));
     if (type === 'used' && record.date_used) html += field('Usado el', fmtDate(record.date_used));
   }
   if (!html) html = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,.6);font-size:13px">Sin información adicional</div>';
   fields.innerHTML = html;
 
   overlay.classList.add('show');
-
   if (state.currentResultTimeout) clearTimeout(state.currentResultTimeout);
   state.currentResultTimeout = setTimeout(closeResult, 4000);
 }
@@ -699,23 +720,20 @@ function addHistory(entry) {
 function renderHistory() {
   const list = document.getElementById('history-list');
   const filtered = state.filter === 'all' ? state.history : state.history.filter(h => h.status === state.filter);
-
   if (!filtered.length) {
     list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>Sin resultados</div></div>';
     return;
   }
-
-  const colors = { valid: 'var(--c-green)', used: 'var(--c-orange)', notfound: 'var(--c-red)' };
-  const labels = { valid: '✓ VÁLIDO', used: '⚠ USADO', notfound: '✗ NO ENCONTRADO' };
-  const badgeClass = { valid: 'badge-green', used: 'badge-orange', notfound: 'badge-red' };
-
+  const colors    = { valid: 'var(--c-green)', used: 'var(--c-orange)', notfound: 'var(--c-red)' };
+  const labels    = { valid: '✓ VÁLIDO', used: '⚠ USADO', notfound: '✗ NO ENCONTRADO' };
+  const badgeCls  = { valid: 'badge-green', used: 'badge-orange', notfound: 'badge-red' };
   list.innerHTML = filtered.map(h => `
     <div class="hist-item">
       <div class="hist-dot" style="background:${colors[h.status]}"></div>
       <div class="hist-info">
         <div class="hist-name">${h.name}</div>
         <div class="hist-qr">${h.route} · ${h.qr}</div>
-        <div><span class="badge ${badgeClass[h.status]}">${labels[h.status]}</span></div>
+        <div><span class="badge ${badgeCls[h.status]}">${labels[h.status]}</span></div>
       </div>
       <div class="hist-time">${h.ts ? h.ts.toLocaleTimeString('es-GQ',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : ''}</div>
     </div>
@@ -723,31 +741,77 @@ function renderHistory() {
 }
 
 // ═══════════════════════════════════════════
-// CSV IMPORT
+// CSV IMPORT — FIXED column names & QR extraction
 // ═══════════════════════════════════════════
 function handleCSV(file) {
   if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.csv') && file.type && !file.type.includes('csv')) {
+    showToast('❌ Selecciona un archivo .csv válido');
+    return;
+  }
+  showToast('⏳ Procesando CSV...');
+
   Papa.parse(file, {
     header: true,
     skipEmptyLines: true,
+    encoding: 'UTF-8',
     complete: async (results) => {
       const rows = results.data;
       if (!rows.length) { showToast('CSV vacío o inválido'); return; }
+
+      // Detect QR column — support both naming conventions
+      const sampleRow = rows[0];
+      const cols = Object.keys(sampleRow);
+      console.log('CSV columns detected:', cols);
+
+      // Map columns flexibly
+      const getCol = (row, ...names) => {
+        for (const n of names) {
+          if (row[n] !== undefined && row[n] !== '') return row[n];
+        }
+        return '';
+      };
 
       let imported = 0, skipped = 0;
       const tx = state.db.transaction('qr_codes', 'readwrite');
       const store = tx.objectStore('qr_codes');
 
       for (const row of rows) {
-        const qr = row.qr_code || row.QR_CODE || row.code || row.CODE || row.id;
-        if (!qr) { skipped++; continue; }
+        // Get raw QR value from known column names
+        const rawQR = getCol(row, 'codigo_qr', 'qr_code', 'QR_CODE', 'code', 'CODE', 'qr');
+        if (!rawQR) { skipped++; continue; }
+
+        // Extract the actual QR text (handle qrserver URLs)
+        const qrKey = normalizeQR(rawQR);
+        if (!qrKey) { skipped++; continue; }
+
+        // Parse QR content for name/route if embedded
+        // Format: "Pasajero: Nombre, Compra: UUID, Viaje: UUID"
+        let passengerName = getCol(row, 'passenger_name', 'nombre', 'name', 'user_id');
+        let route         = getCol(row, 'compra_id', 'route', 'ruta', 'pago_agrupado_id');
+        let monto         = getCol(row, 'monto_detectado', 'monto', 'amount');
+        let metodoPago    = getCol(row, 'metodo_pago', 'payment_method', 'method');
+
+        // If name not in columns, try to extract from QR string
+        if (!passengerName && qrKey.includes('Pasajero:')) {
+          const m = qrKey.match(/Pasajero:\s*([^,]+)/);
+          if (m) passengerName = m[1].trim();
+        }
+        if (!route && qrKey.includes('Compra:')) {
+          const m = qrKey.match(/Compra:\s*([^,]+)/);
+          if (m) route = m[1].trim();
+        }
+
         const record = {
-          qr_code: String(qr).trim(),
-          status: (row.status || 'valid').toLowerCase() === 'used' ? 'used' : 'valid',
-          passenger_name: row.passenger_name || row.name || row.nombre || '',
-          route: row.route || row.ruta || '',
-          date_created: row.date_created || row.created_at || new Date().toISOString(),
-          date_used: row.date_used || null,
+          qr_code:        qrKey,
+          status:         (getCol(row, 'status', 'estado') || 'valid').toLowerCase() === 'used' ? 'used' : 'valid',
+          passenger_name: passengerName || '—',
+          route:          route || '—',
+          monto:          monto ? monto + ' XAF' : '',
+          metodo_pago:    metodoPago || '',
+          date_created:   getCol(row, 'fecha_pago', 'date_created', 'fecha_verificacion') || new Date().toISOString(),
+          date_used:      getCol(row, 'date_used') || null,
+          raw_qr_url:     rawQR, // keep original URL for reference
         };
         store.put(record);
         imported++;
@@ -760,25 +824,37 @@ function handleCSV(file) {
         document.getElementById('btn-clear-db').style.display = 'block';
         const result = document.getElementById('import-result');
         result.style.display = 'block';
-        result.textContent = `✓ ${imported} códigos importados (${skipped} omitidos)`;
-        showToast(`✓ ${imported} códigos cargados`);
+        result.textContent = `✓ ${imported} códigos importados${skipped ? ` (${skipped} omitidos)` : ''}`;
+        showToast(`✓ ${imported} códigos cargados correctamente`);
       };
+      tx.onerror = () => showToast('❌ Error al guardar en la base de datos');
     },
-    error: () => showToast('Error leyendo CSV')
+    error: (err) => {
+      console.error('Papa parse error:', err);
+      showToast('❌ Error leyendo CSV');
+    }
   });
 }
 
 function showPreviewTable(rows) {
   if (!rows.length) return;
-  const keys = Object.keys(rows[0]).slice(0, 6);
+  // Show only meaningful columns
+  const preferred = ['pago_id','compra_id','monto_detectado','metodo_pago','fecha_pago','verificado'];
+  const allCols   = Object.keys(rows[0]);
+  const keys      = preferred.filter(k => allCols.includes(k)).concat(
+                      allCols.filter(k => !preferred.includes(k) && k !== 'codigo_qr' && k !== 'foto_billete_url')
+                    ).slice(0, 5);
+
   const statusBadge = v => {
-    const s = (v||'').toLowerCase();
-    if (s === 'used') return `<span class="badge badge-orange">usado</span>`;
-    return `<span class="badge badge-green">válido</span>`;
+    const s = (v || '').toLowerCase();
+    return s === 'used' ? `<span class="badge badge-orange">usado</span>`
+                        : `<span class="badge badge-green">válido</span>`;
   };
   const html = `<table>
     <thead><tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(r => `<tr>${keys.map(k => `<td>${k==='status' ? statusBadge(r[k]) : (r[k]||'—')}</td>`).join('')}</tr>`).join('')}</tbody>
+    <tbody>${rows.map(r => `<tr>${keys.map(k =>
+      `<td>${k === 'status' ? statusBadge(r[k]) : (r[k] || '—')}</td>`
+    ).join('')}</tr>`).join('')}</tbody>
   </table>`;
   document.getElementById('preview-table').innerHTML = html;
 }
@@ -797,7 +873,10 @@ function exportCSV() {
 
 function exportJSON() {
   if (!state.history.length) { showToast('Sin historial para exportar'); return; }
-  const data = state.history.map(h => ({ timestamp: h.ts?.toISOString(), qr_code: h.qr, status: h.status, passenger_name: h.name, route: h.route }));
+  const data = state.history.map(h => ({
+    timestamp: h.ts?.toISOString(), qr_code: h.qr,
+    status: h.status, passenger_name: h.name, route: h.route
+  }));
   download(JSON.stringify(data, null, 2), `validaciones_${ts()}.json`, 'application/json');
 }
 
@@ -809,7 +888,7 @@ function download(content, filename, mime) {
 }
 
 function ts() {
-  return new Date().toISOString().replace(/[:.]/g,'-').substring(0,19);
+  return new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
 }
 
 // ═══════════════════════════════════════════
@@ -835,7 +914,7 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
     if (btn.dataset.page === 'history') renderHistory();
-    if (btn.dataset.page === 'data') updateStats();
+    if (btn.dataset.page === 'data')    updateStats();
   });
 });
 
@@ -849,10 +928,10 @@ document.getElementById('btn-pause').addEventListener('click', () => {
   state.paused = !state.paused;
   const btn = document.getElementById('btn-pause');
   btn.classList.toggle('on', state.paused);
-  btn.querySelector('span:first-child').textContent = state.paused ? '▶' : '⏸';
+  btn.querySelector('.ctrl-icon').textContent = state.paused ? '▶' : '⏸';
   btn.querySelector('span:last-child').textContent = state.paused ? 'Reanudar' : 'Pausar';
   document.getElementById('scan-status').textContent = state.paused ? 'En pausa' : 'Escaneando...';
-  if (!state.paused) requestAnimationFrame(scanFrame);
+  // No need to call requestAnimationFrame here — the loop handles paused state internally
 });
 
 document.getElementById('btn-sound').addEventListener('click', () => {
@@ -872,19 +951,25 @@ document.getElementById('manual-input').addEventListener('keydown', e => {
   }
 });
 
-// CSV input
-document.getElementById('csv-input').addEventListener('change', e => {
-  handleCSV(e.target.files[0]);
-  e.target.value = '';
+// ── CSV FILE INPUT — FIXED (button triggers hidden input, no conflicting onclick) ──
+const csvInput    = document.getElementById('csv-input');
+const btnSelectCSV = document.getElementById('btn-select-csv');
+
+btnSelectCSV.addEventListener('click', () => csvInput.click());
+
+csvInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) handleCSV(file);
+  e.target.value = ''; // reset so same file can be re-selected
 });
 
-// Drag and drop
+// Drag and drop on the drop zone
 const dropZone = document.getElementById('drop-zone');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('click', () => csvInput.click());
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag'); });
 dropZone.addEventListener('dragleave', e => { e.stopPropagation(); dropZone.classList.remove('drag'); });
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  e.stopPropagation();
+  e.preventDefault(); e.stopPropagation();
   dropZone.classList.remove('drag');
   const file = e.dataTransfer.files[0];
   if (file) handleCSV(file);
@@ -896,9 +981,9 @@ document.getElementById('btn-clear-db').addEventListener('click', async () => {
   await dbClear();
   state.dbReady = false;
   await updateStats();
-  document.getElementById('preview-card').style.display = 'none';
+  document.getElementById('preview-card').style.display  = 'none';
   document.getElementById('import-result').style.display = 'none';
-  document.getElementById('btn-clear-db').style.display = 'none';
+  document.getElementById('btn-clear-db').style.display  = 'none';
   showToast('Base de datos limpiada');
 });
 
@@ -929,6 +1014,7 @@ async function init() {
       document.getElementById('btn-clear-db').style.display = 'block';
     }
   } catch(e) {
+    console.error('DB init error:', e);
     showToast('Error iniciando base de datos');
   }
   await startCamera();
