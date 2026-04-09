@@ -144,16 +144,16 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
   <nav class="nav">
     <div class="nav-logo">Viteoca <span>QR</span></div>
     <div class="nav-tabs">
-      <button class="nav-tab active" data-page="scanner">📷 Escáner</button>
-      <button class="nav-tab" data-page="data">📂 Datos</button>
-      <button class="nav-tab" data-page="history">📋 Historial <span class="nav-badge" id="hist-badge">0</span></button>
+      <button class="nav-tab active" data-page="scanner">Escáner</button>
+      <button class="nav-tab" data-page="data">Datos</button>
+      <button class="nav-tab" data-page="history">Historial <span class="nav-badge" id="hist-badge">0</span></button>
     </div>
   </nav>
 
   <!-- SCANNER -->
-  <div class="page active" id="page-scanner" style="flex-direction:column">
+  <div class="page active" id="page-scanner">
     <div class="scanner-wrap">
-      <video id="video" autoplay playsinline muted></video>
+      <video id="video"></video>
       <canvas id="canvas"></canvas>
       <div class="scan-overlay">
         <div class="scan-frame">
@@ -162,38 +162,51 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
           <div class="scan-line"></div>
         </div>
       </div>
-      <div class="scan-status"><div class="scan-status-text" id="scan-status">Iniciando cámara...</div></div>
-      <div class="scan-spinner" id="scan-spinner" style="display:none"><div class="loading-spinner"></div></div>
-    </div>
-    <div class="no-camera" id="no-camera">
-      <div style="font-size:48px">📷</div>
-      <h3>Cámara no disponible</h3>
-      <p>Permite el acceso a la cámara.<br>Requiere HTTPS o localhost.</p>
-      <button class="btn btn-primary" onclick="startCamera()" style="margin-top:10px">Reintentar</button>
+      <div class="scan-spinner loading-spinner" id="scan-spinner" style="display:none"></div>
+      <div class="scan-status" id="scan-status">Iniciando...</div>
+      <div class="no-camera" id="no-camera">
+        <div style="font-size:48px">📷</div>
+        <h3>Cámara no disponible</h3>
+        <p>Asegúrate de dar permisos y usar HTTPS</p>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="location.reload()">Reintentar</button>
+      </div>
     </div>
     <div class="manual-input-wrap">
-      <input class="manual-input" id="manual-input" type="text"
-        placeholder="Código QR manual — presiona Enter" autocomplete="off">
+      <input type="text" class="manual-input" id="manual-input" placeholder="Ingresar código manualmente...">
     </div>
     <div class="scan-controls">
-      <button class="ctrl-btn" id="btn-flip"><span class="ctrl-icon">🔄</span><span>Voltear</span></button>
-      <button class="ctrl-btn" id="btn-torch"><span class="ctrl-icon">🔦</span><span>Linterna</span></button>
-      <button class="ctrl-btn" id="btn-pause"><span class="ctrl-icon">⏸</span><span>Pausar</span></button>
-      <button class="ctrl-btn" id="btn-sound"><span class="ctrl-icon">🔊</span><span>Sonido</span></button>
+      <button class="ctrl-btn" id="btn-flip">
+        <span class="ctrl-icon">🔄</span>
+        <span>Girar</span>
+      </button>
+      <button class="ctrl-btn" id="btn-torch">
+        <span class="ctrl-icon">🔦</span>
+        <span>Luz</span>
+      </button>
+      <button class="ctrl-btn" id="btn-pause">
+        <span class="ctrl-icon">⏸</span>
+        <span>Pausar</span>
+      </button>
+      <button class="ctrl-btn" id="btn-sound">
+        <span class="ctrl-icon">🔊</span>
+        <span>Sonido</span>
+      </button>
     </div>
+
+    <!-- RESULT MODAL -->
     <div class="result-overlay" id="result-overlay">
       <div class="result-card" id="result-card">
-        <div class="result-icon" id="result-icon"></div>
-        <div class="result-title" id="result-title"></div>
-        <div class="result-qr" id="result-qr"></div>
+        <div class="result-icon" id="result-icon">✓</div>
+        <div class="result-title" id="result-title">CÓDIGO VÁLIDO</div>
+        <div class="result-qr" id="result-qr">...</div>
         <div id="result-fields"></div>
-        <button class="result-close" id="result-close">Continuar escaneo</button>
+        <button class="result-close" id="result-close">CERRAR</button>
       </div>
     </div>
   </div>
 
   <!-- DATA -->
-  <div class="page" id="page-data" style="flex-direction:column">
+  <div class="page" id="page-data">
     <div class="data-page">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-num blue" id="stat-total">0</div><div class="stat-label">Total</div></div>
@@ -207,7 +220,6 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
           <div class="drop-title">Arrastra el CSV aquí</div>
           <div class="drop-sub">Columna requerida: <strong style="color:var(--c-accent)">codigo_qr</strong><br>o usa el botón de abajo</div>
         </div>
-        <!-- File input NOT inside drop-zone, triggered only by JS -->
         <input type="file" id="csv-input" accept=".csv" style="display:none">
         <button class="btn btn-primary btn-full" id="btn-select-csv">📂 Seleccionar archivo CSV</button>
         <div id="import-result" style="margin-top:8px;font-size:13px;color:var(--c-green);display:none"></div>
@@ -263,7 +275,6 @@ const S = {
   resultTimer: null, audioCtx: null,
 };
 
-// Single reusable canvas context (willReadFrequently avoids GPU readback penalty)
 let _ctx2d = null;
 function getCtx() {
   if (!_ctx2d) _ctx2d = document.getElementById('canvas').getContext('2d', { willReadFrequently: true });
@@ -272,30 +283,31 @@ function getCtx() {
 
 // ══════════════════════════════════════════════════
 // QR TEXT EXTRACTION
-// The "codigo_qr" CSV column stores a URL like:
-//   https://api.qrserver.com/...?data=Pasajero%3A%20NAME%2C%20Compra%3A%20UUID...
-// The physical QR code encodes only the decoded "data" parameter value.
-// extractQRText() returns that plain text. If input is already plain text, returns as-is.
 // ══════════════════════════════════════════════════
 function extractQRText(raw) {
   if (!raw) return '';
   raw = String(raw).trim();
+  // Si es una URL de qrserver, extraemos el parámetro 'data'
   if (raw.startsWith('http') && raw.includes('data=')) {
     try {
+      const url = new URL(raw);
+      const data = url.searchParams.get('data');
+      if (data) return data.trim();
+    } catch(e) {
+      // Fallback regex si URL falla
       const m = raw.match(/[?&]data=([^&]*)/);
       if (m) return decodeURIComponent(m[1]).trim();
-    } catch(e) {}
+    }
   }
   return raw;
 }
 
-// Parse "Field: value" from QR embedded text
 function parseField(text, name) {
+  if (!text) return '';
   const m = text.match(new RegExp(name + ':\\s*([^,]+)'));
   return m ? m[1].trim() : '';
 }
 
-// Get first non-empty column value from a CSV row
 function gcol(row, ...names) {
   for (const n of names) {
     const v = row[n];
@@ -309,7 +321,7 @@ function gcol(row, ...names) {
 // ══════════════════════════════════════════════════
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('ViteocaQR', 5);
+    const req = indexedDB.open('ViteocaQR', 6); // Incrementamos versión
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (db.objectStoreNames.contains('qr_codes')) db.deleteObjectStore('qr_codes');
@@ -398,10 +410,6 @@ function playTone(type) {
       o.frequency.linearRampToValueAtTime(150,ctx.currentTime+.4);
       g.gain.setValueAtTime(.3,ctx.currentTime); g.gain.linearRampToValueAtTime(0,ctx.currentTime+.4);
       o.start(ctx.currentTime); o.stop(ctx.currentTime+.4);
-    } else {
-      const o = ctx.createOscillator(); o.type='square'; o.frequency.value=220; o.connect(g);
-      g.gain.setValueAtTime(.12,ctx.currentTime); g.gain.linearRampToValueAtTime(0,ctx.currentTime+.4);
-      o.start(ctx.currentTime); o.stop(ctx.currentTime+.4);
     }
   } catch(e) {}
 }
@@ -465,9 +473,6 @@ async function toggleTorch() {
 }
 function flipCamera() { S.facingMode = S.facingMode==='environment'?'user':'environment'; startCamera(); }
 
-// ══════════════════════════════════════════════════
-// SCAN LOOP — single RAF chain, never duplicates
-// ══════════════════════════════════════════════════
 function scanLoop() {
   S.rafId = null;
   if (S.paused) { S.rafId = requestAnimationFrame(scanLoop); return; }
@@ -492,7 +497,7 @@ function scanLoop() {
     const now = Date.now();
     if (!$('result-overlay').classList.contains('show') && now - S.lastScanTime > 2000) {
       S.lastScanTime = now;
-      processQR(code.data); // fire-and-forget
+      processQR(code.data);
     }
   }
 
@@ -501,13 +506,12 @@ function scanLoop() {
 
 // ══════════════════════════════════════════════════
 // VALIDATION
-// The scanner delivers the raw text the QR encodes.
-// For our QRs that text is: "Pasajero: NAME, Compra: UUID, Viaje: UUID"
-// That exact string is also the key stored in IndexedDB.
 // ══════════════════════════════════════════════════
 async function processQR(raw) {
   if (!raw?.trim()) return;
-  const key = raw.trim();
+  
+  // Normalizamos el texto escaneado (si es URL, extraemos el texto)
+  const key = extractQRText(raw);
 
   setStatus('Procesando...');
   $('scan-spinner').style.display = 'block';
@@ -541,9 +545,6 @@ async function processQR(raw) {
   }
 }
 
-// ══════════════════════════════════════════════════
-// RESULT MODAL
-// ══════════════════════════════════════════════════
 function showResult(type, key, rec) {
   $('result-card').className = 'result-card '+type;
   $('result-icon').textContent  = {valid:'✓',used:'⚠',notfound:'✗'}[type];
@@ -618,22 +619,18 @@ function handleCSV(file) {
     complete: async (res) => {
       const rows = res.data;
       if (!rows.length) { showToast('❌ CSV vacío'); return; }
-      console.log('CSV columnas:', Object.keys(rows[0]));
 
       let imported=0, skipped=0;
       const tx    = S.db.transaction('qr_codes','readwrite');
       const store = tx.objectStore('qr_codes');
 
       for (const row of rows) {
-        // Get raw value from "codigo_qr" column (with fallbacks)
         const rawQR = gcol(row,'codigo_qr','qr_code','QR_CODE','code','CODE','qr');
         if (!rawQR) { skipped++; continue; }
 
-        // KEY = plain text the QR physically encodes (decoded from URL param)
         const qrText = extractQRText(rawQR);
         if (!qrText) { skipped++; continue; }
 
-        // Extract passenger + compra from embedded QR text
         const passengerName = parseField(qrText,'Pasajero') || gcol(row,'user_id','nombre','name') || '—';
         const compraId      = parseField(qrText,'Compra')   || gcol(row,'compra_id') || '—';
         const viajeId       = parseField(qrText,'Viaje')    || '';
@@ -671,11 +668,9 @@ function handleCSV(file) {
   });
 }
 
-// Preview table — always shows QR text + key fields
 function buildPreview(rows) {
   if (!rows.length) return;
 
-  // Column definitions — always visible, in order
   const cols = [
     { h:'Código QR (texto)',  fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return extractQRText(u)||'—'; } },
     { h:'Pasajero',           fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return parseField(extractQRText(u),'Pasajero')||gcol(r,'user_id')||'—'; } },
@@ -758,7 +753,6 @@ $('manual-input').addEventListener('keydown', e => {
   if (e.key==='Enter') { const v=e.target.value.trim(); if (v) { processQR(v); e.target.value=''; } }
 });
 
-// CSV — button triggers hidden input, drop zone is separate
 const csvInput = $('csv-input');
 $('btn-select-csv').addEventListener('click', () => csvInput.click());
 csvInput.addEventListener('change', e => { if(e.target.files[0]) handleCSV(e.target.files[0]); e.target.value=''; });
