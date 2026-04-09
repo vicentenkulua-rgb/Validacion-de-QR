@@ -30,8 +30,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--c-bg);color:va
 .nav-badge.show{display:inline-block}
 .page{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column}
 .page.active{display:flex}
-
-/* SCANNER */
 .scanner-wrap{position:relative;flex:1;background:#000;overflow:hidden;min-height:0}
 #video{width:100%;height:100%;object-fit:cover;display:block}
 #canvas{display:none}
@@ -59,8 +57,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--c-bg);color:va
 .manual-input-wrap{padding:8px 16px;background:var(--c-surface)}
 .manual-input{width:100%;background:var(--c-surface2);border:1px solid var(--c-border);color:var(--c-text);padding:10px 12px;border-radius:var(--r-sm);font-size:14px;font-family:'DM Sans',sans-serif}
 .manual-input:focus{outline:none;border-color:var(--c-accent)}
-
-/* RESULT MODAL */
 .result-overlay{position:absolute;inset:0;z-index:50;background:#0009;display:none;align-items:center;justify-content:center;padding:20px}
 .result-overlay.show{display:flex}
 .result-card{width:100%;max-width:360px;border-radius:var(--r);padding:28px 24px;animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
@@ -76,8 +72,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--c-bg);color:va
 .result-field span{font-weight:500;text-align:right;word-break:break-all}
 .result-close{margin-top:20px;width:100%;border:none;background:rgba(255,255,255,.15);color:#fff;padding:12px;border-radius:var(--r-sm);font-size:15px;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer}
 .result-qr{text-align:center;margin-bottom:8px;font-size:11px;color:rgba(255,255,255,.5);word-break:break-all;padding:0 4px}
-
-/* DATA PAGE */
 .data-page{padding:16px;gap:16px}
 .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px}
 .card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r);padding:16px}
@@ -110,8 +104,6 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
 .badge-red{background:#ef444422;color:var(--c-red)}
 .progress-bar-wrap{background:var(--c-surface2);border-radius:99px;height:6px;overflow:hidden;margin-top:6px}
 .progress-bar{height:100%;background:var(--c-green);border-radius:99px;transition:width .5s ease}
-
-/* HISTORY */
 .history-page{padding:16px;gap:12px}
 .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .filter-chip{border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-muted);padding:6px 12px;border-radius:99px;font-size:12px;white-space:nowrap;cursor:pointer;transition:var(--trans)}
@@ -124,8 +116,6 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
 .hist-time{font-size:11px;color:var(--c-muted);flex-shrink:0;text-align:right}
 .empty-state{text-align:center;padding:48px 24px;color:var(--c-muted)}
 .empty-icon{font-size:40px;margin-bottom:10px}
-
-/* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface2);border:1px solid var(--c-border);padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;transition:var(--trans);pointer-events:none;z-index:100;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .loading-spinner{width:28px;height:28px;border:3px solid var(--c-border);border-top-color:var(--c-accent);border-radius:50%;animation:spin .7s linear infinite}
@@ -273,6 +263,8 @@ const S = {
   lastScanTime: 0,
   history: [], filter: 'all',
   resultTimer: null, audioCtx: null,
+  // FIX: Store all known keys for flexible matching
+  knownKeys: new Map(), // normalized -> original qr_code key
 };
 
 let _ctx2d = null;
@@ -281,20 +273,21 @@ function getCtx() {
   return _ctx2d;
 }
 
+const $ = id => document.getElementById(id);
+
 // ══════════════════════════════════════════════════
-// QR TEXT EXTRACTION
+// QR TEXT EXTRACTION — FIXED
 // ══════════════════════════════════════════════════
 function extractQRText(raw) {
   if (!raw) return '';
   raw = String(raw).trim();
-  // Si es una URL de qrserver, extraemos el parámetro 'data'
-  if (raw.startsWith('http') && raw.includes('data=')) {
+  // If it's a qrserver URL, extract the 'data' parameter
+  if (raw.includes('qrserver.com') && raw.includes('data=')) {
     try {
       const url = new URL(raw);
       const data = url.searchParams.get('data');
       if (data) return data.trim();
     } catch(e) {
-      // Fallback regex si URL falla
       const m = raw.match(/[?&]data=([^&]*)/);
       if (m) return decodeURIComponent(m[1]).trim();
     }
@@ -302,9 +295,15 @@ function extractQRText(raw) {
   return raw;
 }
 
+// FIX: Normalize text for flexible matching (trim, collapse whitespace, lowercase)
+function normalizeForMatch(text) {
+  if (!text) return '';
+  return String(text).trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
 function parseField(text, name) {
   if (!text) return '';
-  const m = text.match(new RegExp(name + ':\\s*([^,]+)'));
+  const m = text.match(new RegExp(name + ':\\s*([^,]+)', 'i'));
   return m ? m[1].trim() : '';
 }
 
@@ -317,54 +316,149 @@ function gcol(row, ...names) {
 }
 
 // ══════════════════════════════════════════════════
-// INDEXEDDB
+// INDEXEDDB — FIXED with better error handling
 // ══════════════════════════════════════════════════
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('ViteocaQR', 6); // Incrementamos versión
+    const req = indexedDB.open('ViteocaQR', 7);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (db.objectStoreNames.contains('qr_codes')) db.deleteObjectStore('qr_codes');
       const s = db.createObjectStore('qr_codes', { keyPath: 'qr_code' });
       s.createIndex('status', 'status');
+      // FIX: Add index for raw_url to allow lookup by original URL too
+      s.createIndex('raw_url', 'raw_url');
     };
     req.onsuccess = e => { S.db = e.target.result; resolve(); };
-    req.onerror   = () => reject(req.error);
+    req.onerror = () => reject(req.error);
   });
 }
-const dbTx = (mode) => S.db.transaction('qr_codes', mode).objectStore('qr_codes');
+
+function dbTx(mode) {
+  return S.db.transaction('qr_codes', mode).objectStore('qr_codes');
+}
 
 function dbGet(key) {
   return new Promise(r => {
-    const req = dbTx('readonly').get(key);
-    req.onsuccess = () => r(req.result || null);
-    req.onerror   = () => r(null);
+    try {
+      const req = dbTx('readonly').get(key);
+      req.onsuccess = () => r(req.result || null);
+      req.onerror = () => r(null);
+    } catch(e) { console.error('dbGet error:', e); r(null); }
   });
 }
+
+// FIX: Try multiple lookup strategies
+async function dbLookup(scannedRaw) {
+  if (!S.db) return null;
+
+  // Strategy 1: Direct lookup with extracted text
+  const extracted = extractQRText(scannedRaw);
+  let rec = await dbGet(extracted);
+  if (rec) return rec;
+
+  // Strategy 2: Direct lookup with raw value
+  if (extracted !== scannedRaw) {
+    rec = await dbGet(scannedRaw);
+    if (rec) return rec;
+  }
+
+  // Strategy 3: Normalized matching via in-memory map
+  const norm = normalizeForMatch(extracted);
+  const origKey = S.knownKeys.get(norm);
+  if (origKey) {
+    rec = await dbGet(origKey);
+    if (rec) return rec;
+  }
+
+  // Strategy 4: Also try normalizing raw
+  if (extracted !== scannedRaw) {
+    const normRaw = normalizeForMatch(scannedRaw);
+    const origKey2 = S.knownKeys.get(normRaw);
+    if (origKey2) {
+      rec = await dbGet(origKey2);
+      if (rec) return rec;
+    }
+  }
+
+  // Strategy 5: Partial match — check if scanned text contains a compra_id from the map
+  const compraMatch = parseField(extracted, 'Compra');
+  if (compraMatch) {
+    for (const [normK, origK] of S.knownKeys) {
+      if (normK.includes(compraMatch.toLowerCase())) {
+        rec = await dbGet(origK);
+        if (rec) return rec;
+      }
+    }
+  }
+
+  return null;
+}
+
 function dbPut(rec) {
   return new Promise(r => {
-    const tx = S.db.transaction('qr_codes', 'readwrite');
-    tx.objectStore('qr_codes').put(rec);
-    tx.oncomplete = r; tx.onerror = r;
+    try {
+      const tx = S.db.transaction('qr_codes', 'readwrite');
+      tx.objectStore('qr_codes').put(rec);
+      tx.oncomplete = () => r();
+      tx.onerror = () => { console.error('dbPut error'); r(); };
+    } catch(e) { console.error('dbPut error:', e); r(); }
   });
 }
+
 function dbCount(idx, val) {
   return new Promise(r => {
     if (!S.db) return r(0);
-    const store = dbTx('readonly');
-    const req   = idx ? store.index(idx).count(val) : store.count();
-    req.onsuccess = () => r(req.result);
-    req.onerror   = () => r(0);
+    try {
+      const store = dbTx('readonly');
+      const req = idx ? store.index(idx).count(val) : store.count();
+      req.onsuccess = () => r(req.result);
+      req.onerror = () => r(0);
+    } catch(e) { r(0); }
   });
 }
+
 function dbClear() {
   return new Promise(r => {
     if (!S.db) return r();
-    const tx = S.db.transaction('qr_codes','readwrite');
-    tx.objectStore('qr_codes').clear();
-    tx.oncomplete = r;
+    try {
+      const tx = S.db.transaction('qr_codes','readwrite');
+      tx.objectStore('qr_codes').clear();
+      tx.oncomplete = () => { S.knownKeys.clear(); r(); };
+      tx.onerror = () => r();
+    } catch(e) { r(); }
   });
 }
+
+// FIX: Load all keys into memory for flexible matching
+function loadAllKeys() {
+  return new Promise(r => {
+    if (!S.db) return r();
+    try {
+      const tx = S.db.transaction('qr_codes', 'readonly');
+      const store = tx.objectStore('qr_codes');
+      const req = store.openCursor();
+      S.knownKeys.clear();
+      req.onsuccess = e => {
+        const cursor = e.target.result;
+        if (cursor) {
+          const key = cursor.value.qr_code;
+          S.knownKeys.set(normalizeForMatch(key), key);
+          // Also index by raw_url if present
+          if (cursor.value.raw_url) {
+            S.knownKeys.set(normalizeForMatch(cursor.value.raw_url), key);
+            S.knownKeys.set(normalizeForMatch(extractQRText(cursor.value.raw_url)), key);
+          }
+          cursor.continue();
+        } else {
+          r();
+        }
+      };
+      req.onerror = () => r();
+    } catch(e) { r(); }
+  });
+}
+
 async function refreshStats() {
   const total = await dbCount();
   const used  = await dbCount('status','used');
@@ -374,7 +468,6 @@ async function refreshStats() {
   $('usage-bar').style.width  = total > 0 ? (used/total*100)+'%' : '0%';
   $('preview-card').style.display = total > 0 ? 'block' : 'none';
 }
-const $ = id => document.getElementById(id);
 
 // ══════════════════════════════════════════════════
 // AUDIO / HAPTICS / FLASH
@@ -428,11 +521,19 @@ function flash(color) {
 // CAMERA
 // ══════════════════════════════════════════════════
 async function startCamera() {
-  if (S.stream)  { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
-  if (S.rafId)   { cancelAnimationFrame(S.rafId); S.rafId = null; }
+  if (S.stream) { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
+  if (S.rafId)  { cancelAnimationFrame(S.rafId); S.rafId = null; }
 
   $('no-camera').classList.remove('show');
   setStatus('Iniciando cámara...');
+
+  // FIX: Check if jsQR is loaded
+  if (typeof jsQR === 'undefined') {
+    console.error('jsQR library not loaded');
+    setStatus('Error: librería QR no cargada');
+    showToast('❌ Error cargando librería QR. Recarga la página.');
+    return;
+  }
 
   if (!navigator.mediaDevices?.getUserMedia) {
     return noCam('Navegador no soporta cámara');
@@ -473,6 +574,7 @@ async function toggleTorch() {
 }
 function flipCamera() { S.facingMode = S.facingMode==='environment'?'user':'environment'; startCamera(); }
 
+// FIX: Improved scan loop with better error handling and jsQR check
 function scanLoop() {
   S.rafId = null;
   if (S.paused) { S.rafId = requestAnimationFrame(scanLoop); return; }
@@ -489,11 +591,15 @@ function scanLoop() {
 
   let code = null;
   try {
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
-  } catch(e) {}
+    if (typeof jsQR !== 'undefined') {
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+    }
+  } catch(e) {
+    console.error('jsQR scan error:', e);
+  }
 
-  if (code?.data) {
+  if (code && code.data) {
     const now = Date.now();
     if (!$('result-overlay').classList.contains('show') && now - S.lastScanTime > 2000) {
       S.lastScanTime = now;
@@ -505,43 +611,45 @@ function scanLoop() {
 }
 
 // ══════════════════════════════════════════════════
-// VALIDATION
+// VALIDATION — FIXED with flexible matching
 // ══════════════════════════════════════════════════
 async function processQR(raw) {
-  if (!raw?.trim()) return;
-  
-  // Normalizamos el texto escaneado (si es URL, extraemos el texto)
-  const key = extractQRText(raw);
+  if (!raw || !String(raw).trim()) return;
+
+  const displayKey = extractQRText(raw);
 
   setStatus('Procesando...');
   $('scan-spinner').style.display = 'block';
 
-  const rec = S.dbReady ? await dbGet(key) : null;
-  const dup = S.history.find(h => h.qr === key);
+  if (!S.dbReady) {
+    $('scan-spinner').style.display = 'none';
+    playTone('notfound'); // FIX: was 'error' which doesn't exist
+    showToast('⚠ Cargue un CSV primero (pestaña Datos)');
+    setStatus('Sin datos — cargue CSV');
+    return;
+  }
+
+  // FIX: Use flexible lookup instead of exact match only
+  const rec = await dbLookup(raw);
+  const dup = S.history.find(h => normalizeForMatch(h.qr) === normalizeForMatch(displayKey));
 
   $('scan-spinner').style.display = 'none';
 
-  if (!S.dbReady) {
-    playTone('error');
-    showToast('⚠ Cargue un CSV primero (pestaña Datos)');
-    setStatus('Sin datos — cargue CSV'); return;
-  }
-
   if (!rec && !dup) {
     playTone('notfound'); vibrate('notfound'); flash('#EF4444');
-    showResult('notfound', key, null);
-    addHistory({ qr:key, status:'notfound', name:'—', extra:'—', ts:new Date() });
+    showResult('notfound', displayKey, null);
+    addHistory({ qr:displayKey, status:'notfound', name:'—', extra:'—', ts:new Date() });
   } else if (rec && rec.status==='valid') {
     await dbPut({ ...rec, status:'used', date_used:new Date().toISOString() });
     refreshStats();
     playTone('valid'); vibrate('valid'); flash('#22C55E');
-    showResult('valid', key, rec);
-    addHistory({ qr:key, status:'valid', name:rec.passenger_name, extra:rec.compra_id, ts:new Date() });
+    showResult('valid', displayKey, rec);
+    addHistory({ qr:displayKey, status:'valid', name:rec.passenger_name, extra:rec.compra_id, ts:new Date() });
   } else {
     const info = rec || { passenger_name:dup?.name, compra_id:dup?.extra, date_used:dup?.ts?.toISOString() };
     playTone('used'); vibrate('used'); flash('#F97316');
-    showResult('used', key, info);
-    addHistory({ qr:key, status:'used', name:info.passenger_name||'—', extra:info.compra_id||'—', ts:new Date() });
+    showResult('used', displayKey, info);
+    addHistory({ qr:displayKey, status:'used', name:info.passenger_name||'—', extra:info.compra_id||'—', ts:new Date() });
   }
 }
 
@@ -567,7 +675,7 @@ function showResult(type, key, rec) {
   if (S.resultTimer) clearTimeout(S.resultTimer);
   S.resultTimer = setTimeout(closeResult, 5000);
 }
-function rf(l,v) { return `<div class="result-field"><label>${l}</label><span>${v}</span></div>`; }
+function rf(l,v) { return '<div class="result-field"><label>'+l+'</label><span>'+v+'</span></div>'; }
 function fmtDate(d) {
   if (!d) return '—';
   try { return new Date(d).toLocaleString('es-GQ',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
@@ -594,96 +702,146 @@ function renderHistory() {
   const col = {valid:'var(--c-green)',used:'var(--c-orange)',notfound:'var(--c-red)'};
   const lbl = {valid:'✓ VÁLIDO',used:'⚠ USADO',notfound:'✗ NO ENCONTRADO'};
   const bcl = {valid:'badge-green',used:'badge-orange',notfound:'badge-red'};
-  el.innerHTML = data.map(h=>`
-    <div class="hist-item">
-      <div class="hist-dot" style="background:${col[h.status]}"></div>
-      <div class="hist-info">
-        <div class="hist-name">${h.name}</div>
-        <div class="hist-qr">${h.qr}</div>
-        <div><span class="badge ${bcl[h.status]}">${lbl[h.status]}</span></div>
-      </div>
-      <div class="hist-time">${h.ts?.toLocaleTimeString('es-GQ',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div>
-    </div>`).join('');
+  el.innerHTML = data.map(h=>'<div class="hist-item"><div class="hist-dot" style="background:'+col[h.status]+'"></div><div class="hist-info"><div class="hist-name">'+h.name+'</div><div class="hist-qr">'+h.qr+'</div><div><span class="badge '+bcl[h.status]+'">'+lbl[h.status]+'</span></div></div><div class="hist-time">'+(h.ts?.toLocaleTimeString('es-GQ',{hour:'2-digit',minute:'2-digit',second:'2-digit'})||'')+'</div></div>').join('');
 }
 
 // ══════════════════════════════════════════════════
-// CSV IMPORT
+// CSV IMPORT — FIXED with proper error handling
 // ══════════════════════════════════════════════════
 function handleCSV(file) {
   if (!file) return;
+
+  // FIX: Check DB is ready before attempting import
+  if (!S.db) {
+    showToast('❌ Base de datos no inicializada. Recarga la página.');
+    return;
+  }
+
   showToast('⏳ Leyendo CSV...');
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: async (res) => {
-      const rows = res.data;
-      if (!rows.length) { showToast('❌ CSV vacío'); return; }
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const text = evt.target.result;
+    if (!text || !text.trim()) {
+      showToast('❌ Archivo vacío');
+      return;
+    }
 
-      let imported=0, skipped=0;
-      const tx    = S.db.transaction('qr_codes','readwrite');
-      const store = tx.objectStore('qr_codes');
+    Papa.parse(text, {
+      header: true,
+      skipEmptyLines: 'greedy',
+      dynamicTyping: false,
+      // FIX: Force string type for all fields to avoid number truncation
+      transformHeader: function(h) { return h.trim(); },
+      complete: function(res) {
+        if (res.errors && res.errors.length > 0) {
+          console.warn('CSV parse warnings:', res.errors);
+        }
 
-      for (const row of rows) {
-        const rawQR = gcol(row,'codigo_qr','qr_code','QR_CODE','code','CODE','qr');
-        if (!rawQR) { skipped++; continue; }
+        const rows = res.data;
+        if (!rows || !rows.length) {
+          showToast('❌ CSV vacío o sin filas válidas');
+          return;
+        }
 
-        const qrText = extractQRText(rawQR);
-        if (!qrText) { skipped++; continue; }
+        // FIX: Debug — log first row columns to help diagnose
+        console.log('CSV columns detected:', Object.keys(rows[0]));
+        console.log('First row:', rows[0]);
 
-        const passengerName = parseField(qrText,'Pasajero') || gcol(row,'user_id','nombre','name') || '—';
-        const compraId      = parseField(qrText,'Compra')   || gcol(row,'compra_id') || '—';
-        const viajeId       = parseField(qrText,'Viaje')    || '';
+        try {
+          const tx = S.db.transaction('qr_codes', 'readwrite');
+          const store = tx.objectStore('qr_codes');
+          let imported = 0, skipped = 0;
 
-        store.put({
-          qr_code:        qrText,
-          status:         'valid',
-          passenger_name: passengerName,
-          compra_id:      compraId,
-          viaje_id:       viajeId,
-          monto:          gcol(row,'monto_detectado','monto') ? gcol(row,'monto_detectado','monto')+' XAF' : '',
-          metodo_pago:    gcol(row,'metodo_pago') || '',
-          fecha_pago:     gcol(row,'fecha_pago','fecha_verificacion') || '',
-          pago_id:        gcol(row,'pago_id') || '',
-          pago_agrupado:  gcol(row,'pago_agrupado_id') || '',
-          verificado:     gcol(row,'verificado') || '',
-          date_used:      null,
-          raw_url:        rawQR,
-        });
-        imported++;
+          for (const row of rows) {
+            const rawQR = gcol(row, 'codigo_qr', 'qr_code', 'QR_CODE', 'code', 'CODE', 'qr');
+            if (!rawQR) {
+              console.warn('Row without QR code, columns available:', Object.keys(row), 'values:', row);
+              skipped++;
+              continue;
+            }
+
+            const qrText = extractQRText(rawQR);
+            if (!qrText) { skipped++; continue; }
+
+            const passengerName = parseField(qrText, 'Pasajero') || gcol(row, 'user_id', 'nombre', 'name') || '—';
+            const compraId      = parseField(qrText, 'Compra')   || gcol(row, 'compra_id') || '—';
+            const viajeId       = parseField(qrText, 'Viaje')    || '';
+
+            store.put({
+              qr_code:        qrText,
+              status:         'valid',
+              passenger_name: passengerName,
+              compra_id:      compraId,
+              viaje_id:       viajeId,
+              monto:          gcol(row, 'monto_detectado', 'monto') ? gcol(row, 'monto_detectado', 'monto') + ' XAF' : '',
+              metodo_pago:    gcol(row, 'metodo_pago') || '',
+              fecha_pago:     gcol(row, 'fecha_pago', 'fecha_verificacion') || '',
+              pago_id:        gcol(row, 'pago_id') || '',
+              pago_agrupado:  gcol(row, 'pago_agrupado_id') || '',
+              verificado:     gcol(row, 'verificado') || '',
+              date_used:      null,
+              raw_url:        rawQR,
+            });
+
+            // FIX: Also add to in-memory map for flexible matching
+            S.knownKeys.set(normalizeForMatch(qrText), qrText);
+            S.knownKeys.set(normalizeForMatch(rawQR), qrText);
+
+            imported++;
+          }
+
+          tx.oncomplete = function() {
+            S.dbReady = true;
+            refreshStats();
+            buildPreview(rows.slice(0, 20));
+            $('btn-clear-db').style.display = 'block';
+            $('import-result').style.display = 'block';
+            $('import-result').textContent = '✓ ' + imported + ' códigos importados' + (skipped ? ' (' + skipped + ' sin QR)' : '');
+            showToast('✓ ' + imported + ' códigos listos');
+            console.log('Import complete:', imported, 'imported,', skipped, 'skipped');
+          };
+
+          tx.onerror = function(e) {
+            console.error('Transaction error:', e.target.error);
+            showToast('❌ Error en base de datos: ' + (e.target.error?.message || 'desconocido'));
+          };
+
+        } catch(e) {
+          console.error('CSV import error:', e);
+          showToast('❌ Error importando: ' + e.message);
+        }
+      },
+      error: function(err) {
+        console.error('PapaParse error:', err);
+        showToast('❌ Error leyendo CSV: ' + (err.message || err));
       }
+    });
+  };
 
-      tx.oncomplete = async () => {
-        S.dbReady = true;
-        await refreshStats();
-        buildPreview(rows.slice(0,20));
-        $('btn-clear-db').style.display  = 'block';
-        $('import-result').style.display = 'block';
-        $('import-result').textContent   = `✓ ${imported} códigos importados${skipped?` (${skipped} sin QR)`:''}`;
-        showToast(`✓ ${imported} códigos listos`);
-      };
-      tx.onerror = () => showToast('❌ Error en base de datos');
-    },
-    error: () => showToast('❌ Error leyendo CSV')
-  });
+  reader.onerror = function() {
+    showToast('❌ Error leyendo archivo');
+  };
+
+  reader.readAsText(file, 'UTF-8');
 }
 
 function buildPreview(rows) {
   if (!rows.length) return;
 
   const cols = [
-    { h:'Código QR (texto)',  fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return extractQRText(u)||'—'; } },
-    { h:'Pasajero',           fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return parseField(extractQRText(u),'Pasajero')||gcol(r,'user_id')||'—'; } },
-    { h:'Compra ID',          fn: r => gcol(r,'compra_id')||'—' },
-    { h:'Monto',              fn: r => gcol(r,'monto_detectado') ? gcol(r,'monto_detectado')+' XAF' : '—' },
-    { h:'Método',             fn: r => gcol(r,'metodo_pago')||'—' },
-    { h:'Fecha pago',         fn: r => (gcol(r,'fecha_pago')||'—').split(' ')[0] },
-    { h:'Estado',             fn: _r => '<span class="badge badge-green">válido</span>' },
+    { h:'Código QR (texto)',  fn: function(r) { var u=gcol(r,'codigo_qr','qr_code','code'); return extractQRText(u)||'—'; } },
+    { h:'Pasajero',           fn: function(r) { var u=gcol(r,'codigo_qr','qr_code','code'); return parseField(extractQRText(u),'Pasajero')||gcol(r,'user_id')||'—'; } },
+    { h:'Compra ID',          fn: function(r) { return gcol(r,'compra_id')||'—'; } },
+    { h:'Monto',              fn: function(r) { return gcol(r,'monto_detectado') ? gcol(r,'monto_detectado')+' XAF' : '—'; } },
+    { h:'Método',             fn: function(r) { return gcol(r,'metodo_pago')||'—'; } },
+    { h:'Fecha pago',         fn: function(r) { return (gcol(r,'fecha_pago')||'—').split(' ')[0]; } },
+    { h:'Estado',             fn: function() { return '<span class="badge badge-green">válido</span>'; } },
   ];
 
-  const th  = cols.map(c=>`<th>${c.h}</th>`).join('');
-  const trs = rows.map(r=>`<tr>${cols.map(c=>{const v=c.fn(r);return`<td title="${v.replace(/<[^>]+>/g,'')}">${v}</td>`;}).join('')}</tr>`).join('');
-  $('preview-table').innerHTML = `<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+  var th  = cols.map(function(c){ return '<th>'+c.h+'</th>'; }).join('');
+  var trs = rows.map(function(r){ return '<tr>'+cols.map(function(c){ var v=c.fn(r); return '<td title="'+v.replace(/<[^>]+>/g,'')+'">'+v+'</td>'; }).join('')+'</tr>'; }).join('');
+  $('preview-table').innerHTML = '<table><thead><tr>'+th+'</tr></thead><tbody>'+trs+'</tbody></table>';
   $('preview-card').style.display = 'block';
 }
 
@@ -692,34 +850,34 @@ function buildPreview(rows) {
 // ══════════════════════════════════════════════════
 function exportCSV() {
   if (!S.history.length) { showToast('Sin historial'); return; }
-  const h = 'timestamp,qr_code,status,passenger_name,compra_id\n';
-  const b = S.history.map(e=>`"${e.ts?.toISOString()}","${e.qr}","${e.status}","${e.name}","${e.extra}"`).join('\n');
-  dl(h+b, `validaciones_${stamp()}.csv`,'text/csv');
+  var h = 'timestamp,qr_code,status,passenger_name,compra_id\n';
+  var b = S.history.map(function(e){ return '"'+(e.ts?.toISOString()||'')+'"'+','+ '"'+e.qr+'"'+','+ '"'+e.status+'"'+','+ '"'+e.name+'"'+','+ '"'+e.extra+'"'; }).join('\n');
+  dl(h+b, 'validaciones_'+stamp()+'.csv','text/csv');
 }
 function exportJSON() {
   if (!S.history.length) { showToast('Sin historial'); return; }
-  dl(JSON.stringify(S.history.map(e=>({timestamp:e.ts?.toISOString(),qr_code:e.qr,status:e.status,passenger_name:e.name,compra_id:e.extra})),null,2),`validaciones_${stamp()}.json`,'application/json');
+  dl(JSON.stringify(S.history.map(function(e){return{timestamp:e.ts?.toISOString(),qr_code:e.qr,status:e.status,passenger_name:e.name,compra_id:e.extra};}),null,2),'validaciones_'+stamp()+'.json','application/json');
 }
-function dl(content,name,mime) { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click(); }
+function dl(content,name,mime) { var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click(); }
 function stamp() { return new Date().toISOString().replace(/[:.]/g,'-').slice(0,19); }
 
 // ══════════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════════
-let _tt;
+var _tt;
 function showToast(msg) {
-  const t=$('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3000);
+  var t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(function(){t.classList.remove('show');},3000);
 }
 
 // ══════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════
-document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+document.querySelectorAll('.nav-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});
     btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
     $('page-'+btn.dataset.page).classList.add('active');
     if (btn.dataset.page==='history') renderHistory();
     if (btn.dataset.page==='data')    refreshStats();
@@ -732,15 +890,15 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
 $('btn-flip').addEventListener('click', flipCamera);
 $('btn-torch').addEventListener('click', toggleTorch);
 
-$('btn-pause').addEventListener('click', () => {
+$('btn-pause').addEventListener('click', function() {
   S.paused = !S.paused;
   $('btn-pause').classList.toggle('on', S.paused);
-  $('btn-pause').querySelector('.ctrl-icon').textContent      = S.paused ? '▶' : '⏸';
+  $('btn-pause').querySelector('.ctrl-icon').textContent = S.paused ? '▶' : '⏸';
   $('btn-pause').querySelector('span:last-child').textContent = S.paused ? 'Reanudar' : 'Pausar';
   setStatus(S.paused ? 'En pausa' : 'Escaneando...');
 });
 
-$('btn-sound').addEventListener('click', () => {
+$('btn-sound').addEventListener('click', function() {
   S.soundOn = !S.soundOn;
   $('btn-sound').classList.toggle('on', S.soundOn);
   $('btn-sound').querySelector('.ctrl-icon').textContent = S.soundOn ? '🔊' : '🔇';
@@ -749,21 +907,21 @@ $('btn-sound').addEventListener('click', () => {
 
 $('result-close').addEventListener('click', closeResult);
 
-$('manual-input').addEventListener('keydown', e => {
-  if (e.key==='Enter') { const v=e.target.value.trim(); if (v) { processQR(v); e.target.value=''; } }
+$('manual-input').addEventListener('keydown', function(e) {
+  if (e.key==='Enter') { var v=e.target.value.trim(); if (v) { processQR(v); e.target.value=''; } }
 });
 
-const csvInput = $('csv-input');
-$('btn-select-csv').addEventListener('click', () => csvInput.click());
-csvInput.addEventListener('change', e => { if(e.target.files[0]) handleCSV(e.target.files[0]); e.target.value=''; });
+var csvInput = $('csv-input');
+$('btn-select-csv').addEventListener('click', function() { csvInput.click(); });
+csvInput.addEventListener('change', function(e) { if(e.target.files[0]) handleCSV(e.target.files[0]); e.target.value=''; });
 
-const dz = $('drop-zone');
-dz.addEventListener('click',     () => csvInput.click());
-dz.addEventListener('dragover',  e  => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop',      e  => { e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files[0]) handleCSV(e.dataTransfer.files[0]); });
+var dz = $('drop-zone');
+dz.addEventListener('click', function() { csvInput.click(); });
+dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', function() { dz.classList.remove('drag'); });
+dz.addEventListener('drop', function(e) { e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files[0]) handleCSV(e.dataTransfer.files[0]); });
 
-$('btn-clear-db').addEventListener('click', async () => {
+$('btn-clear-db').addEventListener('click', async function() {
   if (!confirm('¿Limpiar base de datos? No se puede deshacer.')) return;
   await dbClear(); S.dbReady = false; await refreshStats();
   $('import-result').style.display = 'none';
@@ -775,30 +933,59 @@ $('btn-clear-db').addEventListener('click', async () => {
 $('btn-export-csv').addEventListener('click',  exportCSV);
 $('btn-export-json').addEventListener('click', exportJSON);
 
-document.querySelectorAll('.filter-chip').forEach(c => {
-  c.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.filter-chip').forEach(function(c) {
+  c.addEventListener('click', function() {
+    document.querySelectorAll('.filter-chip').forEach(function(x){x.classList.remove('active');});
     c.classList.add('active'); S.filter=c.dataset.filter; renderHistory();
   });
 });
 
 // ══════════════════════════════════════════════════
-// INIT
+// INIT — FIXED with better error handling
 // ══════════════════════════════════════════════════
 async function init() {
   try {
     await openDB();
+    console.log('IndexedDB opened successfully');
     const n = await dbCount();
     if (n > 0) {
       S.dbReady = true;
+      await loadAllKeys();
       await refreshStats();
       $('btn-clear-db').style.display = 'block';
-      showToast(`✓ ${n} códigos en memoria`);
+      showToast('✓ ' + n + ' códigos en memoria');
     }
-  } catch(e) { console.error('DB:', e); showToast('Error iniciando base de datos'); }
+  } catch(e) {
+    console.error('DB init error:', e);
+    showToast('Error iniciando base de datos');
+    // FIX: Try to delete and recreate DB if version conflict
+    try {
+      indexedDB.deleteDatabase('ViteocaQR');
+      console.log('Deleted old DB, retrying...');
+      await openDB();
+      console.log('DB recreated successfully');
+    } catch(e2) {
+      console.error('DB recreation failed:', e2);
+    }
+  }
   startCamera();
 }
-init();
+
+// FIX: Wait for jsQR to load before starting
+function waitForLibs(cb, attempts) {
+  attempts = attempts || 0;
+  if (typeof jsQR !== 'undefined' && typeof Papa !== 'undefined') {
+    cb();
+  } else if (attempts < 50) {
+    setTimeout(function() { waitForLibs(cb, attempts + 1); }, 100);
+  } else {
+    console.error('Libraries failed to load after 5s');
+    showToast('❌ Error cargando librerías. Recarga la página.');
+    cb(); // Start anyway for manual input
+  }
+}
+
+waitForLibs(init);
 </script>
 </body>
 </html>
