@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0A0F1E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Viteoca QR — Validador de Boletos</title>
+<title>Viteoca QR — Validador Profesional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -111,31 +111,11 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
 .progress-bar-wrap{background:var(--c-surface2);border-radius:99px;height:6px;overflow:hidden;margin-top:6px}
 .progress-bar{height:100%;background:var(--c-green);border-radius:99px;transition:width .5s ease}
 
-/* HISTORY */
-.history-page{padding:16px;gap:12px}
-.filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
-.filter-chip{border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-muted);padding:6px 12px;border-radius:99px;font-size:12px;white-space:nowrap;cursor:pointer;transition:var(--trans)}
-.filter-chip.active{border-color:var(--c-accent);color:var(--c-accent);background:var(--c-surface2)}
-.hist-item{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-sm);padding:12px;display:flex;gap:12px;align-items:flex-start;margin-bottom:8px}
-.hist-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.hist-info{flex:1;min-width:0}
-.hist-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hist-qr{font-size:11px;color:var(--c-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.hist-time{font-size:11px;color:var(--c-muted);flex-shrink:0;text-align:right}
-.empty-state{text-align:center;padding:48px 24px;color:var(--c-muted)}
-.empty-icon{font-size:40px;margin-bottom:10px}
-
 /* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface2);border:1px solid var(--c-border);padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;transition:var(--trans);pointer-events:none;z-index:100;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .loading-spinner{width:28px;height:28px;border:3px solid var(--c-border);border-top-color:var(--c-accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.scan-spinner{position:absolute;top:12px;right:12px}
-.screen-flash{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:0;transition:opacity .15s}
-.screen-flash.flash{opacity:.35;transition:opacity 0s}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--c-border);border-radius:99px}
 </style>
 </head>
 <body>
@@ -175,22 +155,10 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
       <input type="text" class="manual-input" id="manual-input" placeholder="Ingresar código manualmente...">
     </div>
     <div class="scan-controls">
-      <button class="ctrl-btn" id="btn-flip">
-        <span class="ctrl-icon">🔄</span>
-        <span>Girar</span>
-      </button>
-      <button class="ctrl-btn" id="btn-torch">
-        <span class="ctrl-icon">🔦</span>
-        <span>Luz</span>
-      </button>
-      <button class="ctrl-btn" id="btn-pause">
-        <span class="ctrl-icon">⏸</span>
-        <span>Pausar</span>
-      </button>
-      <button class="ctrl-btn" id="btn-sound">
-        <span class="ctrl-icon">🔊</span>
-        <span>Sonido</span>
-      </button>
+      <button class="ctrl-btn" id="btn-flip">🔄 Girar</button>
+      <button class="ctrl-btn" id="btn-torch">🔦 Luz</button>
+      <button class="ctrl-btn" id="btn-pause">⏸ Pausar</button>
+      <button class="ctrl-btn" id="btn-sound">🔊 Sonido</button>
     </div>
 
     <!-- RESULT MODAL -->
@@ -213,44 +181,29 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
         <div class="stat-card"><div class="stat-num green" id="stat-valid">0</div><div class="stat-label">Válidos</div></div>
         <div class="stat-card"><div class="stat-num orange" id="stat-used">0</div><div class="stat-label">Usados</div></div>
       </div>
-      <div class="card" style="margin-bottom:12px">
+      <div class="card">
         <div class="section-title">Importar datos CSV</div>
         <div class="drop-zone" id="drop-zone">
           <div class="drop-icon">📄</div>
           <div class="drop-title">Arrastra el CSV aquí</div>
-          <div class="drop-sub">Columna requerida: <strong style="color:var(--c-accent)">codigo_qr</strong><br>o usa el botón de abajo</div>
+          <div class="drop-sub">Columna requerida: <strong>codigo_qr</strong></div>
         </div>
         <input type="file" id="csv-input" accept=".csv" style="display:none">
         <button class="btn btn-primary btn-full" id="btn-select-csv">📂 Seleccionar archivo CSV</button>
-        <div id="import-result" style="margin-top:8px;font-size:13px;color:var(--c-green);display:none"></div>
-        <button class="btn btn-danger btn-full" id="btn-clear-db" style="display:none">🗑 Limpiar base de datos</button>
+        <div id="import-result" style="margin-top:12px; padding:10px; border-radius:8px; background:rgba(34,197,94,0.1); color:var(--c-green); display:none; text-align:center; font-weight:600; border:1px solid var(--c-green)"></div>
+        <button class="btn btn-danger btn-full" id="btn-clear-db" style="display:none; margin-top:10px">🗑 Limpiar base de datos</button>
       </div>
       <div class="card" id="preview-card" style="display:none">
         <div class="section-title">Vista previa</div>
-        <div class="progress-bar-wrap"><div class="progress-bar" id="usage-bar" style="width:0%"></div></div>
-        <div style="font-size:12px;color:var(--c-muted);margin:4px 0 10px">Uso de boletos</div>
         <div class="table-wrap" id="preview-table"></div>
-      </div>
-      <div class="card">
-        <div class="section-title">Exportar historial</div>
-        <button class="btn btn-ghost btn-full" id="btn-export-csv">📥 Exportar (.csv)</button>
-        <button class="btn btn-ghost btn-full" style="margin-top:8px" id="btn-export-json">📥 Exportar (.json)</button>
       </div>
     </div>
   </div>
 
   <!-- HISTORY -->
-  <div class="page" id="page-history" style="flex-direction:column">
-    <div class="history-page">
-      <div class="filter-row">
-        <button class="filter-chip active" data-filter="all">Todos</button>
-        <button class="filter-chip" data-filter="valid">✓ Válido</button>
-        <button class="filter-chip" data-filter="used">⚠ Usado</button>
-        <button class="filter-chip" data-filter="notfound">✗ No encontrado</button>
-      </div>
-      <div id="history-list">
-        <div class="empty-state"><div class="empty-icon">📋</div><div>No hay escaneos todavía</div></div>
-      </div>
+  <div class="page" id="page-history">
+    <div class="data-page" id="history-list">
+      <div class="empty-state">📋 No hay escaneos todavía</div>
     </div>
   </div>
 
@@ -261,9 +214,6 @@ td{padding:8px 10px;border-top:1px solid var(--c-border);max-width:180px;overflo
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
 const S = {
   db: null, dbReady: false,
   stream: null, rafId: null,
@@ -271,30 +221,24 @@ const S = {
   facingMode: 'environment',
   soundOn: true,
   lastScanTime: 0,
-  history: [], filter: 'all',
+  history: [],
   resultTimer: null, audioCtx: null,
 };
 
-let _ctx2d = null;
-function getCtx() {
-  if (!_ctx2d) _ctx2d = document.getElementById('canvas').getContext('2d', { willReadFrequently: true });
-  return _ctx2d;
-}
+const $ = id => document.getElementById(id);
 
 // ══════════════════════════════════════════════════
-// QR TEXT EXTRACTION
+// QR EXTRACTION (URL & TEXT)
 // ══════════════════════════════════════════════════
 function extractQRText(raw) {
   if (!raw) return '';
   raw = String(raw).trim();
-  // Si es una URL de qrserver, extraemos el parámetro 'data'
-  if (raw.startsWith('http') && raw.includes('data=')) {
+  if (raw.startsWith('http')) {
     try {
       const url = new URL(raw);
       const data = url.searchParams.get('data');
-      if (data) return data.trim();
+      if (data) return decodeURIComponent(data).trim();
     } catch(e) {
-      // Fallback regex si URL falla
       const m = raw.match(/[?&]data=([^&]*)/);
       if (m) return decodeURIComponent(m[1]).trim();
     }
@@ -308,23 +252,14 @@ function parseField(text, name) {
   return m ? m[1].trim() : '';
 }
 
-function gcol(row, ...names) {
-  for (const n of names) {
-    const v = row[n];
-    if (v !== undefined && String(v).trim() !== '') return String(v).trim();
-  }
-  return '';
-}
-
 // ══════════════════════════════════════════════════
 // INDEXEDDB
 // ══════════════════════════════════════════════════
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('ViteocaQR', 6); // Incrementamos versión
+    const req = indexedDB.open('ViteocaQR_Final', 1);
     req.onupgradeneeded = e => {
       const db = e.target.result;
-      if (db.objectStoreNames.contains('qr_codes')) db.deleteObjectStore('qr_codes');
       const s = db.createObjectStore('qr_codes', { keyPath: 'qr_code' });
       s.createIndex('status', 'status');
     };
@@ -332,278 +267,17 @@ function openDB() {
     req.onerror   = () => reject(req.error);
   });
 }
-const dbTx = (mode) => S.db.transaction('qr_codes', mode).objectStore('qr_codes');
 
-function dbGet(key) {
-  return new Promise(r => {
-    const req = dbTx('readonly').get(key);
-    req.onsuccess = () => r(req.result || null);
-    req.onerror   = () => r(null);
-  });
-}
-function dbPut(rec) {
-  return new Promise(r => {
-    const tx = S.db.transaction('qr_codes', 'readwrite');
-    tx.objectStore('qr_codes').put(rec);
-    tx.oncomplete = r; tx.onerror = r;
-  });
-}
-function dbCount(idx, val) {
-  return new Promise(r => {
-    if (!S.db) return r(0);
-    const store = dbTx('readonly');
-    const req   = idx ? store.index(idx).count(val) : store.count();
-    req.onsuccess = () => r(req.result);
-    req.onerror   = () => r(0);
-  });
-}
-function dbClear() {
-  return new Promise(r => {
-    if (!S.db) return r();
-    const tx = S.db.transaction('qr_codes','readwrite');
-    tx.objectStore('qr_codes').clear();
-    tx.oncomplete = r;
-  });
-}
 async function refreshStats() {
-  const total = await dbCount();
-  const used  = await dbCount('status','used');
+  const store = S.db.transaction('qr_codes','readonly').objectStore('qr_codes');
+  const total = await new Promise(r => { const req = store.count(); req.onsuccess = () => r(req.result); });
+  const used = await new Promise(r => { const req = store.index('status').count('used'); req.onsuccess = () => r(req.result); });
+  
   $('stat-total').textContent = total;
   $('stat-valid').textContent = total - used;
   $('stat-used').textContent  = used;
-  $('usage-bar').style.width  = total > 0 ? (used/total*100)+'%' : '0%';
   $('preview-card').style.display = total > 0 ? 'block' : 'none';
-}
-const $ = id => document.getElementById(id);
-
-// ══════════════════════════════════════════════════
-// AUDIO / HAPTICS / FLASH
-// ══════════════════════════════════════════════════
-function audio() {
-  if (!S.audioCtx) S.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  return S.audioCtx;
-}
-function playTone(type) {
-  if (!S.soundOn) return;
-  try {
-    const ctx = audio(); if (ctx.state==='suspended') ctx.resume();
-    const g = ctx.createGain(); g.connect(ctx.destination);
-    if (type==='valid') {
-      [880,1100].forEach((f,i) => {
-        const o = ctx.createOscillator(); o.type='sine'; o.frequency.value=f; o.connect(g);
-        g.gain.setValueAtTime(0, ctx.currentTime+i*.12);
-        g.gain.linearRampToValueAtTime(.35, ctx.currentTime+i*.12+.02);
-        g.gain.linearRampToValueAtTime(0, ctx.currentTime+i*.12+.1);
-        o.start(ctx.currentTime+i*.12); o.stop(ctx.currentTime+i*.12+.13);
-      });
-    } else if (type==='used') {
-      [600,600].forEach((f,i) => {
-        const o = ctx.createOscillator(); o.type='square'; o.frequency.value=f; o.connect(g);
-        g.gain.setValueAtTime(0, ctx.currentTime+i*.2);
-        g.gain.linearRampToValueAtTime(.2, ctx.currentTime+i*.2+.02);
-        g.gain.linearRampToValueAtTime(0, ctx.currentTime+i*.2+.15);
-        o.start(ctx.currentTime+i*.2); o.stop(ctx.currentTime+i*.2+.2);
-      });
-    } else if (type==='notfound') {
-      const o = ctx.createOscillator(); o.type='sawtooth'; o.connect(g);
-      o.frequency.setValueAtTime(400,ctx.currentTime);
-      o.frequency.linearRampToValueAtTime(150,ctx.currentTime+.4);
-      g.gain.setValueAtTime(.3,ctx.currentTime); g.gain.linearRampToValueAtTime(0,ctx.currentTime+.4);
-      o.start(ctx.currentTime); o.stop(ctx.currentTime+.4);
-    }
-  } catch(e) {}
-}
-function vibrate(type) {
-  if (!navigator.vibrate) return;
-  const p = {valid:60, used:[60,60,60], notfound:300}[type];
-  if (p) navigator.vibrate(p);
-}
-function flash(color) {
-  const el = $('screen-flash');
-  el.style.background = color; el.classList.add('flash');
-  setTimeout(() => el.classList.remove('flash'), 80);
-}
-
-// ══════════════════════════════════════════════════
-// CAMERA
-// ══════════════════════════════════════════════════
-async function startCamera() {
-  if (S.stream)  { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
-  if (S.rafId)   { cancelAnimationFrame(S.rafId); S.rafId = null; }
-
-  $('no-camera').classList.remove('show');
-  setStatus('Iniciando cámara...');
-
-  if (!navigator.mediaDevices?.getUserMedia) {
-    return noCam('Navegador no soporta cámara');
-  }
-  try {
-    S.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: S.facingMode, width:{ideal:1280}, height:{ideal:720} }
-    });
-    const vid = $('video');
-    vid.srcObject = S.stream;
-    vid.setAttribute('playsinline', true);
-    await vid.play();
-    setStatus('Escaneando...');
-    S.rafId = requestAnimationFrame(scanLoop);
-  } catch(e) {
-    let msg = 'Cámara no disponible';
-    if (e.name==='NotAllowedError'||e.name==='PermissionDeniedError') {
-      msg = 'Permiso denegado'; showToast('❌ Permite el acceso a la cámara');
-    } else if (e.name==='NotFoundError') {
-      msg = 'No se detectó cámara';
-    } else if (location.protocol!=='https:'&&location.hostname!=='localhost') {
-      msg = 'Requiere HTTPS'; showToast('❌ Usa HTTPS para acceder a la cámara');
-    }
-    noCam(msg);
-  }
-}
-function noCam(msg) { $('no-camera').classList.add('show'); setStatus(msg); }
-function setStatus(t) { $('scan-status').textContent = t; }
-
-async function toggleTorch() {
-  if (!S.stream) return;
-  const t = S.stream.getVideoTracks()[0]; if (!t) return;
-  try {
-    S.torchOn = !S.torchOn;
-    await t.applyConstraints({ advanced:[{torch:S.torchOn}] });
-    $('btn-torch').classList.toggle('on', S.torchOn);
-  } catch(e) { showToast('Linterna no disponible'); }
-}
-function flipCamera() { S.facingMode = S.facingMode==='environment'?'user':'environment'; startCamera(); }
-
-function scanLoop() {
-  S.rafId = null;
-  if (S.paused) { S.rafId = requestAnimationFrame(scanLoop); return; }
-
-  const vid = $('video');
-  if (!vid || vid.readyState < vid.HAVE_ENOUGH_DATA || vid.videoWidth === 0) {
-    S.rafId = requestAnimationFrame(scanLoop); return;
-  }
-
-  const canvas = $('canvas');
-  canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
-  const ctx = getCtx();
-  ctx.drawImage(vid, 0, 0);
-
-  let code = null;
-  try {
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
-  } catch(e) {}
-
-  if (code?.data) {
-    const now = Date.now();
-    if (!$('result-overlay').classList.contains('show') && now - S.lastScanTime > 2000) {
-      S.lastScanTime = now;
-      processQR(code.data);
-    }
-  }
-
-  S.rafId = requestAnimationFrame(scanLoop);
-}
-
-// ══════════════════════════════════════════════════
-// VALIDATION
-// ══════════════════════════════════════════════════
-async function processQR(raw) {
-  if (!raw?.trim()) return;
-  
-  // Normalizamos el texto escaneado (si es URL, extraemos el texto)
-  const key = extractQRText(raw);
-
-  setStatus('Procesando...');
-  $('scan-spinner').style.display = 'block';
-
-  const rec = S.dbReady ? await dbGet(key) : null;
-  const dup = S.history.find(h => h.qr === key);
-
-  $('scan-spinner').style.display = 'none';
-
-  if (!S.dbReady) {
-    playTone('error');
-    showToast('⚠ Cargue un CSV primero (pestaña Datos)');
-    setStatus('Sin datos — cargue CSV'); return;
-  }
-
-  if (!rec && !dup) {
-    playTone('notfound'); vibrate('notfound'); flash('#EF4444');
-    showResult('notfound', key, null);
-    addHistory({ qr:key, status:'notfound', name:'—', extra:'—', ts:new Date() });
-  } else if (rec && rec.status==='valid') {
-    await dbPut({ ...rec, status:'used', date_used:new Date().toISOString() });
-    refreshStats();
-    playTone('valid'); vibrate('valid'); flash('#22C55E');
-    showResult('valid', key, rec);
-    addHistory({ qr:key, status:'valid', name:rec.passenger_name, extra:rec.compra_id, ts:new Date() });
-  } else {
-    const info = rec || { passenger_name:dup?.name, compra_id:dup?.extra, date_used:dup?.ts?.toISOString() };
-    playTone('used'); vibrate('used'); flash('#F97316');
-    showResult('used', key, info);
-    addHistory({ qr:key, status:'used', name:info.passenger_name||'—', extra:info.compra_id||'—', ts:new Date() });
-  }
-}
-
-function showResult(type, key, rec) {
-  $('result-card').className = 'result-card '+type;
-  $('result-icon').textContent  = {valid:'✓',used:'⚠',notfound:'✗'}[type];
-  $('result-title').textContent = {valid:'CÓDIGO VÁLIDO',used:'YA USADO',notfound:'NO ENCONTRADO'}[type];
-  $('result-qr').textContent    = key.length>70 ? key.slice(0,67)+'…' : key;
-
-  let html = '';
-  if (rec) {
-    if (rec.passenger_name) html += rf('Pasajero', rec.passenger_name);
-    if (rec.compra_id)      html += rf('Compra',   rec.compra_id);
-    if (rec.viaje_id)       html += rf('Viaje',    rec.viaje_id);
-    if (rec.monto)          html += rf('Monto',    rec.monto);
-    if (rec.metodo_pago)    html += rf('Método',   rec.metodo_pago);
-    if (rec.fecha_pago)     html += rf('Fecha',    fmtDate(rec.fecha_pago));
-    if (type==='used'&&rec.date_used) html += rf('Usado el', fmtDate(rec.date_used));
-  }
-  if (!html) html = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,.5);font-size:13px">Sin información adicional</div>';
-  $('result-fields').innerHTML = html;
-  $('result-overlay').classList.add('show');
-  if (S.resultTimer) clearTimeout(S.resultTimer);
-  S.resultTimer = setTimeout(closeResult, 5000);
-}
-function rf(l,v) { return `<div class="result-field"><label>${l}</label><span>${v}</span></div>`; }
-function fmtDate(d) {
-  if (!d) return '—';
-  try { return new Date(d).toLocaleString('es-GQ',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
-  catch(e) { return d; }
-}
-function closeResult() {
-  $('result-overlay').classList.remove('show'); setStatus('Escaneando...');
-  if (S.resultTimer) { clearTimeout(S.resultTimer); S.resultTimer = null; }
-}
-
-// ══════════════════════════════════════════════════
-// HISTORY
-// ══════════════════════════════════════════════════
-function addHistory(e) {
-  S.history.unshift(e);
-  $('hist-badge').textContent = S.history.length;
-  $('hist-badge').classList.add('show');
-  if ($('page-history').classList.contains('active')) renderHistory();
-}
-function renderHistory() {
-  const el  = $('history-list');
-  const data = S.filter==='all' ? S.history : S.history.filter(h=>h.status===S.filter);
-  if (!data.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div>Sin resultados</div></div>'; return; }
-  const col = {valid:'var(--c-green)',used:'var(--c-orange)',notfound:'var(--c-red)'};
-  const lbl = {valid:'✓ VÁLIDO',used:'⚠ USADO',notfound:'✗ NO ENCONTRADO'};
-  const bcl = {valid:'badge-green',used:'badge-orange',notfound:'badge-red'};
-  el.innerHTML = data.map(h=>`
-    <div class="hist-item">
-      <div class="hist-dot" style="background:${col[h.status]}"></div>
-      <div class="hist-info">
-        <div class="hist-name">${h.name}</div>
-        <div class="hist-qr">${h.qr}</div>
-        <div><span class="badge ${bcl[h.status]}">${lbl[h.status]}</span></div>
-      </div>
-      <div class="hist-time">${h.ts?.toLocaleTimeString('es-GQ',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div>
-    </div>`).join('');
+  $('btn-clear-db').style.display = total > 0 ? 'block' : 'none';
 }
 
 // ══════════════════════════════════════════════════
@@ -611,194 +285,159 @@ function renderHistory() {
 // ══════════════════════════════════════════════════
 function handleCSV(file) {
   if (!file) return;
-  showToast('⏳ Leyendo CSV...');
-
+  showToast('⏳ Procesando archivo...');
+  
   Papa.parse(file, {
     header: true,
     skipEmptyLines: true,
     complete: async (res) => {
       const rows = res.data;
-      if (!rows.length) { showToast('❌ CSV vacío'); return; }
+      if (!rows.length) { showToast('❌ El archivo está vacío'); return; }
 
-      let imported=0, skipped=0;
-      const tx    = S.db.transaction('qr_codes','readwrite');
+      const tx = S.db.transaction('qr_codes', 'readwrite');
       const store = tx.objectStore('qr_codes');
+      let count = 0;
 
-      for (const row of rows) {
-        const rawQR = gcol(row,'codigo_qr','qr_code','QR_CODE','code','CODE','qr');
-        if (!rawQR) { skipped++; continue; }
+      rows.forEach(row => {
+        const raw = row['codigo_qr'] || row['qr_code'] || row['QR'];
+        if (raw) {
+          const clean = extractQRText(raw);
+          store.put({
+            qr_code: clean,
+            status: 'valid',
+            passenger: parseField(clean, 'Pasajero') || row['user_id'] || '—',
+            compra: parseField(clean, 'Compra') || row['compra_id'] || '—',
+            raw_url: raw
+          });
+          count++;
+        }
+      });
 
-        const qrText = extractQRText(rawQR);
-        if (!qrText) { skipped++; continue; }
-
-        const passengerName = parseField(qrText,'Pasajero') || gcol(row,'user_id','nombre','name') || '—';
-        const compraId      = parseField(qrText,'Compra')   || gcol(row,'compra_id') || '—';
-        const viajeId       = parseField(qrText,'Viaje')    || '';
-
-        store.put({
-          qr_code:        qrText,
-          status:         'valid',
-          passenger_name: passengerName,
-          compra_id:      compraId,
-          viaje_id:       viajeId,
-          monto:          gcol(row,'monto_detectado','monto') ? gcol(row,'monto_detectado','monto')+' XAF' : '',
-          metodo_pago:    gcol(row,'metodo_pago') || '',
-          fecha_pago:     gcol(row,'fecha_pago','fecha_verificacion') || '',
-          pago_id:        gcol(row,'pago_id') || '',
-          pago_agrupado:  gcol(row,'pago_agrupado_id') || '',
-          verificado:     gcol(row,'verificado') || '',
-          date_used:      null,
-          raw_url:        rawQR,
-        });
-        imported++;
-      }
-
-      tx.oncomplete = async () => {
+      tx.oncomplete = () => {
         S.dbReady = true;
-        await refreshStats();
-        buildPreview(rows.slice(0,20));
-        $('btn-clear-db').style.display  = 'block';
-        $('import-result').style.display = 'block';
-        $('import-result').textContent   = `✓ ${imported} códigos importados${skipped?` (${skipped} sin QR)`:''}`;
-        showToast(`✓ ${imported} códigos listos`);
+        refreshStats();
+        const resEl = $('import-result');
+        resEl.style.display = 'block';
+        resEl.innerHTML = `✅ ¡ÉXITO! Se han subido ${count} códigos correctamente.`;
+        showToast(`✅ ${count} códigos importados`);
+        
+        // Preview
+        let html = '<table><thead><tr><th>Pasajero</th><th>Código</th></tr></thead><tbody>';
+        rows.slice(0, 5).forEach(r => {
+          const txt = extractQRText(r['codigo_qr'] || '');
+          html += `<tr><td>${parseField(txt, 'Pasajero') || '—'}</td><td>${txt.substring(0,20)}...</td></tr>`;
+        });
+        html += '</tbody></table>';
+        $('preview-table').innerHTML = html;
       };
-      tx.onerror = () => showToast('❌ Error en base de datos');
-    },
-    error: () => showToast('❌ Error leyendo CSV')
-  });
-}
-
-function buildPreview(rows) {
-  if (!rows.length) return;
-
-  const cols = [
-    { h:'Código QR (texto)',  fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return extractQRText(u)||'—'; } },
-    { h:'Pasajero',           fn: r => { const u=gcol(r,'codigo_qr','qr_code','code'); return parseField(extractQRText(u),'Pasajero')||gcol(r,'user_id')||'—'; } },
-    { h:'Compra ID',          fn: r => gcol(r,'compra_id')||'—' },
-    { h:'Monto',              fn: r => gcol(r,'monto_detectado') ? gcol(r,'monto_detectado')+' XAF' : '—' },
-    { h:'Método',             fn: r => gcol(r,'metodo_pago')||'—' },
-    { h:'Fecha pago',         fn: r => (gcol(r,'fecha_pago')||'—').split(' ')[0] },
-    { h:'Estado',             fn: _r => '<span class="badge badge-green">válido</span>' },
-  ];
-
-  const th  = cols.map(c=>`<th>${c.h}</th>`).join('');
-  const trs = rows.map(r=>`<tr>${cols.map(c=>{const v=c.fn(r);return`<td title="${v.replace(/<[^>]+>/g,'')}">${v}</td>`;}).join('')}</tr>`).join('');
-  $('preview-table').innerHTML = `<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
-  $('preview-card').style.display = 'block';
-}
-
-// ══════════════════════════════════════════════════
-// EXPORT
-// ══════════════════════════════════════════════════
-function exportCSV() {
-  if (!S.history.length) { showToast('Sin historial'); return; }
-  const h = 'timestamp,qr_code,status,passenger_name,compra_id\n';
-  const b = S.history.map(e=>`"${e.ts?.toISOString()}","${e.qr}","${e.status}","${e.name}","${e.extra}"`).join('\n');
-  dl(h+b, `validaciones_${stamp()}.csv`,'text/csv');
-}
-function exportJSON() {
-  if (!S.history.length) { showToast('Sin historial'); return; }
-  dl(JSON.stringify(S.history.map(e=>({timestamp:e.ts?.toISOString(),qr_code:e.qr,status:e.status,passenger_name:e.name,compra_id:e.extra})),null,2),`validaciones_${stamp()}.json`,'application/json');
-}
-function dl(content,name,mime) { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click(); }
-function stamp() { return new Date().toISOString().replace(/[:.]/g,'-').slice(0,19); }
-
-// ══════════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════════
-let _tt;
-function showToast(msg) {
-  const t=$('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3000);
-}
-
-// ══════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════
-document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    $('page-'+btn.dataset.page).classList.add('active');
-    if (btn.dataset.page==='history') renderHistory();
-    if (btn.dataset.page==='data')    refreshStats();
-  });
-});
-
-// ══════════════════════════════════════════════════
-// CONTROLS
-// ══════════════════════════════════════════════════
-$('btn-flip').addEventListener('click', flipCamera);
-$('btn-torch').addEventListener('click', toggleTorch);
-
-$('btn-pause').addEventListener('click', () => {
-  S.paused = !S.paused;
-  $('btn-pause').classList.toggle('on', S.paused);
-  $('btn-pause').querySelector('.ctrl-icon').textContent      = S.paused ? '▶' : '⏸';
-  $('btn-pause').querySelector('span:last-child').textContent = S.paused ? 'Reanudar' : 'Pausar';
-  setStatus(S.paused ? 'En pausa' : 'Escaneando...');
-});
-
-$('btn-sound').addEventListener('click', () => {
-  S.soundOn = !S.soundOn;
-  $('btn-sound').classList.toggle('on', S.soundOn);
-  $('btn-sound').querySelector('.ctrl-icon').textContent = S.soundOn ? '🔊' : '🔇';
-  showToast(S.soundOn ? '🔊 Sonido activado' : '🔇 Sonido desactivado');
-});
-
-$('result-close').addEventListener('click', closeResult);
-
-$('manual-input').addEventListener('keydown', e => {
-  if (e.key==='Enter') { const v=e.target.value.trim(); if (v) { processQR(v); e.target.value=''; } }
-});
-
-const csvInput = $('csv-input');
-$('btn-select-csv').addEventListener('click', () => csvInput.click());
-csvInput.addEventListener('change', e => { if(e.target.files[0]) handleCSV(e.target.files[0]); e.target.value=''; });
-
-const dz = $('drop-zone');
-dz.addEventListener('click',     () => csvInput.click());
-dz.addEventListener('dragover',  e  => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop',      e  => { e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files[0]) handleCSV(e.dataTransfer.files[0]); });
-
-$('btn-clear-db').addEventListener('click', async () => {
-  if (!confirm('¿Limpiar base de datos? No se puede deshacer.')) return;
-  await dbClear(); S.dbReady = false; await refreshStats();
-  $('import-result').style.display = 'none';
-  $('btn-clear-db').style.display  = 'none';
-  $('preview-card').style.display  = 'none';
-  showToast('Base de datos limpiada');
-});
-
-$('btn-export-csv').addEventListener('click',  exportCSV);
-$('btn-export-json').addEventListener('click', exportJSON);
-
-document.querySelectorAll('.filter-chip').forEach(c => {
-  c.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));
-    c.classList.add('active'); S.filter=c.dataset.filter; renderHistory();
-  });
-});
-
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-async function init() {
-  try {
-    await openDB();
-    const n = await dbCount();
-    if (n > 0) {
-      S.dbReady = true;
-      await refreshStats();
-      $('btn-clear-db').style.display = 'block';
-      showToast(`✓ ${n} códigos en memoria`);
     }
-  } catch(e) { console.error('DB:', e); showToast('Error iniciando base de datos'); }
-  startCamera();
+  });
 }
-init();
+
+// ══════════════════════════════════════════════════
+// SCANNER LOGIC
+// ══════════════════════════════════════════════════
+async function processQR(raw) {
+  if (!S.dbReady) { showToast('⚠ Sube un CSV primero'); return; }
+  const key = extractQRText(raw);
+  
+  const tx = S.db.transaction('qr_codes', 'readwrite');
+  const store = tx.objectStore('qr_codes');
+  
+  const req = store.get(key);
+  req.onsuccess = async () => {
+    const rec = req.result;
+    if (!rec) {
+      showResult('notfound', key);
+    } else if (rec.status === 'used') {
+      showResult('used', key, rec);
+    } else {
+      rec.status = 'used';
+      rec.used_at = new Date().toISOString();
+      store.put(rec);
+      showResult('valid', key, rec);
+      refreshStats();
+    }
+  };
+}
+
+function showResult(type, key, rec) {
+  const colors = { valid: '#22C55E', used: '#F97316', notfound: '#EF4444' };
+  const titles = { valid: 'CÓDIGO VÁLIDO', used: 'YA UTILIZADO', notfound: 'NO ENCONTRADO' };
+  
+  $('result-card').style.background = colors[type];
+  $('result-title').textContent = titles[type];
+  $('result-qr').textContent = key;
+  
+  let html = '';
+  if (rec) {
+    html += `<div class="result-field"><label>Pasajero</label><span>${rec.passenger}</span></div>`;
+    html += `<div class="result-field"><label>Compra</label><span>${rec.compra}</span></div>`;
+  }
+  $('result-fields').innerHTML = html;
+  $('result-overlay').classList.add('show');
+}
+
+// ══════════════════════════════════════════════════
+// UI & CAMERA
+// ══════════════════════════════════════════════════
+function showToast(m) {
+  const t = $('toast'); t.textContent = m; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: S.facingMode } });
+    $('video').srcObject = stream;
+    $('video').play();
+    S.stream = stream;
+    requestAnimationFrame(scanLoop);
+  } catch(e) { $('no-camera').classList.add('show'); }
+}
+
+function scanLoop() {
+  if (S.paused) return requestAnimationFrame(scanLoop);
+  const v = $('video');
+  if (v.readyState === v.HAVE_ENOUGH_DATA) {
+    const canvas = $('canvas');
+    canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(v, 0, 0);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(img.data, img.width, img.height);
+    if (code && Date.now() - S.lastScanTime > 2000) {
+      S.lastScanTime = Date.now();
+      processQR(code.data);
+    }
+  }
+  requestAnimationFrame(scanLoop);
+}
+
+// Events
+$('btn-select-csv').onclick = () => $('csv-input').click();
+$('csv-input').onchange = e => handleCSV(e.target.files[0]);
+$('result-close').onclick = () => $('result-overlay').classList.remove('show');
+$('btn-clear-db').onclick = () => { if(confirm('¿Borrar todo?')) { 
+  const tx = S.db.transaction('qr_codes','readwrite');
+  tx.objectStore('qr_codes').clear();
+  tx.oncomplete = () => { refreshStats(); $('import-result').style.display='none'; };
+}};
+
+document.querySelectorAll('.nav-tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.nav-tab, .page').forEach(el => el.classList.remove('active'));
+    t.classList.add('active');
+    $('page-' + t.dataset.page).classList.add('active');
+  };
+});
+
+// Init
+openDB().then(() => {
+  S.dbReady = true;
+  refreshStats();
+  startCamera();
+});
 </script>
 </body>
 </html>
