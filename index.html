@@ -1,4 +1,5 @@
-"<!DOCTYPE html>
+
+Action: file_editor create /app/Index.html --file-text "<!DOCTYPE html>
 <html lang=\"es\">
 <head>
     <meta charset=\"UTF-8\">
@@ -616,3 +617,170 @@
             // Buscar el ticket exacto o por coincidencia parcial
             const request = ticketStore.get(qrData);
             
+            request.onsuccess = () => {
+                const ticket = request.result;
+                
+                if (!ticket) {
+                    // NO ENCONTRADO
+                    showFeedback('invalid', qrData);
+                    stats.invalid++;
+                    saveToHistory(qrData, 'NO ENCONTRADO', null);
+                } else if (ticket.usado) {
+                    // YA USADO
+                    showFeedback('used', qrData, ticket);
+                    stats.used++;
+                    saveToHistory(qrData, 'YA USADO', ticket.pago_id);
+                } else {
+                    // VÁLIDO
+                    ticket.usado = true;
+                    ticket.timestamp_uso = new Date().toISOString();
+                    ticketStore.put(ticket);
+                    
+                    showFeedback('valid', qrData, ticket);
+                    stats.valid++;
+                    saveToHistory(qrData, 'VÁLIDO', ticket.pago_id);
+                }
+                
+                updateStats();
+            };
+            
+            request.onerror = () => {
+                console.error('Error al buscar ticket');
+            };
+        }
+
+        function saveToHistory(qrCode, estado, pago_id) {
+            const transaction = db.transaction(['historial'], 'readwrite');
+            const store = transaction.objectStore('historial');
+            
+            store.add({
+                qrCode: qrCode,
+                estado: estado,
+                pago_id: pago_id,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-valid').textContent = stats.valid;
+            document.getElementById('stat-used').textContent = stats.used;
+            document.getElementById('stat-invalid').textContent = stats.invalid;
+        }
+
+        // ====== FEEDBACK VISUAL ======
+        function showFeedback(type, qrData, ticket = null) {
+            const screen = document.getElementById('feedback-screen');
+            const icon = document.getElementById('feedback-icon');
+            const text = document.getElementById('feedback-text');
+            const detail = document.getElementById('feedback-detail');
+            
+            let config = {};
+            
+            switch(type) {
+                case 'valid':
+                    config = {
+                        color: '#10B981',
+                        icon: '✅',
+                        text: 'VÁLIDO',
+                        detail: ticket ? `Pago: ${ticket.pago_id.substring(0, 20)}...` : '',
+                        sound: 1000,
+                        vibration: [200, 100, 200]
+                    };
+                    break;
+                case 'used':
+                    config = {
+                        color: '#F59E0B',
+                        icon: '⚠️',
+                        text: 'YA USADO',
+                        detail: ticket ? `Usado: ${new Date(ticket.timestamp_uso).toLocaleTimeString()}` : '',
+                        sound: 600,
+                        vibration: [100, 50, 100, 50, 100]
+                    };
+                    break;
+                case 'invalid':
+                    config = {
+                        color: '#EF4444',
+                        icon: '❌',
+                        text: 'NO ENCONTRADO',
+                        detail: 'Boleto no registrado en el sistema',
+                        sound: 300,
+                        vibration: [500]
+                    };
+                    break;
+            }
+            
+            screen.style.backgroundColor = config.color;
+            icon.textContent = config.icon;
+            text.textContent = config.text;
+            detail.textContent = config.detail;
+            
+            screen.style.display = 'flex';
+            
+            playSound(config.sound, 0.3);
+            vibrate(config.vibration);
+            
+            setTimeout(() => {
+                screen.style.display = 'none';
+            }, 2000);
+        }
+
+        // ====== EXPORTAR HISTORIAL ======
+        async function exportHistory() {
+            const transaction = db.transaction(['historial'], 'readonly');
+            const store = transaction.objectStore('historial');
+            const request = store.getAll();
+            
+            request.onsuccess = () => {
+                const data = request.result;
+                
+                if (data.length === 0) {
+                    alert('No hay registros para exportar');
+                    return;
+                }
+                
+                const csv = Papa.unparse(data);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `ferry-viteoca-historial-${timestamp}.csv`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+        }
+
+        // ====== REINICIAR APLICACIÓN ======
+        function resetApp() {
+            if (confirm('¿Estás seguro de que deseas reiniciar el sistema? Se perderán todos los datos.')) {
+                scanning = false;
+                
+                const video = document.getElementById('video');
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                
+                if (db) {
+                    db.close();
+                }
+                
+                const request = indexedDB.deleteDatabase('FerryViteocaDB');
+                request.onsuccess = () => {
+                    location.reload();
+                };
+            }
+        }
+
+        // ====== INICIALIZACIÓN AL CARGAR ======
+        window.addEventListener('load', () => {
+            console.log('🚢 Ferry Viteoca - Sistema iniciado');
+        });
+    </script>
+</body>
+</html>
+"
+Observation: Create successful: /app/Index.html
