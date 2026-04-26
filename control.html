@@ -129,7 +129,7 @@
         .hero {
             background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
             color: white;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-radius: 10px;
             margin-bottom: 12px;
             box-shadow: var(--shadow);
@@ -148,37 +148,41 @@
             opacity: 0.08;
         }
 
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
         .hero h2 {
             font-size: 16px;
             font-weight: 700;
-            margin-bottom: 3px;
+            margin-bottom: 6px;
         }
 
-        .hero p {
-            font-size: 12px;
-            opacity: 0.85;
-            margin-bottom: 8px;
-        }
-
-        .hero-stats {
+        .hero-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
+            font-size: 11px;
         }
 
-        .hero-stat {
+        .hero-info-item {
             background: rgba(255,255,255,0.1);
             padding: 6px 10px;
             border-radius: 8px;
-            font-size: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             backdrop-filter: blur(5px);
         }
 
-        .hero-stat-val {
-            font-size: 13px;
+        .hero-info-label {
+            opacity: 0.7;
+            font-weight: 500;
+        }
+
+        .hero-info-value {
             font-weight: 700;
-            display: block;
-            margin-top: 2px;
         }
 
         /* --- KPI GRID ULTRA-COMPACTO --- */
@@ -311,22 +315,62 @@
             transition: width 0.8s ease;
         }
 
-        /* --- LISTA DE PAGOS --- */
-        .payment-item {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
+        /* --- DESGLOSE DE BILLETES --- */
+        .ticket-breakdown {
+            padding: 0;
         }
 
-        .payment-item:last-child { border-bottom: none; }
+        .ticket-item {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
 
-        .payment-info { flex: 1; }
-        .payment-user { font-weight: 600; display: block; margin-bottom: 2px; }
-        .payment-meta { font-size: 10px; color: var(--text-sec); }
-        .payment-amount { font-weight: 700; text-align: right; }
+        .ticket-item:last-child { border-bottom: none; }
+
+        .ticket-type {
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .ticket-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
+
+        .ticket-stat-label {
+            color: var(--text-sec);
+        }
+
+        .ticket-stat-value {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .ticket-total {
+            background: #F8FAFC;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .grand-total {
+            background: var(--primary);
+            color: white;
+            padding: 12px 14px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
 
         /* --- MODAL --- */
         .modal-overlay {
@@ -463,19 +507,7 @@
             border: 1px solid #FCA5A5;
         }
 
-        /* --- LOADING --- */
-        .loading-spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid #E5E7EB;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* --- EMPTY STATE --- */
         .empty-state {
             text-align: center;
             padding: 20px 14px;
@@ -494,12 +526,21 @@
             }
 
             .hero {
-                padding: 20px 24px;
+                padding: 16px 20px;
                 margin-bottom: 20px;
             }
 
-            .hero h2 { font-size: 20px; }
-            .hero p { font-size: 13px; }
+            .hero h2 { font-size: 18px; }
+
+            .hero-info {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            .hero-info-item {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
 
             .kpi-grid {
                 grid-template-columns: repeat(4, 1fr);
@@ -524,16 +565,6 @@
 
             .section-title { font-size: 14px; }
 
-            .section-body {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                gap: 0;
-            }
-
-            .section-body > :first-child {
-                border-right: 1px solid var(--border);
-            }
-
             table {
                 font-size: 13px;
             }
@@ -545,6 +576,10 @@
 
             td {
                 padding: 12px 16px;
+            }
+
+            .ticket-item {
+                grid-template-columns: 1fr 1fr 1fr;
             }
 
             .modal {
@@ -584,21 +619,37 @@
     <main>
         <div id="errorAlert" class="alert alert-danger"></div>
 
-        <!-- HERO COMPACTO -->
+        <!-- HERO CON INFORMACIÓN DEL VIAJE -->
         <div class="hero">
-            <h2 id="viajeDestino">Cargando...</h2>
-            <p id="viajeDetalle">—</p>
-            <div class="hero-stats" id="heroStats">
-                <!-- Dinámico -->
+            <div class="hero-content">
+                <h2 id="viajeDestino">Cargando viaje...</h2>
+                <div class="hero-info">
+                    <div class="hero-info-item">
+                        <span class="hero-info-label"><i class="far fa-calendar"></i> Fecha</span>
+                        <span class="hero-info-value" id="viajeFecha">—</span>
+                    </div>
+                    <div class="hero-info-item">
+                        <span class="hero-info-label"><i class="far fa-clock"></i> Hora</span>
+                        <span class="hero-info-value" id="viajeHora">—</span>
+                    </div>
+                    <div class="hero-info-item">
+                        <span class="hero-info-label"><i class="fas fa-info-circle"></i> Estado</span>
+                        <span class="hero-info-value" id="viajeEstado">—</span>
+                    </div>
+                    <div class="hero-info-item">
+                        <span class="hero-info-label"><i class="far fa-clock"></i> Actualizado</span>
+                        <span class="hero-info-value" id="lastUpdate">—</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- KPI GRID -->
         <div class="kpi-grid">
             <div class="kpi success">
-                <div class="kpi-label"><i class="fas fa-check"></i> Pagados</div>
-                <div class="kpi-value" id="kpi-pagados">0</div>
-                <div class="kpi-sub" id="kpi-pagados-sub">—</div>
+                <div class="kpi-label"><i class="fas fa-check"></i> Vendidos</div>
+                <div class="kpi-value" id="kpi-vendidos">0</div>
+                <div class="kpi-sub">Billetes totales</div>
             </div>
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Ingresos</div>
@@ -606,73 +657,31 @@
                 <div class="kpi-sub">XAF</div>
             </div>
             <div class="kpi warning">
-                <div class="kpi-label"><i class="fas fa-clock"></i> Pendientes</div>
-                <div class="kpi-value" id="kpi-pendientes">0</div>
-                <div class="kpi-sub">Por pagar</div>
+                <div class="kpi-label"><i class="fas fa-users"></i> Disponibles</div>
+                <div class="kpi-value" id="kpi-disponibles">0</div>
+                <div class="kpi-sub">Económicos</div>
             </div>
             <div class="kpi danger">
-                <div class="kpi-label"><i class="fas fa-users"></i> Stock</div>
-                <div class="kpi-value" id="kpi-stock">0</div>
-                <div class="kpi-sub">Disponibles</div>
+                <div class="kpi-label"><i class="fas fa-chart-pie"></i> Ocupación</div>
+                <div class="kpi-value" id="kpi-ocupacion">0%</div>
+                <div class="kpi-sub">Total</div>
             </div>
         </div>
 
-        <!-- INVENTARIO -->
+        <!-- DESGLOSE DE INVENTARIO POR TIPO DE BILLETE -->
         <div class="section">
             <div class="section-header">
-                <h3 class="section-title"><i class="fas fa-boxes"></i> Inventario</h3>
-                <span id="lastUpdate" style="font-size: 10px; color: var(--text-sec);"></span>
+                <h3 class="section-title"><i class="fas fa-ticket-alt"></i> Desglose de Billetes</h3>
             </div>
-            <div class="section-body">
-                <div style="overflow-x: auto;">
-                    <table id="inventarioTable">
-                        <thead>
-                            <tr>
-                                <th>Billete</th>
-                                <th>Precio</th>
-                                <th>Ventas</th>
-                                <th>Libres</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventarioBody">
-                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="section-body ticket-breakdown" id="ticketBreakdown">
+                <div class="empty-state">Cargando inventario...</div>
             </div>
         </div>
 
-        <!-- PAGOS RECIENTES -->
+        <!-- RESUMEN TOTAL -->
         <div class="section">
-            <div class="section-header">
-                <h3 class="section-title"><i class="fas fa-history"></i> Pagos Recientes</h3>
-            </div>
-            <div class="section-body" id="pagosContainer">
-                <div class="empty-state">Cargando pagos...</div>
-            </div>
-        </div>
-
-        <!-- COMPRAS -->
-        <div class="section">
-            <div class="section-header">
-                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> Compras</h3>
-            </div>
-            <div class="section-body">
-                <div style="overflow-x: auto;">
-                    <table id="comprasTable">
-                        <thead>
-                            <tr>
-                                <th>Pasajero</th>
-                                <th>Destino</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comprasBody">
-                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="grand-total" id="grandTotal">
+                Total General: 0 XAF
             </div>
         </div>
     </main>
@@ -713,7 +722,12 @@
         const formatFecha = (f) => {
             if (!f) return '—';
             const d = new Date(f);
-            return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+            return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+        };
+
+        const formatHora = (h) => {
+            if (!h) return '—';
+            return h.slice(0, 5);
         };
 
         const showAlert = (msg) => {
@@ -792,106 +806,125 @@
             const v = viajes[0];
             if (!v) {
                 document.getElementById('viajeDestino').textContent = 'Sin viajes activos';
-                document.getElementById('viajeDetalle').textContent = '—';
                 return;
             }
             destinoActual = v.destino;
-            const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
-            document.getElementById('viajeDestino').textContent = `${v.destino}`;
-            document.getElementById('viajeDetalle').textContent = `${fecha} • ${v.hora_salida?.slice(0,5)} • ${v.estado}`;
-        }
-
-        async function loadKPIs() {
-            const [compras, inv] = await Promise.all([
-                querySupabase('compras', 'select=estado_compra,precio'),
-                querySupabase('inventario', destinoActual ? `destino=eq.${encodeURIComponent(destinoActual)}` : '')
-            ]);
-
-            const pagados = compras.filter(c => c.estado_compra === 'Billete pagado');
-            const pendientes = compras.filter(c => c.estado_compra === 'pendiente_pago');
-            const expirados = compras.filter(c => c.estado_compra === 'billete_expirado');
-            const ingresos = pagados.reduce((s, c) => s + (c.precio || 0), 0);
-            const totalStock = inv.reduce((s, i) => s + (i.stock_disponible || 0), 0);
-
-            document.getElementById('kpi-pagados').textContent = pagados.length;
-            document.getElementById('kpi-pagados-sub').textContent = `${expirados.length} expirados`;
-            document.getElementById('kpi-ingresos').textContent = formatXAF(ingresos);
-            document.getElementById('kpi-pendientes').textContent = pendientes.length;
-            document.getElementById('kpi-stock').textContent = totalStock;
+            document.getElementById('viajeDestino').textContent = v.destino;
+            document.getElementById('viajeFecha').textContent = formatFecha(v.fecha_salida);
+            document.getElementById('viajeHora').textContent = formatHora(v.hora_salida);
+            document.getElementById('viajeEstado').textContent = v.estado;
         }
 
         async function loadInventario() {
-            const container = document.getElementById('inventarioBody');
+            const container = document.getElementById('ticketBreakdown');
             if (!destinoActual) {
-                container.innerHTML = '<tr><td colspan="4" class="empty-state">Sin viaje activo</td></tr>';
+                container.innerHTML = '<div class="empty-state">Sin viaje activo</div>';
                 return;
             }
 
             const inv = await querySupabase('inventario', `destino=eq.${encodeURIComponent(destinoActual)}&order=tipo_billete`);
-            
-            container.innerHTML = inv.map(i => {
+            const compras = await querySupabase('compras', `destino=eq.${encodeURIComponent(destinoActual)}&select=tipo_billete,precio,estado_compra`);
+
+            // Agrupar compras por tipo de billete y estado
+            const ventasPorTipo = {};
+            compras.forEach(c => {
+                if (!ventasPorTipo[c.tipo_billete]) {
+                    ventasPorTipo[c.tipo_billete] = { vendidos: 0, monto: 0, pagados: 0 };
+                }
+                if (c.estado_compra === 'Billete pagado') {
+                    ventasPorTipo[c.tipo_billete].vendidos++;
+                    ventasPorTipo[c.tipo_billete].monto += c.precio || 0;
+                    ventasPorTipo[c.tipo_billete].pagados++;
+                }
+            });
+
+            let totalVendidos = 0;
+            let totalIngresos = 0;
+            let totalDisponibles = 0;
+            let totalCapacidad = 0;
+
+            const html = inv.map(i => {
+                const tipo = i.tipo_billete;
+                const disponibles = i.stock_disponible || 0;
+                const vendidos = ventasPorTipo[tipo]?.vendidos || 0;
+                const monto = ventasPorTipo[tipo]?.monto || 0;
                 const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
-                const pct = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
-                let fillColor = '#10B981';
-                if (pct > 60) fillColor = '#F59E0B';
-                if (pct > 85) fillColor = '#EF4444';
+                const ocupacion = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
 
-                return `
-                    <tr>
-                        <td><strong>${i.tipo_billete}</strong></td>
-                        <td>${formatXAF(i.precio)}</td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-fill" style="width:${pct}%; background:${fillColor}"></div>
+                totalVendidos += vendidos;
+                totalIngresos += monto;
+                totalDisponibles += disponibles;
+                totalCapacidad += total;
+
+                // Mostrar diferente formato según el tipo de billete
+                if (tipo === 'Economico') {
+                    return `
+                        <div class="ticket-item">
+                            <div>
+                                <div class="ticket-type"><i class="fas fa-chair"></i> ${tipo}</div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Disponibles:</span>
+                                    <span class="ticket-stat-value">${disponibles}</span>
+                                </div>
                             </div>
-                            <span style="font-size:10px; color:var(--text-sec)">${pct}%</span>
-                        </td>
-                        <td><span class="badge ${i.stock_disponible > 5 ? 'badge-success' : 'badge-danger'}">${i.stock_disponible}</span></td>
-                    </tr>
-                `;
+                            <div></div>
+                            <div></div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="ticket-item">
+                            <div>
+                                <div class="ticket-type"><i class="fas fa-crown"></i> ${tipo}</div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Vendidos:</span>
+                                    <span class="ticket-stat-value">${vendidos}</span>
+                                </div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Disponibles:</span>
+                                    <span class="ticket-stat-value">${disponibles}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Precio Unit.:</span>
+                                    <span class="ticket-stat-value">${formatXAF(i.precio)}</span>
+                                </div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Subtotal:</span>
+                                    <span class="ticket-stat-value">${formatXAF(monto)}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="ticket-stat">
+                                    <span class="ticket-stat-label">Ocupación:</span>
+                                    <span class="ticket-stat-value">${ocupacion}%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-fill" style="width:${ocupacion}%; background:${ocupacion > 80 ? '#EF4444' : ocupacion > 50 ? '#F59E0B' : '#10B981'}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
             }).join('');
-        }
 
-        async function loadPagos() {
-            const container = document.getElementById('pagosContainer');
-            const pagos = await querySupabase('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=5');
-            
-            if (!pagos.length) {
-                container.innerHTML = '<div class="empty-state">Sin pagos</div>';
-                return;
-            }
+            container.innerHTML = html;
 
-            container.innerHTML = pagos.map(p => `
-                <div class="payment-item">
-                    <div class="payment-info">
-                        <span class="payment-user">${p.telefono_remitente || 'Anónimo'}</span>
-                        <span class="payment-meta">${p.metodo_pago || 'Muni'} • ${formatFecha(p.fecha_pago)}</span>
-                    </div>
-                    <div class="payment-amount" style="color: ${p.verificado ? 'var(--success)' : 'var(--warning)'}">
-                        ${formatXAF(p.monto_detectado || 0)}
-                    </div>
-                </div>
-            `).join('');
-        }
+            // Actualizar KPIs
+            document.getElementById('kpi-vendidos').textContent = totalVendidos;
+            document.getElementById('kpi-ingresos').textContent = formatXAF(totalIngresos);
+            document.getElementById('kpi-disponibles').textContent = totalDisponibles;
+            const ocupacionTotal = totalCapacidad > 0 ? Math.round(((totalCapacidad - totalDisponibles) / totalCapacidad) * 100) : 0;
+            document.getElementById('kpi-ocupacion').textContent = ocupacionTotal + '%';
 
-        async function loadCompras() {
-            const container = document.getElementById('comprasBody');
-            const compras = await querySupabase('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=10');
-            
-            const getEstadoBadge = (e) => {
-                if (e === 'Billete pagado') return '<span class="badge badge-success">Pagado</span>';
-                if (e === 'pendiente_pago') return '<span class="badge badge-warning">Pendiente</span>';
-                return '<span class="badge badge-danger">Expirado</span>';
-            };
+            // Total general
+            document.getElementById('grandTotal').innerHTML = `
+                <i class="fas fa-calculator" style="margin-right: 8px;"></i>
+                Total General: ${formatXAF(totalIngresos)} XAF
+            `;
 
-            container.innerHTML = compras.map(c => `
-                <tr>
-                    <td><strong>${c.nombre_pasajero || '—'}</strong></td>
-                    <td>${c.destino || '—'}</td>
-                    <td>${formatXAF(c.precio || 0)}</td>
-                    <td>${getEstadoBadge(c.estado_compra)}</td>
-                </tr>
-            `).join('');
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
         }
 
         async function loadAll() {
@@ -905,15 +938,8 @@
             
             try {
                 await loadViaje();
-                await Promise.all([
-                    loadKPIs(),
-                    loadInventario(),
-                    loadPagos(),
-                    loadCompras()
-                ]);
-                
+                await loadInventario();
                 updateStatus(true);
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
             } catch (err) {
                 showAlert('Error de conexión. Verifica credenciales.');
             }
