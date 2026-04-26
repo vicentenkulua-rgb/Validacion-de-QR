@@ -90,16 +90,16 @@
         .hero-info-label { opacity: 0.7; font-weight: 500; }
         .hero-info-value { font-weight: 700; }
 
-        /* KPI — solo 3 en móvil */
+        /* KPI — 2x2 en móvil, 4 en desktop */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-bottom: 12px;
         }
 
         .kpi {
-            background: var(--card); padding: 10px 10px; border-radius: 10px;
+            background: var(--card); padding: 10px; border-radius: 10px;
             box-shadow: var(--shadow); border-left: 3px solid var(--primary);
             min-width: 0;
         }
@@ -126,7 +126,7 @@
         .section-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .section-title i { font-size: 12px; }
 
-        /* ===== TABLA MÓVIL: TARJETAS ===== */
+        /* ===== TARJETAS MÓVIL ===== */
         .ticket-cards { display: flex; flex-direction: column; }
 
         .ticket-card {
@@ -152,19 +152,14 @@
             border-radius: 8px;
             padding: 8px 10px;
         }
-        .ticket-stat-box.full-width {
-            grid-column: 1 / -1;
-        }
         .tsb-label {
             font-size: 10px; font-weight: 600; text-transform: uppercase;
             letter-spacing: 0.3px; color: var(--text-sec); margin-bottom: 3px;
         }
-        .tsb-value {
-            font-size: 15px; font-weight: 700;
-        }
-        .tsb-value.green  { color: #059669; }
-        .tsb-value.blue   { color: var(--primary); }
-        .tsb-value.dark   { color: var(--text); }
+        .tsb-value { font-size: 15px; font-weight: 700; }
+        .tsb-value.green { color: #059669; }
+        .tsb-value.blue  { color: var(--primary); }
+        .tsb-value.dark  { color: var(--text); }
 
         /* ===== TABLA DESKTOP ===== */
         .ticket-table-wrap { display: none; }
@@ -188,7 +183,6 @@
 
         .ticket-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 7px; }
         .ticket-name i { font-size: 12px; color: var(--text-sec); }
-
         .val-disponible { color: #059669; }
         .val-vendido    { color: var(--primary); }
 
@@ -246,7 +240,7 @@
             .hero-info-item { padding: 8px 12px; font-size: 12px; }
 
             .kpi-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 16px; margin-bottom: 20px;
             }
             .kpi { padding: 16px; }
@@ -258,8 +252,7 @@
             .section-header { padding: 16px; }
             .section-title  { font-size: 14px; }
 
-            /* En desktop ocultamos tarjetas y mostramos tabla */
-            .ticket-cards     { display: none; }
+            .ticket-cards      { display: none; }
             .ticket-table-wrap { display: block; }
         }
     </style>
@@ -312,7 +305,7 @@
             </div>
         </div>
 
-        <!-- KPIs: solo 3 -->
+        <!-- KPIs: 4 (2x2 móvil, fila de 4 en desktop) -->
         <div class="kpi-grid">
             <div class="kpi success">
                 <div class="kpi-label"><i class="fas fa-check"></i> Vendidos</div>
@@ -328,6 +321,11 @@
                 <div class="kpi-label"><i class="fas fa-users"></i> Disponibles</div>
                 <div class="kpi-value" id="kpi-disponibles">0</div>
                 <div class="kpi-sub">Plazas libres</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label"><i class="fas fa-box-open"></i> Stock Total</div>
+                <div class="kpi-value" id="kpi-stock">0</div>
+                <div class="kpi-sub">Capacidad total</div>
             </div>
         </div>
 
@@ -399,7 +397,7 @@
         };
 
         const updateStatus = (online) => {
-            document.getElementById('statusDot').className  = online ? 'dot online' : 'dot';
+            document.getElementById('statusDot').className   = online ? 'dot online' : 'dot';
             document.getElementById('statusText').textContent = online ? 'Online' : 'Offline';
         };
 
@@ -444,7 +442,7 @@
         }
 
         async function loadInventario() {
-            const cards    = document.getElementById('ticketCards');
+            const cards     = document.getElementById('ticketCards');
             const tableWrap = document.getElementById('ticketTableWrap');
 
             if (!destinoActual) {
@@ -468,7 +466,7 @@
                 }
             });
 
-            let totalVendidos = 0, totalIngresos = 0, totalDisponibles = 0;
+            let totalVendidos = 0, totalIngresos = 0, totalDisponibles = 0, totalCapacidad = 0;
 
             const iconoMap = {
                 'Economico': 'fa-chair',
@@ -476,22 +474,22 @@
                 'Cabina':    'fa-door-closed'
             };
 
-            // --- TARJETAS MÓVIL ---
             let htmlCards = '';
-            // --- FILAS TABLA DESKTOP ---
             let htmlFilas = '';
 
             inv.forEach(i => {
-                const tipo       = i.tipo_billete;
+                const tipo        = i.tipo_billete;
                 const disponibles = i.stock_disponible || 0;
-                const vendidos   = vpt[tipo]?.vendidos || 0;
-                const monto      = vpt[tipo]?.monto    || 0;
-                const precio     = i.precio || 0;
-                const icono      = iconoMap[tipo] || 'fa-ticket-alt';
+                const vendidos    = vpt[tipo]?.vendidos || 0;
+                const monto       = vpt[tipo]?.monto    || 0;
+                const precio      = i.precio || 0;
+                const capacidad   = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
+                const icono       = iconoMap[tipo] || 'fa-ticket-alt';
 
                 totalVendidos    += vendidos;
                 totalIngresos    += monto;
                 totalDisponibles += disponibles;
+                totalCapacidad   += capacidad;
 
                 // Tarjeta móvil
                 htmlCards += `
@@ -546,10 +544,11 @@
                     <tbody>${htmlFilas}</tbody>
                 </table>`;
 
-            // KPIs
+            // Actualizar KPIs
             document.getElementById('kpi-vendidos').textContent    = totalVendidos;
             document.getElementById('kpi-ingresos').textContent    = formatXAF(totalIngresos);
             document.getElementById('kpi-disponibles').textContent = totalDisponibles;
+            document.getElementById('kpi-stock').textContent       = totalCapacidad;
 
             document.getElementById('grandTotal').innerHTML =
                 `<i class="fas fa-calculator" style="margin-right:8px;"></i>Total General: ${formatXAF(totalIngresos)} XAF`;
