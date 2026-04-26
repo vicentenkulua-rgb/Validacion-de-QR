@@ -26,577 +26,188 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.4;
-            -webkit-font-smoothing: antialiased;
+            background: var(--bg); color: var(--text);
+            line-height: 1.4; -webkit-font-smoothing: antialiased;
         }
 
-        /* --- HEADER COMPACTO --- */
         header {
-            background: var(--primary);
-            color: white;
+            background: var(--primary); color: white;
             padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
             box-shadow: var(--shadow);
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
+        .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
         .logo i { font-size: 18px; }
 
-        .header-right {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        .header-right { display: flex; gap: 10px; align-items: center; }
 
         .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-            font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600;
             background: rgba(255,255,255,0.15);
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 4px 10px; border-radius: 20px;
         }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #CBD5E1;
-        }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #CBD5E1; }
+        .dot.online { background: #22C55E; animation: pulse 2s infinite; }
 
-        .dot.online {
-            background: #22C55E;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         .btn-header {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            width: 32px; height: 32px; border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; transition: all 0.2s;
         }
-
         .btn-header:active { background: rgba(255,255,255,0.2); }
 
-        /* --- MAIN CONTENT --- */
-        main {
-            padding: 12px 12px 80px 12px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        main { padding: 12px 12px 80px 12px; max-width: 1200px; margin: 0 auto; }
 
-        /* --- HERO COMPACTO --- */
         .hero {
             background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
-            color: white;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
+            color: white; padding: 12px 14px; border-radius: 10px;
+            margin-bottom: 12px; box-shadow: var(--shadow);
+            position: relative; overflow: hidden;
         }
-
         .hero::after {
-            content: '\f21a';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            right: -10px;
-            bottom: -10px;
-            font-size: 80px;
-            opacity: 0.08;
+            content: '\f21a'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; right: -10px; bottom: -10px;
+            font-size: 80px; opacity: 0.08;
         }
+        .hero-content { position: relative; z-index: 1; }
+        .hero h2 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h2 {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .hero-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 11px;
-        }
-
+        .hero-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; }
         .hero-info-item {
-            background: rgba(255,255,255,0.1);
-            padding: 6px 10px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px;
+            display: flex; align-items: center; gap: 5px; backdrop-filter: blur(5px);
         }
+        .hero-info-label { opacity: 0.7; font-weight: 500; }
+        .hero-info-value { font-weight: 700; }
 
-        .hero-info-label {
-            opacity: 0.7;
-            font-weight: 500;
-        }
-
-        .hero-info-value {
-            font-weight: 700;
-        }
-
-        /* --- KPI GRID ULTRA-COMPACTO --- */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 
         .kpi {
-            background: var(--card);
-            padding: 12px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            border-left: 3px solid var(--primary);
+            background: var(--card); padding: 12px; border-radius: 10px;
+            box-shadow: var(--shadow); border-left: 3px solid var(--primary);
         }
-
         .kpi.success { border-left-color: var(--success); }
         .kpi.warning { border-left-color: var(--warning); }
-        .kpi.danger { border-left-color: var(--danger); }
+        .kpi.danger  { border-left-color: var(--danger); }
 
-        .kpi-label {
-            font-size: 11px;
-            color: var(--text-sec);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 4px;
-        }
+        .kpi-label { font-size: 11px; color: var(--text-sec); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+        .kpi-value  { font-size: 20px; font-weight: 700; color: var(--text); }
+        .kpi-sub    { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
 
-        .kpi-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .kpi-sub {
-            font-size: 10px;
-            color: var(--text-sec);
-            margin-top: 2px;
-        }
-
-        /* --- SECCIONES COMPACTAS --- */
-        .section {
-            background: var(--card);
-            border-radius: 10px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
+        .section { background: var(--card); border-radius: 10px; margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden; }
         .section-header {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 12px 14px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
             background: #F8FAFC;
         }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
+        .section-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .section-title i { font-size: 12px; }
+        .section-body { padding: 0; }
 
-        .section-body {
-            padding: 0;
-        }
-
-        /* --- TABLA COMPACTA --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th {
-            background: #F8FAFC;
-            padding: 8px 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 10px;
-            text-transform: uppercase;
-            color: var(--text-sec);
-            letter-spacing: 0.3px;
-        }
-
-        td {
-            padding: 10px 12px;
+        /* TABLA DESGLOSE */
+        .ticket-table { width: 100%; border-collapse: collapse; }
+        .ticket-table thead tr { background: #F8FAFC; }
+        .ticket-table th {
+            padding: 10px 14px; text-align: left;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            color: var(--text-sec); letter-spacing: 0.5px;
             border-bottom: 1px solid var(--border);
-            font-size: 12px;
         }
-
-        tr:last-child td { border-bottom: none; }
-
-        /* --- BADGES --- */
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
+        .ticket-table th:not(:first-child) { text-align: right; }
+        .ticket-table td {
+            padding: 13px 14px; border-bottom: 1px solid var(--border);
+            font-size: 12px; vertical-align: middle;
         }
+        .ticket-table td:not(:first-child) { text-align: right; font-weight: 600; }
+        .ticket-table tr:last-child td { border-bottom: none; }
+        .ticket-table tbody tr:hover td { background: #F8FAFC; }
 
-        .badge-success { background: #D1FAE5; color: #065F46; }
-        .badge-warning { background: #FEF3C7; color: #92400E; }
-        .badge-danger { background: #FEE2E2; color: #991B1B; }
-        .badge-info { background: #DBEAFE; color: #1E40AF; }
+        .ticket-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 7px; }
+        .ticket-name i { font-size: 12px; color: var(--text-sec); }
 
-        /* --- BARRA DE PROGRESO --- */
-        .progress {
-            width: 100%;
-            height: 5px;
-            background: #E5E7EB;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 4px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.8s ease;
-        }
-
-        /* --- DESGLOSE DE BILLETES --- */
-        .ticket-breakdown {
-            padding: 0;
-        }
-
-        .ticket-item {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .ticket-item:last-child { border-bottom: none; }
-
-        .ticket-type {
-            font-weight: 700;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
-
-        .ticket-stat {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 3px;
-        }
-
-        .ticket-stat-label {
-            color: var(--text-sec);
-        }
-
-        .ticket-stat-value {
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .ticket-total {
-            background: #F8FAFC;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-top: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 700;
-        }
+        .val-disponible { color: #059669; }
+        .val-vendido    { color: var(--primary); }
+        .val-total      { color: var(--text); }
 
         .grand-total {
-            background: var(--primary);
-            color: white;
-            padding: 12px 14px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
+            background: var(--primary); color: white;
+            padding: 12px 14px; text-align: center;
+            font-weight: 700; font-size: 14px;
         }
 
-        /* --- MODAL --- */
+        /* MODAL */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; padding: 16px;
         }
-
         .modal-overlay.active { display: flex; }
-
         .modal {
-            background: var(--card);
-            width: 100%;
-            max-width: 500px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: var(--card); width: 100%; max-width: 500px;
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             animation: slideUp 0.3s ease-out;
         }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-sec); }
+        .modal-body { padding: 16px; }
 
-        .modal-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-sec);
-        }
-
-        .modal-body {
-            padding: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--text);
-        }
-
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
         .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
+            width: 100%; padding: 10px 12px;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            font-size: 14px; font-family: inherit; transition: all 0.2s;
         }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,61,165,0.1); }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
-        }
-
-        .modal-footer {
-            padding: 14px 16px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
+        .modal-footer { padding: 14px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: white; }
         .btn-primary:active { background: #002D7A; }
-
-        .btn-ghost {
-            background: var(--bg);
-            color: var(--text);
-        }
-
+        .btn-ghost { background: var(--bg); color: var(--text); }
         .btn-ghost:active { background: #E5E7EB; }
 
-        /* --- ALERT --- */
-        .alert {
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 12px;
-            display: none;
-            animation: slideDown 0.3s ease-out;
-        }
+        .alert { padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; display: none; }
+        .alert-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
 
-        @keyframes slideDown {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        .empty-state { text-align: center; padding: 20px 14px; color: var(--text-sec); font-size: 12px; }
 
-        .alert-danger {
-            background: #FEE2E2;
-            color: #991B1B;
-            border: 1px solid #FCA5A5;
-        }
-
-        /* --- EMPTY STATE --- */
-        .empty-state {
-            text-align: center;
-            padding: 20px 14px;
-            color: var(--text-sec);
-            font-size: 12px;
-        }
-
-        /* --- RESPONSIVE DESKTOP --- */
         @media (min-width: 768px) {
-            header {
-                padding: 16px 24px;
-            }
-
-            main {
-                padding: 20px 24px 40px;
-            }
-
-            .hero {
-                padding: 16px 20px;
-                margin-bottom: 20px;
-            }
-
+            header { padding: 16px 24px; }
+            main { padding: 20px 24px 40px; }
+            .hero { padding: 16px 20px; margin-bottom: 20px; }
             .hero h2 { font-size: 18px; }
-
-            .hero-info {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-            }
-
-            .hero-info-item {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-
-            .kpi-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 16px;
-                margin-bottom: 20px;
-            }
-
-            .kpi {
-                padding: 16px;
-            }
-
+            .hero-info { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+            .hero-info-item { padding: 8px 12px; font-size: 12px; }
+            .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+            .kpi { padding: 16px; }
             .kpi-label { font-size: 12px; }
             .kpi-value { font-size: 24px; }
-
-            .section {
-                margin-bottom: 20px;
-            }
-
-            .section-header {
-                padding: 16px;
-            }
-
+            .section { margin-bottom: 20px; }
+            .section-header { padding: 16px; }
             .section-title { font-size: 14px; }
-
-            table {
-                font-size: 13px;
-            }
-
-            th {
-                padding: 12px 16px;
-                font-size: 11px;
-            }
-
-            td {
-                padding: 12px 16px;
-            }
-
-            .ticket-item {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-
-            .modal {
-                max-width: 600px;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .kpi-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .ticket-table th { padding: 12px 16px; font-size: 11px; }
+            .ticket-table td { padding: 14px 16px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header>
         <div class="logo">
             <i class="fas fa-ship"></i>
@@ -619,7 +230,6 @@
     <main>
         <div id="errorAlert" class="alert alert-danger"></div>
 
-        <!-- HERO CON INFORMACIÓN DEL VIAJE -->
         <div class="hero">
             <div class="hero-content">
                 <h2 id="viajeDestino">Cargando viaje...</h2>
@@ -644,7 +254,7 @@
             </div>
         </div>
 
-        <!-- KPI GRID -->
+        <!-- KPIs -->
         <div class="kpi-grid">
             <div class="kpi success">
                 <div class="kpi-label"><i class="fas fa-check"></i> Vendidos</div>
@@ -654,31 +264,31 @@
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Ingresos</div>
                 <div class="kpi-value" id="kpi-ingresos" style="font-size: 16px;">0</div>
-                <div class="kpi-sub">XAF</div>
+                <div class="kpi-sub">XAF total</div>
             </div>
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-users"></i> Disponibles</div>
                 <div class="kpi-value" id="kpi-disponibles">0</div>
-                <div class="kpi-sub">Económicos</div>
+                <div class="kpi-sub">Plazas libres</div>
             </div>
-            <div class="kpi danger">
-                <div class="kpi-label"><i class="fas fa-chart-pie"></i> Ocupación</div>
-                <div class="kpi-value" id="kpi-ocupacion">0%</div>
-                <div class="kpi-sub">Total</div>
+            <div class="kpi">
+                <div class="kpi-label"><i class="fas fa-box-open"></i> Stock Total</div>
+                <div class="kpi-value" id="kpi-stock">0</div>
+                <div class="kpi-sub">Capacidad total</div>
             </div>
         </div>
 
-        <!-- DESGLOSE DE INVENTARIO POR TIPO DE BILLETE -->
+        <!-- DESGLOSE DE BILLETES -->
         <div class="section">
             <div class="section-header">
                 <h3 class="section-title"><i class="fas fa-ticket-alt"></i> Desglose de Billetes</h3>
             </div>
-            <div class="section-body ticket-breakdown" id="ticketBreakdown">
+            <div class="section-body" id="ticketBreakdown">
                 <div class="empty-state">Cargando inventario...</div>
             </div>
         </div>
 
-        <!-- RESUMEN TOTAL -->
+        <!-- TOTAL GENERAL -->
         <div class="section">
             <div class="grand-total" id="grandTotal">
                 Total General: 0 XAF
@@ -711,18 +321,16 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
         let SUPABASE_URL = localStorage.getItem('fv_url') || '';
         let SUPABASE_KEY = localStorage.getItem('fv_key') || '';
         let destinoActual = null;
 
-        // --- UTILIDADES ---
         const formatXAF = (n) => new Intl.NumberFormat('es-GQ').format(Math.round(n));
-        
+
         const formatFecha = (f) => {
             if (!f) return '—';
             const d = new Date(f);
-            return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
         };
 
         const formatHora = (h) => {
@@ -732,87 +340,55 @@
 
         const showAlert = (msg) => {
             const el = document.getElementById('errorAlert');
-            if (msg) {
-                el.textContent = msg;
-                el.style.display = 'block';
-                updateStatus(false);
-            } else {
-                el.style.display = 'none';
-            }
+            if (msg) { el.textContent = msg; el.style.display = 'block'; updateStatus(false); }
+            else { el.style.display = 'none'; }
         };
 
         const updateStatus = (online) => {
-            const dot = document.getElementById('statusDot');
+            const dot  = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
-            if (online) {
-                dot.className = 'dot online';
-                text.textContent = 'Online';
-            } else {
-                dot.className = 'dot';
-                text.textContent = 'Offline';
-            }
+            if (online) { dot.className = 'dot online'; text.textContent = 'Online'; }
+            else        { dot.className = 'dot';        text.textContent = 'Offline'; }
         };
 
-        // --- MODAL ---
         function openModal() {
             document.getElementById('inputUrl').value = SUPABASE_URL;
             document.getElementById('inputKey').value = SUPABASE_KEY;
             document.getElementById('modalOverlay').classList.add('active');
         }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
 
         function saveConfig() {
             const url = document.getElementById('inputUrl').value.trim().replace(/\/$/, '');
             const key = document.getElementById('inputKey').value.trim();
-            
-            if (!url || !key) {
-                alert('Completa ambos campos');
-                return;
-            }
-
-            SUPABASE_URL = url;
-            SUPABASE_KEY = key;
+            if (!url || !key) { alert('Completa ambos campos'); return; }
+            SUPABASE_URL = url; SUPABASE_KEY = key;
             localStorage.setItem('fv_url', url);
             localStorage.setItem('fv_key', key);
-            closeModal();
-            loadAll();
+            closeModal(); loadAll();
         }
 
-        // --- API ---
         async function querySupabase(table, params = '') {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) throw new Error(`Error ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error(`Error en ${table}:`, error);
-                throw error;
-            }
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) throw new Error(`Error ${response.status}`);
+            return await response.json();
         }
 
-        // --- CARGA DE DATOS ---
         async function loadViaje() {
             const viajes = await querySupabase('viajes', 'activo=eq.true&limit=1');
             const v = viajes[0];
-            if (!v) {
-                document.getElementById('viajeDestino').textContent = 'Sin viajes activos';
-                return;
-            }
+            if (!v) { document.getElementById('viajeDestino').textContent = 'Sin viajes activos'; return; }
             destinoActual = v.destino;
             document.getElementById('viajeDestino').textContent = v.destino;
-            document.getElementById('viajeFecha').textContent = formatFecha(v.fecha_salida);
-            document.getElementById('viajeHora').textContent = formatHora(v.hora_salida);
-            document.getElementById('viajeEstado').textContent = v.estado;
+            document.getElementById('viajeFecha').textContent   = formatFecha(v.fecha_salida);
+            document.getElementById('viajeHora').textContent    = formatHora(v.hora_salida);
+            document.getElementById('viajeEstado').textContent  = v.estado;
         }
 
         async function loadInventario() {
@@ -822,109 +398,80 @@
                 return;
             }
 
-            const inv = await querySupabase('inventario', `destino=eq.${encodeURIComponent(destinoActual)}&order=tipo_billete`);
-            const compras = await querySupabase('compras', `destino=eq.${encodeURIComponent(destinoActual)}&select=tipo_billete,precio,estado_compra`);
+            // Inventario ordenado de mayor a menor precio
+            const inv = await querySupabase('inventario',
+                `destino=eq.${encodeURIComponent(destinoActual)}&order=precio.desc`);
 
-            // Agrupar compras por tipo de billete y estado
+            // Compras con estado pagado
+            const compras = await querySupabase('compras',
+                `destino=eq.${encodeURIComponent(destinoActual)}&select=tipo_billete,precio,estado_compra`);
+
+            // Agrupar ventas por tipo
             const ventasPorTipo = {};
             compras.forEach(c => {
-                if (!ventasPorTipo[c.tipo_billete]) {
-                    ventasPorTipo[c.tipo_billete] = { vendidos: 0, monto: 0, pagados: 0 };
-                }
+                if (!ventasPorTipo[c.tipo_billete])
+                    ventasPorTipo[c.tipo_billete] = { vendidos: 0, monto: 0 };
                 if (c.estado_compra === 'Billete pagado') {
                     ventasPorTipo[c.tipo_billete].vendidos++;
                     ventasPorTipo[c.tipo_billete].monto += c.precio || 0;
-                    ventasPorTipo[c.tipo_billete].pagados++;
                 }
             });
 
-            let totalVendidos = 0;
-            let totalIngresos = 0;
-            let totalDisponibles = 0;
-            let totalCapacidad = 0;
+            let totalVendidos = 0, totalIngresos = 0, totalDisponibles = 0, totalCapacidad = 0;
 
-            const html = inv.map(i => {
-                const tipo = i.tipo_billete;
+            const filas = inv.map(i => {
+                const tipo       = i.tipo_billete;
                 const disponibles = i.stock_disponible || 0;
-                const vendidos = ventasPorTipo[tipo]?.vendidos || 0;
-                const monto = ventasPorTipo[tipo]?.monto || 0;
-                const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
-                const ocupacion = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
+                const vendidos   = ventasPorTipo[tipo]?.vendidos || 0;
+                const monto      = ventasPorTipo[tipo]?.monto    || 0;
+                const capacidad  = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
 
-                totalVendidos += vendidos;
-                totalIngresos += monto;
+                totalVendidos   += vendidos;
+                totalIngresos   += monto;
                 totalDisponibles += disponibles;
-                totalCapacidad += total;
+                totalCapacidad  += capacidad;
 
-                // Mostrar diferente formato según el tipo de billete
-                if (tipo === 'Economico') {
-                    return `
-                        <div class="ticket-item">
-                            <div>
-                                <div class="ticket-type"><i class="fas fa-chair"></i> ${tipo}</div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Disponibles:</span>
-                                    <span class="ticket-stat-value">${disponibles}</span>
-                                </div>
-                            </div>
-                            <div></div>
-                            <div></div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="ticket-item">
-                            <div>
-                                <div class="ticket-type"><i class="fas fa-crown"></i> ${tipo}</div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Vendidos:</span>
-                                    <span class="ticket-stat-value">${vendidos}</span>
-                                </div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Disponibles:</span>
-                                    <span class="ticket-stat-value">${disponibles}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Precio Unit.:</span>
-                                    <span class="ticket-stat-value">${formatXAF(i.precio)}</span>
-                                </div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Subtotal:</span>
-                                    <span class="ticket-stat-value">${formatXAF(monto)}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="ticket-stat">
-                                    <span class="ticket-stat-label">Ocupación:</span>
-                                    <span class="ticket-stat-value">${ocupacion}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-fill" style="width:${ocupacion}%; background:${ocupacion > 80 ? '#EF4444' : ocupacion > 50 ? '#F59E0B' : '#10B981'}"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
+                // Icono según tipo
+                const icono = tipo === 'Economico' ? 'fa-chair'
+                            : tipo === 'VIP'       ? 'fa-crown'
+                            : tipo === 'Cabina'    ? 'fa-door-closed'
+                            : 'fa-ticket-alt';
+
+                return `
+                    <tr>
+                        <td><span class="ticket-name"><i class="fas ${icono}"></i>${tipo}</span></td>
+                        <td class="val-disponible">${disponibles}</td>
+                        <td class="val-vendido">${vendidos}</td>
+                        <td>${formatXAF(i.precio || 0)} XAF</td>
+                        <td class="val-total">${formatXAF(monto)} XAF</td>
+                    </tr>`;
             }).join('');
 
-            container.innerHTML = html;
+            container.innerHTML = `
+                <table class="ticket-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de billete</th>
+                            <th>Disponible</th>
+                            <th>Vendido</th>
+                            <th>Precio unit.</th>
+                            <th>Total vendido</th>
+                        </tr>
+                    </thead>
+                    <tbody>${filas}</tbody>
+                </table>`;
 
             // Actualizar KPIs
-            document.getElementById('kpi-vendidos').textContent = totalVendidos;
-            document.getElementById('kpi-ingresos').textContent = formatXAF(totalIngresos);
+            document.getElementById('kpi-vendidos').textContent    = totalVendidos;
+            document.getElementById('kpi-ingresos').textContent    = formatXAF(totalIngresos);
             document.getElementById('kpi-disponibles').textContent = totalDisponibles;
-            const ocupacionTotal = totalCapacidad > 0 ? Math.round(((totalCapacidad - totalDisponibles) / totalCapacidad) * 100) : 0;
-            document.getElementById('kpi-ocupacion').textContent = ocupacionTotal + '%';
+            document.getElementById('kpi-stock').textContent       = totalCapacidad;
 
-            // Total general
-            document.getElementById('grandTotal').innerHTML = `
-                <i class="fas fa-calculator" style="margin-right: 8px;"></i>
-                Total General: ${formatXAF(totalIngresos)} XAF
-            `;
+            document.getElementById('grandTotal').innerHTML =
+                `<i class="fas fa-calculator" style="margin-right:8px;"></i>Total General: ${formatXAF(totalIngresos)} XAF`;
 
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+            document.getElementById('lastUpdate').textContent =
+                new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         }
 
         async function loadAll() {
@@ -933,9 +480,7 @@
                 updateStatus(false);
                 return;
             }
-
             showAlert(null);
-            
             try {
                 await loadViaje();
                 await loadInventario();
@@ -945,13 +490,9 @@
             }
         }
 
-        // --- INIT ---
         window.addEventListener('load', () => {
-            if (!SUPABASE_URL || !SUPABASE_KEY) {
-                openModal();
-            } else {
-                loadAll();
-            }
+            if (!SUPABASE_URL || !SUPABASE_KEY) { openModal(); }
+            else { loadAll(); }
             setInterval(loadAll, 120000);
         });
     </script>
