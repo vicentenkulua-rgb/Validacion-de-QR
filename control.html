@@ -2,39 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferry Viteoca — Sistema de Gestión Profesional</title>
-    <!-- Fuentes y Iconos -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#003DA5">
+    <title>Ferry Viteoca</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            /* Paleta de Colores Profesional */
-            --primary: #C8102E; /* Rojo Corporativo */
-            --primary-dark: #A00D25;
-            --secondary: #003DA5; /* Azul Corporativo */
-            --secondary-dark: #002D7A;
+            --primary: #003DA5;
+            --primary-light: #0052CC;
+            --accent: #C8102E;
             --success: #10B981;
             --warning: #F59E0B;
             --danger: #EF4444;
-            --info: #3B82F6;
-            
-            /* Neutros */
-            --bg-body: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-main: #1E293B;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            
-            /* Sombras y Bordes */
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            --radius: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #F1F3F6;
+            --card: #FFFFFF;
+            --text: #1A1A1A;
+            --text-sec: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         * {
@@ -44,316 +33,259 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            line-height: 1.5;
-            overflow-x: hidden;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3, .logo-text {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        /* --- HEADER --- */
+        /* --- HEADER COMPACTO --- */
         header {
-            background: #FFFFFF;
-            height: 70px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 5%;
+            align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            box-shadow: var(--shadow);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            color: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 10px rgba(200, 16, 46, 0.3);
-        }
-
-        .logo-text {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text .red { color: var(--primary); }
-        .logo-text .blue { color: var(--secondary); }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
             gap: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 12px;
-            background: #F1F5F9;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .logo i { font-size: 18px; }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
             border-radius: 20px;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #CBD5E1;
         }
 
         .dot.online {
-            background: var(--success);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            background: #22C55E;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
-        .btn-icon {
-            background: none;
-            border: 1px solid var(--border);
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
+        .btn-header {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-muted);
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .btn-icon:hover {
-            background: #F1F5F9;
-            color: var(--primary);
-            border-color: var(--primary);
-        }
+        .btn-header:active { background: rgba(255,255,255,0.2); }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- MAIN CONTENT --- */
         main {
-            max-width: 1400px;
+            padding: 12px 12px 80px 12px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 24px 5%;
         }
 
-        /* --- BANNER --- */
-        .hero-banner {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
-            border-radius: var(--radius);
-            padding: 30px;
+        /* --- HERO COMPACTO --- */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
             color: white;
-            margin-bottom: 30px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow-lg);
         }
 
-        .hero-banner::after {
+        .hero::after {
             content: '\f21a';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
-            right: -20px;
-            bottom: -20px;
-            font-size: 150px;
-            opacity: 0.1;
-            transform: rotate(-15deg);
+            right: -10px;
+            bottom: -10px;
+            font-size: 80px;
+            opacity: 0.08;
         }
 
-        .hero-content h2 {
-            font-size: 28px;
+        .hero h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .hero p {
+            font-size: 12px;
+            opacity: 0.85;
             margin-bottom: 8px;
         }
 
-        .hero-content p {
-            opacity: 0.8;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .hero-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
 
-        .hero-stat-item {
+        .hero-stat {
             background: rgba(255,255,255,0.1);
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 10px;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .hero-stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
-        .hero-stat-value { font-size: 18px; font-weight: 700; }
+        .hero-stat-val {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+            margin-top: 2px;
+        }
 
-        /* --- KPI GRID --- */
+        /* --- KPI GRID ULTRA-COMPACTO --- */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .kpi-card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
+            margin-bottom: 12px;
         }
 
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+        .kpi {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-left: 3px solid var(--primary);
         }
 
-        .kpi-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .kpi-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+        .kpi.success { border-left-color: var(--success); }
+        .kpi.warning { border-left-color: var(--warning); }
+        .kpi.danger { border-left-color: var(--danger); }
 
         .kpi-label {
-            font-size: 14px;
+            font-size: 11px;
+            color: var(--text-sec);
             font-weight: 600;
-            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
         }
 
         .kpi-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-main);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
         }
 
-        .kpi-trend {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .kpi-sub {
+            font-size: 10px;
+            color: var(--text-sec);
+            margin-top: 2px;
         }
 
-        /* Colores KPI */
-        .kpi-green .kpi-icon { background: #ECFDF5; color: var(--success); }
-        .kpi-blue .kpi-icon { background: #EFF6FF; color: var(--info); }
-        .kpi-orange .kpi-icon { background: #FFFBEB; color: var(--warning); }
-        .kpi-red .kpi-icon { background: #FEF2F2; color: var(--danger); }
-
-        /* --- DASHBOARD SECTIONS --- */
-        .dashboard-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .section-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
+        /* --- SECCIONES COMPACTAS --- */
+        .section {
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
 
         .section-header {
-            padding: 20px 24px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #F8FAFC;
         }
 
         .section-title {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
+
+        .section-title i { font-size: 12px; }
 
         .section-body {
             padding: 0;
         }
 
-        /* --- TABLES --- */
-        .table-container {
-            overflow-x: auto;
-        }
-
+        /* --- TABLA COMPACTA --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
+            font-size: 12px;
         }
 
         th {
             background: #F8FAFC;
-            padding: 14px 24px;
-            font-size: 12px;
+            padding: 8px 12px;
+            text-align: left;
             font-weight: 600;
+            font-size: 10px;
             text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
+            color: var(--text-sec);
+            letter-spacing: 0.3px;
         }
 
         td {
-            padding: 16px 24px;
+            padding: 10px 12px;
             border-bottom: 1px solid var(--border);
-            font-size: 14px;
+            font-size: 12px;
         }
 
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #F1F5F9; }
 
         /* --- BADGES --- */
         .badge {
-            padding: 4px 10px;
+            display: inline-block;
+            padding: 3px 8px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
         }
@@ -363,204 +295,287 @@
         .badge-danger { background: #FEE2E2; color: #991B1B; }
         .badge-info { background: #DBEAFE; color: #1E40AF; }
 
-        /* --- STOCK BARS --- */
-        .stock-progress {
+        /* --- BARRA DE PROGRESO --- */
+        .progress {
             width: 100%;
-            height: 8px;
-            background: #E2E8F0;
+            height: 5px;
+            background: #E5E7EB;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 5px;
+            margin: 4px 0;
         }
 
-        .stock-fill {
+        .progress-fill {
             height: 100%;
             border-radius: 10px;
-            transition: width 1s ease-in-out;
+            transition: width 0.8s ease;
         }
 
-        /* --- PAYMENTS LIST --- */
+        /* --- LISTA DE PAGOS --- */
         .payment-item {
-            padding: 16px 24px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: var(--transition);
+            font-size: 12px;
         }
 
         .payment-item:last-child { border-bottom: none; }
-        .payment-item:hover { background: #F8FAFC; }
 
-        .payment-info { display: flex; flex-direction: column; gap: 2px; }
-        .payment-user { font-weight: 600; font-size: 14px; }
-        .payment-meta { font-size: 12px; color: var(--text-muted); }
-        .payment-amount { font-weight: 700; font-size: 16px; color: var(--text-main); }
+        .payment-info { flex: 1; }
+        .payment-user { font-weight: 600; display: block; margin-bottom: 2px; }
+        .payment-meta { font-size: 10px; color: var(--text-sec); }
+        .payment-amount { font-weight: 700; text-align: right; }
 
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.5);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
-            padding: 20px;
+            z-index: 1000;
+            padding: 16px;
         }
 
         .modal-overlay.active { display: flex; }
 
         .modal {
-            background: white;
+            background: var(--card);
             width: 100%;
             max-width: 500px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-lg);
-            animation: modalIn 0.3s ease-out;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
         }
 
-        @keyframes modalIn {
-            from { transform: translateY(20px); opacity: 0; }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
-            padding: 24px;
+            padding: 16px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-body { padding: 24px; }
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
 
-        .form-group { margin-bottom: 20px; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-sec);
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
         .form-group label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-main);
+            margin-bottom: 5px;
+            color: var(--text);
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 16px;
+            padding: 10px 12px;
             border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: inherit;
+            border-radius: 8px;
             font-size: 14px;
-            transition: var(--transition);
+            font-family: inherit;
+            transition: all 0.2s;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--secondary);
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
         }
 
+        .modal-footer {
+            padding: 14px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
         .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            border: none;
+            font-size: 13px;
+            transition: all 0.2s;
             font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .btn-primary { background: var(--secondary); color: white; }
-        .btn-primary:hover { background: var(--secondary-dark); }
-        .btn-ghost { background: #F1F5F9; color: var(--text-main); }
-        .btn-ghost:hover { background: #E2E8F0; }
-
-        /* --- UTILS --- */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,0.8);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            gap: 15px;
+        .btn-primary {
+            background: var(--primary);
+            color: white;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .btn-primary:active { background: #002D7A; }
+
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--text);
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-ghost:active { background: #E5E7EB; }
 
+        /* --- ALERT --- */
         .alert {
-            padding: 12px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
             display: none;
-            font-size: 14px;
-            font-weight: 500;
+            animation: slideDown 0.3s ease-out;
         }
 
-        .alert-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 1024px) {
-            .dashboard-row { grid-template-columns: 1fr; }
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        @media (max-width: 768px) {
-            header { padding: 0 20px; }
-            .logo-text { font-size: 18px; }
-            .hero-stats { flex-direction: column; gap: 10px; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
-            main { padding: 20px; }
-            .section-header { padding: 15px 20px; }
-            td, th { padding: 12px 15px; }
-            .hide-mobile { display: none; }
+        .alert-danger {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
         }
 
-        @media (max-width: 480px) {
-            .kpi-grid { grid-template-columns: 1fr; }
-            .hero-banner { padding: 20px; }
-            .hero-content h2 { font-size: 22px; }
-            .header-actions .status-indicator span { display: none; }
+        /* --- LOADING --- */
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #E5E7EB;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px 14px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        /* --- RESPONSIVE DESKTOP --- */
+        @media (min-width: 768px) {
+            header {
+                padding: 16px 24px;
+            }
+
+            main {
+                padding: 20px 24px 40px;
+            }
+
+            .hero {
+                padding: 20px 24px;
+                margin-bottom: 20px;
+            }
+
+            .hero h2 { font-size: 20px; }
+            .hero p { font-size: 13px; }
+
+            .kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                margin-bottom: 20px;
+            }
+
+            .kpi {
+                padding: 16px;
+            }
+
+            .kpi-label { font-size: 12px; }
+            .kpi-value { font-size: 24px; }
+
+            .section {
+                margin-bottom: 20px;
+            }
+
+            .section-header {
+                padding: 16px;
+            }
+
+            .section-title { font-size: 14px; }
+
+            .section-body {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 0;
+            }
+
+            .section-body > :first-child {
+                border-right: 1px solid var(--border);
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th {
+                padding: 12px 16px;
+                font-size: 11px;
+            }
+
+            td {
+                padding: 12px 16px;
+            }
+
+            .modal {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- LOADING -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <p style="font-weight: 600; color: var(--text-muted)">Sincronizando datos...</p>
-    </div>
-
     <!-- HEADER -->
     <header>
-        <a href="#" class="logo">
-            <div class="logo-icon"><i class="fas fa-ship"></i></div>
-            <div class="logo-text"><span class="red">Ferry</span> <span class="blue">Viteoca</span></div>
-        </a>
-        <div class="header-actions">
-            <div class="status-indicator">
+        <div class="logo">
+            <i class="fas fa-ship"></i>
+            <span>Ferry Viteoca</span>
+        </div>
+        <div class="header-right">
+            <div class="status-badge">
                 <div id="statusDot" class="dot"></div>
-                <span id="statusText">Desconectado</span>
+                <span id="statusText">Offline</span>
             </div>
-            <button class="btn-icon" onclick="openModal()" title="Configuración">
+            <button class="btn-header" onclick="openModal()" title="Configurar">
                 <i class="fas fa-cog"></i>
             </button>
-            <button class="btn-icon" onclick="loadAll()" title="Refrescar">
+            <button class="btn-header" onclick="loadAll()" title="Actualizar">
                 <i class="fas fa-sync-alt"></i>
             </button>
         </div>
@@ -569,115 +584,92 @@
     <main>
         <div id="errorAlert" class="alert alert-danger"></div>
 
-        <!-- HERO BANNER -->
-        <div class="hero-banner">
-            <div class="hero-content">
-                <h2 id="viajeDestino">Cargando información del viaje...</h2>
-                <p id="viajeDetalle"><i class="far fa-calendar-alt"></i> --</p>
-            </div>
+        <!-- HERO COMPACTO -->
+        <div class="hero">
+            <h2 id="viajeDestino">Cargando...</h2>
+            <p id="viajeDetalle">—</p>
             <div class="hero-stats" id="heroStats">
                 <!-- Dinámico -->
             </div>
         </div>
 
         <!-- KPI GRID -->
-        <div class="kpi-grid" id="kpiGrid">
-            <!-- KPI 1 -->
-            <div class="kpi-card kpi-green">
-                <div class="kpi-header">
-                    <span class="kpi-label">Billetes Pagados</span>
-                    <div class="kpi-icon"><i class="fas fa-ticket-alt"></i></div>
-                </div>
+        <div class="kpi-grid">
+            <div class="kpi success">
+                <div class="kpi-label"><i class="fas fa-check"></i> Pagados</div>
                 <div class="kpi-value" id="kpi-pagados">0</div>
-                <div class="kpi-trend" id="kpi-pagados-sub">--</div>
+                <div class="kpi-sub" id="kpi-pagados-sub">—</div>
             </div>
-            <!-- KPI 2 -->
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-header">
-                    <span class="kpi-label">Ingresos Totales</span>
-                    <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
-                </div>
-                <div class="kpi-value" id="kpi-ingresos" style="font-size: 22px;">0 XAF</div>
-                <div class="kpi-trend">Confirmados</div>
+            <div class="kpi warning">
+                <div class="kpi-label"><i class="fas fa-wallet"></i> Ingresos</div>
+                <div class="kpi-value" id="kpi-ingresos" style="font-size: 16px;">0</div>
+                <div class="kpi-sub">XAF</div>
             </div>
-            <!-- KPI 3 -->
-            <div class="kpi-card kpi-orange">
-                <div class="kpi-header">
-                    <span class="kpi-label">Pendientes</span>
-                    <div class="kpi-icon"><i class="fas fa-clock"></i></div>
-                </div>
+            <div class="kpi warning">
+                <div class="kpi-label"><i class="fas fa-clock"></i> Pendientes</div>
                 <div class="kpi-value" id="kpi-pendientes">0</div>
-                <div class="kpi-trend">Esperando pago</div>
+                <div class="kpi-sub">Por pagar</div>
             </div>
-            <!-- KPI 4 -->
-            <div class="kpi-card kpi-red">
-                <div class="kpi-header">
-                    <span class="kpi-label">Stock Disponible</span>
-                    <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                </div>
+            <div class="kpi danger">
+                <div class="kpi-label"><i class="fas fa-users"></i> Stock</div>
                 <div class="kpi-value" id="kpi-stock">0</div>
-                <div class="kpi-trend" id="kpi-stock-sub">Plazas libres</div>
+                <div class="kpi-sub">Disponibles</div>
             </div>
         </div>
 
-        <!-- DASHBOARD ROW 1 -->
-        <div class="dashboard-row">
-            <!-- INVENTARIO -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3 class="section-title"><i class="fas fa-clipboard-list"></i> Inventario de Billetes</h3>
-                    <span id="lastUpdate" style="font-size: 12px; color: var(--text-muted)"></span>
-                </div>
-                <div class="section-body">
-                    <div class="table-container">
-                        <table id="inventarioTable">
-                            <thead>
-                                <tr>
-                                    <th>Tipo de Billete</th>
-                                    <th>Precio</th>
-                                    <th>Estado de Ventas</th>
-                                    <th>Disponibilidad</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventarioBody">
-                                <!-- Dinámico -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PAGOS RECIENTES -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3 class="section-title"><i class="fas fa-history"></i> Pagos Recientes</h3>
-                </div>
-                <div class="section-body" id="pagosList">
-                    <!-- Dinámico -->
-                </div>
-            </div>
-        </div>
-
-        <!-- REGISTRO DE COMPRAS -->
-        <div class="section-card">
+        <!-- INVENTARIO -->
+        <div class="section">
             <div class="section-header">
-                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> Registro de Compras</h3>
+                <h3 class="section-title"><i class="fas fa-boxes"></i> Inventario</h3>
+                <span id="lastUpdate" style="font-size: 10px; color: var(--text-sec);"></span>
             </div>
             <div class="section-body">
-                <div class="table-container">
+                <div style="overflow-x: auto;">
+                    <table id="inventarioTable">
+                        <thead>
+                            <tr>
+                                <th>Billete</th>
+                                <th>Precio</th>
+                                <th>Ventas</th>
+                                <th>Libres</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventarioBody">
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGOS RECIENTES -->
+        <div class="section">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-history"></i> Pagos Recientes</h3>
+            </div>
+            <div class="section-body" id="pagosContainer">
+                <div class="empty-state">Cargando pagos...</div>
+            </div>
+        </div>
+
+        <!-- COMPRAS -->
+        <div class="section">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> Compras</h3>
+            </div>
+            <div class="section-body">
+                <div style="overflow-x: auto;">
                     <table id="comprasTable">
                         <thead>
                             <tr>
                                 <th>Pasajero</th>
                                 <th>Destino</th>
-                                <th class="hide-mobile">Tipo</th>
                                 <th>Precio</th>
                                 <th>Estado</th>
-                                <th class="hide-mobile">Fecha</th>
                             </tr>
                         </thead>
                         <tbody id="comprasBody">
-                            <!-- Dinámico -->
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -685,56 +677,43 @@
         </div>
     </main>
 
-    <!-- CONFIG MODAL -->
+    <!-- MODAL CONFIGURACIÓN -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3 style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-database" style="color: var(--secondary)"></i> 
-                    Conexión Supabase
-                </h3>
-                <button class="btn-icon" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                <h3><i class="fas fa-database" style="color: var(--primary); margin-right: 8px;"></i>Supabase</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-                    Introduce las credenciales de tu proyecto para sincronizar los datos en tiempo real.
-                </p>
                 <div class="form-group">
                     <label>URL del Proyecto</label>
-                    <input type="text" id="inputUrl" class="form-control" placeholder="https://xxxxxxxxxxx.supabase.co">
+                    <input type="text" id="inputUrl" class="form-control" placeholder="https://xxxxx.supabase.co">
                 </div>
                 <div class="form-group">
-                    <label>Clave Anon (Public Key)</label>
-                    <input type="password" id="inputKey" class="form-control" placeholder="Introducir clave...">
+                    <label>Clave Anon</label>
+                    <input type="password" id="inputKey" class="form-control" placeholder="Clave...">
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button class="btn btn-ghost" style="flex: 1;" onclick="closeModal()">Cancelar</button>
-                    <button class="btn btn-primary" style="flex: 2;" onclick="saveConfig()">
-                        <i class="fas fa-save"></i> Guardar y Conectar
-                    </button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveConfig()">Guardar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN Y ESTADO ---
+        // --- CONFIGURACIÓN ---
         let SUPABASE_URL = localStorage.getItem('fv_url') || '';
         let SUPABASE_KEY = localStorage.getItem('fv_key') || '';
         let destinoActual = null;
 
         // --- UTILIDADES ---
-        const formatXAF = (n) => new Intl.NumberFormat('es-GQ').format(n) + ' XAF';
+        const formatXAF = (n) => new Intl.NumberFormat('es-GQ').format(Math.round(n));
         
         const formatFecha = (f) => {
             if (!f) return '—';
-            return new Date(f).toLocaleDateString('es-ES', { 
-                day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' 
-            });
-        };
-
-        const toggleLoading = (show) => {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+            const d = new Date(f);
+            return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
         };
 
         const showAlert = (msg) => {
@@ -753,10 +732,10 @@
             const text = document.getElementById('statusText');
             if (online) {
                 dot.className = 'dot online';
-                text.textContent = 'Conectado';
+                text.textContent = 'Online';
             } else {
                 dot.className = 'dot';
-                text.textContent = 'Desconectado';
+                text.textContent = 'Offline';
             }
         };
 
@@ -776,7 +755,7 @@
             const key = document.getElementById('inputKey').value.trim();
             
             if (!url || !key) {
-                alert('Por favor, completa ambos campos.');
+                alert('Completa ambos campos');
                 return;
             }
 
@@ -788,22 +767,21 @@
             loadAll();
         }
 
-        // --- API CORE ---
+        // --- API ---
         async function querySupabase(table, params = '') {
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
                     headers: {
                         'apikey': SUPABASE_KEY,
                         'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'count=exact'
+                        'Content-Type': 'application/json'
                     }
                 });
                 
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+                if (!response.ok) throw new Error(`Error ${response.status}`);
                 return await response.json();
             } catch (error) {
-                console.error(`Error en tabla ${table}:`, error);
+                console.error(`Error en ${table}:`, error);
                 throw error;
             }
         }
@@ -813,21 +791,14 @@
             const viajes = await querySupabase('viajes', 'activo=eq.true&limit=1');
             const v = viajes[0];
             if (!v) {
-                document.getElementById('viajeDestino').textContent = "No hay viajes activos";
+                document.getElementById('viajeDestino').textContent = 'Sin viajes activos';
+                document.getElementById('viajeDetalle').textContent = '—';
                 return;
             }
             destinoActual = v.destino;
-            const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { 
-                weekday:'long', day:'numeric', month:'long' 
-            });
-            document.getElementById('viajeDestino').innerHTML = `<i class="fas fa-anchor"></i> Destino: ${v.destino}`;
-            document.getElementById('viajeDetalle').innerHTML = `
-                <i class="far fa-calendar-alt"></i> ${fecha} 
-                <span style="margin: 0 10px">|</span> 
-                <i class="far fa-clock"></i> Salida: ${v.hora_salida?.slice(0,5)}
-                <span style="margin: 0 10px">|</span> 
-                <span class="badge badge-info">${v.estado}</span>
-            `;
+            const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+            document.getElementById('viajeDestino').textContent = `${v.destino}`;
+            document.getElementById('viajeDetalle').textContent = `${fecha} • ${v.hora_salida?.slice(0,5)} • ${v.estado}`;
         }
 
         async function loadKPIs() {
@@ -847,13 +818,12 @@
             document.getElementById('kpi-ingresos').textContent = formatXAF(ingresos);
             document.getElementById('kpi-pendientes').textContent = pendientes.length;
             document.getElementById('kpi-stock').textContent = totalStock;
-            document.getElementById('kpi-stock-sub').textContent = `En ${destinoActual || 'sistema'}`;
         }
 
         async function loadInventario() {
             const container = document.getElementById('inventarioBody');
             if (!destinoActual) {
-                container.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted)">Selecciona un viaje activo</td></tr>';
+                container.innerHTML = '<tr><td colspan="4" class="empty-state">Sin viaje activo</td></tr>';
                 return;
             }
 
@@ -862,58 +832,43 @@
             container.innerHTML = inv.map(i => {
                 const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
                 const pct = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
-                let color = 'var(--success)';
-                if (pct > 60) color = 'var(--warning)';
-                if (pct > 85) color = 'var(--danger)';
+                let fillColor = '#10B981';
+                if (pct > 60) fillColor = '#F59E0B';
+                if (pct > 85) fillColor = '#EF4444';
 
                 return `
                     <tr>
+                        <td><strong>${i.tipo_billete}</strong></td>
+                        <td>${formatXAF(i.precio)}</td>
                         <td>
-                            <div style="font-weight:700">${i.tipo_billete}</div>
-                            <div style="font-size:11px; color:var(--text-muted)">${i.destino}</div>
-                        </td>
-                        <td style="font-weight:600">${formatXAF(i.precio)}</td>
-                        <td>
-                            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px">
-                                <span>${pct}% Vendido</span>
-                                <span>${i.stock_vendido} de ${total}</span>
+                            <div class="progress">
+                                <div class="progress-fill" style="width:${pct}%; background:${fillColor}"></div>
                             </div>
-                            <div class="stock-progress">
-                                <div class="stock-fill" style="width:${pct}%; background:${color}"></div>
-                            </div>
+                            <span style="font-size:10px; color:var(--text-sec)">${pct}%</span>
                         </td>
-                        <td>
-                            <span class="badge ${i.stock_disponible > 5 ? 'badge-success' : 'badge-danger'}">
-                                ${i.stock_disponible} Libres
-                            </span>
-                        </td>
+                        <td><span class="badge ${i.stock_disponible > 5 ? 'badge-success' : 'badge-danger'}">${i.stock_disponible}</span></td>
                     </tr>
                 `;
             }).join('');
         }
 
         async function loadPagos() {
-            const container = document.getElementById('pagosList');
-            const pagos = await querySupabase('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=6');
+            const container = document.getElementById('pagosContainer');
+            const pagos = await querySupabase('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=5');
             
             if (!pagos.length) {
-                container.innerHTML = '<div style="padding:30px; text-align:center; color:var(--text-muted)">No hay pagos registrados</div>';
+                container.innerHTML = '<div class="empty-state">Sin pagos</div>';
                 return;
             }
 
             container.innerHTML = pagos.map(p => `
                 <div class="payment-item">
                     <div class="payment-info">
-                        <span class="payment-user">${p.telefono_remitente || 'Anonimo'}</span>
-                        <span class="payment-meta">${p.metodo_pago || 'Muni Money'} • ${formatFecha(p.fecha_pago)}</span>
+                        <span class="payment-user">${p.telefono_remitente || 'Anónimo'}</span>
+                        <span class="payment-meta">${p.metodo_pago || 'Muni'} • ${formatFecha(p.fecha_pago)}</span>
                     </div>
-                    <div style="text-align:right">
-                        <div class="payment-amount" style="color: ${p.verificado ? 'var(--success)' : 'var(--warning)'}">
-                            ${formatXAF(p.monto_detectado || 0)}
-                        </div>
-                        <span style="font-size:10px; font-weight:700; text-transform:uppercase">
-                            ${p.verificado ? 'Verificado' : 'Pendiente'}
-                        </span>
+                    <div class="payment-amount" style="color: ${p.verificado ? 'var(--success)' : 'var(--warning)'}">
+                        ${formatXAF(p.monto_detectado || 0)}
                     </div>
                 </div>
             `).join('');
@@ -921,7 +876,7 @@
 
         async function loadCompras() {
             const container = document.getElementById('comprasBody');
-            const compras = await querySupabase('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=15');
+            const compras = await querySupabase('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=10');
             
             const getEstadoBadge = (e) => {
                 if (e === 'Billete pagado') return '<span class="badge badge-success">Pagado</span>';
@@ -931,25 +886,22 @@
 
             container.innerHTML = compras.map(c => `
                 <tr>
-                    <td><div style="font-weight:600">${c.nombre_pasajero || '—'}</div></td>
+                    <td><strong>${c.nombre_pasajero || '—'}</strong></td>
                     <td>${c.destino || '—'}</td>
-                    <td class="hide-mobile"><span class="badge badge-info">${c.tipo_billete}</span></td>
-                    <td style="font-weight:700">${formatXAF(c.precio || 0)}</td>
+                    <td>${formatXAF(c.precio || 0)}</td>
                     <td>${getEstadoBadge(c.estado_compra)}</td>
-                    <td class="hide-mobile" style="color:var(--text-muted); font-size:12px">${formatFecha(c.fecha_compra)}</td>
                 </tr>
             `).join('');
         }
 
         async function loadAll() {
             if (!SUPABASE_URL || !SUPABASE_KEY) {
-                showAlert('Configuración requerida: Por favor, introduce las credenciales de Supabase.');
+                showAlert('Configura Supabase en ⚙');
                 updateStatus(false);
                 return;
             }
 
             showAlert(null);
-            toggleLoading(true);
             
             try {
                 await loadViaje();
@@ -961,25 +913,21 @@
                 ]);
                 
                 updateStatus(true);
-                document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
             } catch (err) {
-                showAlert('Error de conexión: Verifica tu URL y Clave de Supabase.');
-            } finally {
-                toggleLoading(false);
+                showAlert('Error de conexión. Verifica credenciales.');
             }
         }
 
-        // --- INICIALIZACIÓN ---
-        window.onload = () => {
+        // --- INIT ---
+        window.addEventListener('load', () => {
             if (!SUPABASE_URL || !SUPABASE_KEY) {
                 openModal();
             } else {
                 loadAll();
             }
-            
-            // Auto-refresh cada 2 minutos para ahorrar recursos pero mantener datos frescos
             setInterval(loadAll, 120000);
-        };
+        });
     </script>
 </body>
 </html>
