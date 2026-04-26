@@ -2,954 +2,948 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ferry Viteoca — Panel de Control</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A1628">
+<title>Ferry Viteoca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --rojo: #C8102E;
-    --verde: #007A3D;
-    --azul: #003DA5;
-    --blanco: #FFFFFF;
-    --gris-claro: #F4F5F7;
-    --gris-medio: #E2E4E9;
-    --gris-texto: #6B7280;
-    --negro: #0D0D0D;
-    --sombra: 0 4px 24px rgba(0,0,0,0.08);
-    --sombra-hover: 0 8px 32px rgba(0,0,0,0.14);
-    --radio: 16px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--gris-claro);
-    color: var(--negro);
-    min-height: 100vh;
-  }
-
-  /* HEADER */
-  header {
-    background: var(--negro);
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 72px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 3px solid var(--rojo);
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .logo-icon {
-    width: 42px;
-    height: 42px;
-    background: var(--rojo);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-  }
-
-  .logo-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-  }
-
-  .logo-text span.ferry { color: var(--rojo); }
-  .logo-text span.viteoca { color: var(--blanco); }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .config-btn {
-    background: none;
-    border: 1.5px solid rgba(255,255,255,0.2);
-    color: white;
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .config-btn:hover { background: rgba(255,255,255,0.08); }
-
-  .status-dot {
-    width: 8px; height: 8px;
-    background: #22c55e;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.25); }
-    50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
-  }
-
-  /* CONFIG MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: white;
-    border-radius: 20px;
-    padding: 36px;
-    width: 480px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
-  }
-
-  .modal h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    margin-bottom: 6px;
-  }
-
-  .modal p {
-    color: var(--gris-texto);
-    font-size: 13px;
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  .modal label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--gris-texto);
-    margin-bottom: 6px;
-  }
-
-  .modal input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1.5px solid var(--gris-medio);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    margin-bottom: 16px;
-    transition: border-color 0.2s;
-    font-family: monospace;
-  }
-  .modal input:focus { outline: none; border-color: var(--azul); }
-
-  .modal-btns { display: flex; gap: 12px; margin-top: 8px; }
-
-  .btn-primary {
-    flex: 1;
-    background: var(--azul);
-    color: white;
-    border: none;
-    padding: 13px;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-primary:hover { background: #002d7a; }
-
-  .btn-secondary {
-    padding: 13px 20px;
-    border: 1.5px solid var(--gris-medio);
-    background: none;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover { background: var(--gris-claro); }
-
-  /* MAIN */
-  main {
-    padding: 32px 40px;
-    max-width: 1300px;
-    margin: 0 auto;
-  }
-
-  /* VIAJE BANNER */
-  .viaje-banner {
-    background: linear-gradient(135deg, var(--azul) 0%, #001f6b 100%);
-    border-radius: var(--radio);
-    padding: 24px 32px;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .viaje-banner::before {
-    content: '⛴';
-    position: absolute;
-    right: 32px;
-    font-size: 80px;
-    opacity: 0.12;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  .viaje-info h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .viaje-info p {
-    font-size: 14px;
-    opacity: 0.75;
-  }
-
-  .viaje-badge {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 10px;
-    padding: 10px 18px;
-    text-align: center;
-  }
-
-  .viaje-badge .label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    opacity: 0.7;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .viaje-badge .value {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  .viaje-badges {
-    display: flex;
-    gap: 12px;
-  }
-
-  /* SECTION TITLE */
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--negro);
-  }
-
-  /* KPI CARDS */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .kpi-card {
-    background: white;
-    border-radius: var(--radio);
-    padding: 24px;
-    box-shadow: var(--sombra);
-    border-top: 4px solid transparent;
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: default;
-  }
-
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--sombra-hover);
-  }
-
-  .kpi-card.rojo { border-top-color: var(--rojo); }
-  .kpi-card.verde { border-top-color: var(--verde); }
-  .kpi-card.azul { border-top-color: var(--azul); }
-  .kpi-card.naranja { border-top-color: #F59E0B; }
-
-  .kpi-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--gris-texto);
-    margin-bottom: 10px;
-  }
-
-  .kpi-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 34px;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .kpi-card.rojo .kpi-value { color: var(--rojo); }
-  .kpi-card.verde .kpi-value { color: var(--verde); }
-  .kpi-card.azul .kpi-value { color: var(--azul); }
-  .kpi-card.naranja .kpi-value { color: #D97706; }
-
-  .kpi-sub {
-    font-size: 12px;
-    color: var(--gris-texto);
-  }
-
-  /* GRID 2 COLS */
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 28px;
-  }
-
-  /* CARDS */
-  .card {
-    background: white;
-    border-radius: var(--radio);
-    padding: 28px;
-    box-shadow: var(--sombra);
-  }
-
-  .card-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--gris-texto);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 20px;
-  }
-
-  /* INVENTARIO TABLE */
-  .inv-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .inv-table th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--gris-texto);
-    padding: 0 0 12px 0;
-    border-bottom: 1.5px solid var(--gris-medio);
-  }
-
-  .inv-table td {
-    padding: 13px 0;
-    border-bottom: 1px solid var(--gris-medio);
-    font-size: 14px;
-  }
-
-  .inv-table tr:last-child td { border-bottom: none; }
-
-  .tipo-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .tipo-vip { background: #FEF3C7; color: #B45309; }
-  .tipo-business { background: #DBEAFE; color: #1D4ED8; }
-  .tipo-economico { background: #D1FAE5; color: #065F46; }
-  .tipo-ejecutivo { background: #EDE9FE; color: #6D28D9; }
-
-  .stock-bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .stock-bar {
-    flex: 1;
-    height: 6px;
-    background: var(--gris-medio);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .stock-bar-fill {
-    height: 100%;
-    border-radius: 10px;
-    transition: width 0.6s ease;
-  }
-
-  .fill-verde { background: var(--verde); }
-  .fill-naranja { background: #F59E0B; }
-  .fill-rojo { background: var(--rojo); }
-
-  .stock-num { font-size: 12px; color: var(--gris-texto); min-width: 30px; text-align: right; }
-
-  /* COMPRAS TABLE */
-  .compras-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 28px;
-  }
-
-  .compras-table th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--gris-texto);
-    padding: 12px 16px;
-    background: var(--gris-claro);
-  }
-
-  .compras-table th:first-child { border-radius: 8px 0 0 8px; }
-  .compras-table th:last-child { border-radius: 0 8px 8px 0; }
-
-  .compras-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--gris-medio);
-    font-size: 13px;
-  }
-
-  .compras-table tr:last-child td { border-bottom: none; }
-  .compras-table tr:hover td { background: rgba(0,61,165,0.03); }
-
-  .estado-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .estado-pagado { background: #D1FAE5; color: #065F46; }
-  .estado-pendiente { background: #FEF3C7; color: #B45309; }
-  .estado-expirado { background: #FEE2E2; color: #991B1B; }
-
-  .estado-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  /* PAGOS */
-  .pagos-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .pago-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: var(--gris-claro);
-    border-radius: 12px;
-    border-left: 4px solid var(--verde);
-  }
-
-  .pago-item.pendiente { border-left-color: #F59E0B; }
-
-  .pago-left { display: flex; flex-direction: column; gap: 3px; }
-  .pago-nombre { font-size: 14px; font-weight: 600; }
-  .pago-meta { font-size: 12px; color: var(--gris-texto); }
-
-  .pago-monto {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--verde);
-  }
-
-  /* LOADING */
-  .loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    color: var(--gris-texto);
-    gap: 16px;
-  }
-
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--gris-medio);
-    border-top-color: var(--azul);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .error-msg {
-    background: #FEE2E2;
-    border: 1px solid #FCA5A5;
-    color: #991B1B;
-    padding: 16px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    margin-bottom: 20px;
-    display: none;
-  }
-
-  /* REFRESH BTN */
-  .refresh-btn {
-    background: none;
-    border: 1.5px solid var(--gris-medio);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    color: var(--negro);
-  }
-
-  .refresh-btn:hover { background: var(--gris-medio); }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .last-update {
-    font-size: 12px;
-    color: var(--gris-texto);
-  }
-
-  /* FOOTER */
-  footer {
-    text-align: center;
-    padding: 24px;
-    color: var(--gris-texto);
-    font-size: 12px;
-    border-top: 1px solid var(--gris-medio);
-    margin-top: 16px;
-  }
-
-  /* EMPTY STATE */
-  .empty {
-    text-align: center;
-    padding: 32px;
-    color: var(--gris-texto);
-    font-size: 14px;
-  }
-
-  @media (max-width: 900px) {
-    main { padding: 16px; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .grid-2 { grid-template-columns: 1fr; }
-    .viaje-badges { display: none; }
-    header { padding: 0 16px; }
-    .logo-text { font-size: 18px; }
-    .viaje-banner { padding: 18px 20px; }
-    .viaje-info h2 { font-size: 20px; }
-  }
-
-  @media (max-width: 600px) {
-    header { height: 60px; }
-    .logo-icon { width: 34px; height: 34px; font-size: 16px; }
-    .logo-text { font-size: 16px; }
-    .config-btn { padding: 6px 12px; font-size: 12px; }
-    main { padding: 12px; }
-    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .kpi-card { padding: 16px; }
-    .kpi-value { font-size: 26px; }
-    .kpi-card.azul .kpi-value { font-size: 18px; }
-    .kpi-sub { font-size: 11px; }
-    .viaje-banner { padding: 16px; border-radius: 12px; }
-    .viaje-info h2 { font-size: 17px; }
-    .viaje-info p { font-size: 12px; }
-    .card { padding: 16px; border-radius: 12px; }
-    .section-title { font-size: 15px; }
-    .last-update { display: none; }
-
-    /* Tablas en móvil: scroll horizontal */
-    .inv-table, .compras-table { font-size: 12px; }
-    .inv-table th, .inv-table td { padding-right: 10px; }
-    .compras-table th, .compras-table td { padding: 10px 8px; font-size: 12px; }
-
-    /* Ocultar columnas menos importantes en móvil */
-    .compras-table th:nth-child(6),
-    .compras-table td:nth-child(6) { display: none; }
-
-    .pago-nombre { font-size: 12px; }
-    .pago-meta { font-size: 11px; }
-    .pago-monto { font-size: 15px; }
-    .modal { width: 92vw; padding: 24px 20px; }
-    footer { padding: 16px; font-size: 11px; }
-  }
+:root {
+  --navy: #0A1628;
+  --navy-mid: #112240;
+  --navy-light: #1D3461;
+  --amber: #E9A23B;
+  --amber-dim: #C4862A;
+  --teal: #2BBFA3;
+  --red: #E05252;
+  --surface: #F4F6FB;
+  --card: #FFFFFF;
+  --border: rgba(10,22,40,0.09);
+  --text: #0A1628;
+  --text2: #5A6A85;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Sora', sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html { font-size: 15px; }
+
+body {
+  font-family: var(--sans);
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--navy);
+  padding: calc(12px + var(--safe-top)) 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.hdr-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.hdr-icon {
+  width: 32px; height: 32px;
+  background: var(--amber);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.hdr-icon svg { width: 18px; height: 18px; fill: var(--navy); }
+
+.hdr-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.hdr-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--mono);
+  margin-top: 1px;
+}
+
+.hdr-actions { display: flex; gap: 8px; align-items: center; }
+
+.pill-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--mono);
+}
+
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #475569;
+  flex-shrink: 0;
+}
+.dot.on { background: var(--teal); animation: blink 2s infinite; }
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hdr-btn {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.07);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.hdr-btn:active { background: rgba(255,255,255,0.14); }
+
+/* ── MAIN ── */
+main {
+  padding: 14px 14px calc(24px + var(--safe-bot));
+}
+
+/* ── ALERT ── */
+.alert {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  display: none;
+}
+.alert.show { display: block; }
+
+/* ── HERO CARD ── */
+.hero {
+  background: var(--navy);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  right: -30px; top: -30px;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(233,162,59,0.07);
+  pointer-events: none;
+}
+
+.hero-route {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hero-dest {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.hero-wave {
+  width: 22px; height: 22px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.hero-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  font-family: var(--mono);
+  margin-bottom: 14px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.hero-stat {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.hs-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.4);
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+
+.hs-val {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--mono);
+}
+
+.hs-unit {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  margin-left: 2px;
+  font-family: var(--mono);
+}
+
+/* ── KPI STRIP ── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.kpi {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: var(--accent-color, var(--navy));
+}
+
+.kpi-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text2);
+  font-family: var(--mono);
+  margin-bottom: 6px;
+}
+
+.kpi-num {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.kpi-num.sm { font-size: 17px; }
+
+.kpi-hint {
+  font-size: 10px;
+  color: var(--text2);
+  font-family: var(--mono);
+}
+
+/* ── SECTION CARD ── */
+.sec {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.sec-head {
+  padding: 13px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--navy);
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sec-icon {
+  width: 22px; height: 22px;
+  background: var(--navy);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sec-icon svg { width: 11px; height: 11px; fill: #fff; }
+
+.sec-badge {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text2);
+}
+
+/* ── INVENTARIO CARDS ── */
+.inv-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.inv-row {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.inv-row:last-child { border-bottom: none; }
+
+.inv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.inv-type { font-size: 13px; font-weight: 600; color: var(--text); }
+.inv-price {
+  font-size: 13px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.inv-bar-wrap {
+  position: relative;
+  height: 7px;
+  background: #EEF0F5;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.inv-bar {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+}
+
+.inv-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inv-pct {
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.inv-slots {
+  font-size: 10px;
+  color: var(--text2);
+  font-family: var(--mono);
+}
+
+.badge-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.badge-ok { background: #DCFCE7; color: #166534; }
+.badge-low { background: #FEF9C3; color: #854D0E; }
+.badge-out { background: #FEE2E2; color: #991B1B; }
+.badge-info { background: #DBEAFE; color: #1E3A8A; }
+
+/* ── PAGOS ── */
+.pago-row {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.pago-row:last-child { border-bottom: none; }
+
+.pago-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #EEF0F5;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.pago-info { flex: 1; min-width: 0; }
+.pago-tel { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pago-meta { font-size: 10px; color: var(--text2); font-family: var(--mono); margin-top: 2px; }
+
+.pago-right { text-align: right; flex-shrink: 0; }
+.pago-monto { font-size: 13px; font-weight: 600; font-family: var(--mono); }
+.pago-monto.ok { color: var(--teal); }
+.pago-monto.pend { color: var(--amber-dim); }
+
+/* ── COMPRAS TABLE ── */
+.compras-list { display: flex; flex-direction: column; }
+
+.compra-row {
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.compra-row:last-child { border-bottom: none; }
+
+.compra-init {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy-light);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+
+.compra-info { flex: 1; min-width: 0; }
+.compra-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compra-dest { font-size: 10px; color: var(--text2); font-family: var(--mono); margin-top: 2px; }
+
+.compra-right { text-align: right; flex-shrink: 0; }
+.compra-price { font-size: 12px; font-family: var(--mono); font-weight: 500; color: var(--text); }
+
+/* ── EMPTY ── */
+.empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text2);
+  font-size: 12px;
+  font-family: var(--mono);
+}
+
+/* ── MODAL ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 500;
+  padding-bottom: var(--safe-bot);
+}
+.overlay.show { display: flex; }
+
+.modal {
+  background: var(--card);
+  width: 100%;
+  max-width: 520px;
+  border-radius: 20px 20px 0 0;
+  animation: slideUp 0.28s ease-out;
+  padding-bottom: calc(16px + var(--safe-bot));
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  margin: 10px auto 0;
+}
+
+.modal-hdr {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-hdr h3 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.modal-close {
+  background: var(--surface);
+  border: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text2);
+  display: grid;
+  place-items: center;
+}
+
+.modal-body { padding: 16px 18px; }
+
+.fg { margin-bottom: 14px; }
+.fg label { display: block; font-size: 11px; font-weight: 600; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); margin-bottom: 6px; }
+
+.fc {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.fc:focus { outline: none; border-color: var(--navy); background: #fff; }
+
+.modal-ftr {
+  padding: 0 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:active { background: var(--navy-mid); transform: scale(0.98); }
+.btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:active { transform: scale(0.98); }
+
+/* ── TIMESTAMP ── */
+.ts-pill {
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--text2);
+  background: var(--surface);
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+/* ── SPINNING ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; display: inline-block; }
+
+/* ── Desktop adjustments ── */
+@media (min-width: 640px) {
+  main { padding: 20px; max-width: 700px; margin: 0 auto; }
+  .kpi-strip { grid-template-columns: repeat(4,1fr); }
+  .hero-grid { grid-template-columns: repeat(4,1fr); }
+  .modal { border-radius: 16px; max-width: 480px; margin-bottom: 40px; }
+  .overlay { align-items: center; }
+}
 </style>
 </head>
 <body>
 
-<!-- CONFIG MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h2>⚙️ Configuración de Supabase</h2>
-    <p>Introduce las credenciales de tu proyecto Supabase. La URL del proyecto y la clave anon son seguras para usar en el navegador.</p>
-    <label>URL del Proyecto Supabase</label>
-    <input type="text" id="inputUrl" placeholder="https://xxxxxxxxxxx.supabase.co" />
-    <label>Clave Anon (anon public key)</label>
-    <input type="text" id="inputKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
-    <div class="modal-btns">
-      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn-primary" onclick="saveConfig()">Guardar y conectar</button>
-    </div>
-  </div>
-</div>
-
 <!-- HEADER -->
-<header>
-  <div class="logo">
-    <div class="logo-icon">⛴</div>
-    <div class="logo-text">
-      <span class="ferry">Ferry</span><span class="viteoca"> Viteoca</span>
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 21H4l-2-5h20l-2 5zm-9-7V8h2v6h-2zm5-6l-1.5 6H9.5L8 8h8zM3 8l2-5h14l2 5H3z"/></svg>
+    </div>
+    <div>
+      <div class="hdr-title">Ferry Viteoca</div>
+      <div class="hdr-sub" id="hdrSub">Panel de control</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="status-dot" id="statusDot" title="Conectado"></div>
-    <button class="config-btn" onclick="openModal()">⚙ Configurar</button>
+  <div class="hdr-actions">
+    <div class="pill-status">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusTxt">Offline</span>
+    </div>
+    <button class="hdr-btn" onclick="openModal()" title="Configurar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+    <button class="hdr-btn" onclick="loadAll()" title="Actualizar" id="refreshBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+    </button>
   </div>
 </header>
 
 <main>
-  <div class="error-msg" id="errorMsg"></div>
+  <div class="alert" id="alertBox"></div>
 
-  <!-- VIAJE BANNER -->
-  <div class="viaje-banner" id="viajeBanner">
-    <div class="viaje-info">
-      <h2 id="viajeDestino">Cargando viaje...</h2>
-      <p id="viajeDetalle">—</p>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-route">
+      <div class="hero-dest" id="heroDestino">Cargando...</div>
     </div>
-    <div class="viaje-badges" id="viajeBadges"></div>
+    <div class="hero-meta" id="heroMeta">— • — • —</div>
+    <div class="hero-grid" id="heroGrid">
+      <div class="hero-stat"><div class="hs-label">Estado</div><div class="hs-val" id="h-estado">—</div></div>
+      <div class="hero-stat"><div class="hs-label">Salida</div><div class="hs-val" id="h-hora">—</div></div>
+    </div>
   </div>
 
   <!-- KPIs -->
-  <div class="section-header">
-    <div class="section-title">Resumen General</div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span class="last-update" id="lastUpdate"></span>
-      <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+  <div class="kpi-strip">
+    <div class="kpi" style="--accent-color: #2BBFA3">
+      <div class="kpi-label">Pagados</div>
+      <div class="kpi-num" id="k-pagados">0</div>
+      <div class="kpi-hint" id="k-pagados-h">billetes</div>
+    </div>
+    <div class="kpi" style="--accent-color: #E9A23B">
+      <div class="kpi-label">Ingresos</div>
+      <div class="kpi-num sm" id="k-ingresos">0</div>
+      <div class="kpi-hint">XAF</div>
+    </div>
+    <div class="kpi" style="--accent-color: #E9A23B">
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-num" id="k-pend">0</div>
+      <div class="kpi-hint">por pagar</div>
+    </div>
+    <div class="kpi" style="--accent-color: #0A1628">
+      <div class="kpi-label">Stock</div>
+      <div class="kpi-num" id="k-stock">0</div>
+      <div class="kpi-hint">disponibles</div>
     </div>
   </div>
 
-  <div class="kpi-grid" id="kpiGrid">
-    <div class="loading"><div class="spinner"></div><span>Cargando...</span></div>
+  <!-- INVENTARIO -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">
+        <div class="sec-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        </div>
+        Inventario
+      </div>
+      <span class="ts-pill" id="lastTs"></span>
+    </div>
+    <div class="inv-grid" id="invGrid">
+      <div class="empty">Cargando...</div>
+    </div>
   </div>
 
-  <!-- INVENTARIO + PAGOS -->
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Inventario por Tipo de Billete</div>
-      <div id="inventarioContent"><div class="loading"><div class="spinner"></div></div></div>
+  <!-- PAGOS RECIENTES -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">
+        <div class="sec-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        </div>
+        Pagos recientes
+      </div>
+      <span class="sec-badge" id="pagos-count"></span>
     </div>
-    <div class="card">
-      <div class="card-title">Últimos Pagos Verificados</div>
-      <div id="pagosContent"><div class="loading"><div class="spinner"></div></div></div>
+    <div id="pagosGrid">
+      <div class="empty">Cargando...</div>
     </div>
   </div>
 
   <!-- COMPRAS -->
-  <div class="card">
-    <div class="section-header">
-      <div class="card-title" style="margin:0">Registro de Compras</div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">
+        <div class="sec-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49C24.5 5.24 24.25 5 24 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </div>
+        Compras
+      </div>
+      <span class="sec-badge" id="compras-count"></span>
     </div>
-    <div id="comprasContent"><div class="loading"><div class="spinner"></div></div></div>
+    <div class="compras-list" id="comprasGrid">
+      <div class="empty">Cargando...</div>
+    </div>
   </div>
 </main>
 
-<footer>
-  Panel de Control · <span style="color:var(--rojo);font-weight:600">Ferry Viteoca</span> · Guinea Ecuatorial
-</footer>
+<!-- MODAL CONFIGURACIÓN -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <h3>Conexión Supabase</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg">
+        <label>URL del proyecto</label>
+        <input class="fc" type="text" id="iUrl" placeholder="https://xxxxx.supabase.co">
+      </div>
+      <div class="fg">
+        <label>Clave anon</label>
+        <input class="fc" type="password" id="iKey" placeholder="eyJhbGciOiJIUzI1NiIs...">
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveConfig()">Guardar y conectar</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  // ─── CONFIG ───────────────────────────────────────────────
-  let SUPABASE_URL = localStorage.getItem('fv_url') || '';
-  let SUPABASE_KEY = localStorage.getItem('fv_key') || '';
+let SB_URL = localStorage.getItem('fv_url') || '';
+let SB_KEY = localStorage.getItem('fv_key') || '';
+let destino = null;
 
-  function openModal() {
-    document.getElementById('inputUrl').value = SUPABASE_URL;
-    document.getElementById('inputKey').value = SUPABASE_KEY;
-    document.getElementById('modalOverlay').classList.add('active');
-  }
+const fmt = n => new Intl.NumberFormat('es-GQ').format(Math.round(n || 0));
+const fmtDate = s => {
+  if (!s) return '—';
+  const d = new Date(s);
+  return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+};
+const initials = s => s ? s.trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() : '?';
 
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-  }
+function setStatus(on) {
+  document.getElementById('statusDot').className = 'dot' + (on ? ' on' : '');
+  document.getElementById('statusTxt').textContent = on ? 'Online' : 'Offline';
+}
 
-  function saveConfig() {
-    SUPABASE_URL = document.getElementById('inputUrl').value.trim().replace(/\/$/, '');
-    SUPABASE_KEY = document.getElementById('inputKey').value.trim();
-    localStorage.setItem('fv_url', SUPABASE_URL);
-    localStorage.setItem('fv_key', SUPABASE_KEY);
-    closeModal();
-    loadAll();
-  }
+function showAlert(msg) {
+  const el = document.getElementById('alertBox');
+  el.textContent = msg || '';
+  el.className = 'alert' + (msg ? ' show' : '');
+  if (msg) setStatus(false);
+}
 
-  // ─── API ──────────────────────────────────────────────────
-  async function query(table, params = '') {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    if (!res.ok) throw new Error(`Error ${res.status} en ${table}`);
-    return res.json();
-  }
+function openModal() {
+  document.getElementById('iUrl').value = SB_URL;
+  document.getElementById('iKey').value = SB_KEY;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal() { document.getElementById('overlay').classList.remove('show'); }
 
-  // ─── FORMAT ───────────────────────────────────────────────
-  function formatXAF(n) {
-    return new Intl.NumberFormat('es-ES').format(n) + ' XAF';
-  }
-
-  function formatFecha(f) {
-    if (!f) return '—';
-    return new Date(f).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  }
-
-  function tipoBadge(tipo) {
-    const map = {
-      'VIP': 'tipo-vip', 'Business': 'tipo-business',
-      'Economico': 'tipo-economico', 'Ejecutivo': 'tipo-ejecutivo'
-    };
-    return `<span class="tipo-badge ${map[tipo] || 'tipo-economico'}">${tipo}</span>`;
-  }
-
-  function estadoBadge(estado) {
-    if (!estado) return '—';
-    const map = {
-      'Billete pagado': ['estado-pagado', '✓'],
-      'pendiente_pago': ['estado-pendiente', '⏳'],
-      'billete_expirado': ['estado-expirado', '✗']
-    };
-    const [cls, icon] = map[estado] || ['estado-pendiente', '?'];
-    const label = estado === 'pendiente_pago' ? 'Pendiente' : estado === 'billete_expirado' ? 'Expirado' : 'Pagado';
-    return `<span class="estado-badge ${cls}"><span class="estado-dot"></span>${label}</span>`;
-  }
-
-  // ─── VIAJE ────────────────────────────────────────────────
-  let destinoActual = null;
-
-  async function loadViaje() {
-    const viajes = await query('viajes', 'activo=eq.true&limit=1');
-    const v = viajes[0];
-    if (!v) return;
-    destinoActual = v.destino;
-    const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-    document.getElementById('viajeDestino').textContent = `✈ Destino: ${v.destino}`;
-    document.getElementById('viajeDetalle').textContent = `${fecha} · Salida: ${v.hora_salida?.slice(0,5)} · Estado: ${v.estado}`;
-    document.getElementById('viajeBadges').innerHTML = '';
-  }
-
-  // ─── KPIs ─────────────────────────────────────────────────
-  async function loadKPIs() {
-    const invParams = destinoActual
-      ? `select=stock_disponible,stock_reservado,stock_vendido&destino=eq.${encodeURIComponent(destinoActual)}`
-      : 'select=stock_disponible,stock_reservado,stock_vendido';
-
-    const [compras, pagos, inv] = await Promise.all([
-      query('compras', 'select=estado_compra,precio'),
-      query('pagos', 'select=monto_detectado,verificado'),
-      query('inventario', invParams)
-    ]);
-
-    const pagados = compras.filter(c => c.estado_compra === 'Billete pagado');
-    const pendientes = compras.filter(c => c.estado_compra === 'pendiente_pago');
-    const expirados = compras.filter(c => c.estado_compra === 'billete_expirado');
-    const ingresos = pagados.reduce((s, c) => s + (c.precio || 0), 0);
-    const totalDisponible = inv.reduce((s, i) => s + (i.stock_disponible || 0), 0);
-
-    document.getElementById('kpiGrid').innerHTML = `
-      <div class="kpi-card verde">
-        <div class="kpi-label">Billetes Pagados</div>
-        <div class="kpi-value">${pagados.length}</div>
-        <div class="kpi-sub">${expirados.length} expirados · ${pendientes.length} pendientes</div>
-      </div>
-      <div class="kpi-card azul">
-        <div class="kpi-label">Ingresos Totales</div>
-        <div class="kpi-value" style="font-size:24px">${formatXAF(ingresos)}</div>
-        <div class="kpi-sub">De billetes confirmados</div>
-      </div>
-      <div class="kpi-card naranja">
-        <div class="kpi-label">Pendientes de Pago</div>
-        <div class="kpi-value">${pendientes.length}</div>
-        <div class="kpi-sub">Reservas activas sin confirmar</div>
-      </div>
-      <div class="kpi-card rojo">
-        <div class="kpi-label">Stock Disponible</div>
-        <div class="kpi-value">${totalDisponible}</div>
-        <div class="kpi-sub">Plazas libres en ${destinoActual || 'destino actual'}</div>
-      </div>
-    `;
-  }
-
-  // ─── INVENTARIO ───────────────────────────────────────────
-  async function loadInventario() {
-    if (!destinoActual) { document.getElementById('inventarioContent').innerHTML = '<div class="empty">Sin viaje activo</div>'; return; }
-    const inv = await query('inventario', `select=destino,tipo_billete,precio,stock_disponible,stock_reservado,stock_vendido&destino=eq.${encodeURIComponent(destinoActual)}&order=tipo_billete`);
-    if (!inv.length) { document.getElementById('inventarioContent').innerHTML = `<div class="empty">Sin inventario para ${destinoActual}</div>`; return; }
-    document.querySelector('.card-title').textContent = `Inventario — ${destinoActual}`;
-
-    const rows = inv.map(i => {
-      const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
-      const pct = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
-      const fillClass = pct < 40 ? 'fill-verde' : pct < 75 ? 'fill-naranja' : 'fill-rojo';
-      return `
-        <tr>
-          <td><strong>${i.destino}</strong></td>
-          <td>${tipoBadge(i.tipo_billete)}</td>
-          <td style="font-weight:600">${formatXAF(i.precio)}</td>
-          <td>
-            <div class="stock-bar-wrap">
-              <div class="stock-bar"><div class="stock-bar-fill ${fillClass}" style="width:${pct}%"></div></div>
-              <span class="stock-num">${i.stock_disponible}</span>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    document.getElementById('inventarioContent').innerHTML = `
-      <table class="inv-table">
-        <thead>
-          <tr>
-            <th>Destino</th><th>Tipo</th><th>Precio</th><th>Disponible</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  }
-
-  // ─── PAGOS ────────────────────────────────────────────────
-  async function loadPagos() {
-    const pagos = await query('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=5');
-    if (!pagos.length) { document.getElementById('pagosContent').innerHTML = '<div class="empty">Sin pagos registrados</div>'; return; }
-
-    const items = pagos.map(p => {
-      const verificado = p.verificado;
-      return `
-        <div class="pago-item ${verificado ? '' : 'pendiente'}">
-          <div class="pago-left">
-            <span class="pago-nombre">${p.telefono_remitente || '—'}</span>
-            <span class="pago-meta">${p.metodo_pago || 'transferencia'} · ${formatFecha(p.fecha_pago)}</span>
-          </div>
-          <div>
-            <div class="pago-monto" style="color:${verificado ? 'var(--verde)' : '#D97706'}">${formatXAF(p.monto_detectado || 0)}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    document.getElementById('pagosContent').innerHTML = `<div class="pagos-list">${items}</div>`;
-  }
-
-  // ─── COMPRAS ──────────────────────────────────────────────
-  async function loadCompras() {
-    const compras = await query('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=20');
-    if (!compras.length) { document.getElementById('comprasContent').innerHTML = '<div class="empty">Sin compras registradas</div>'; return; }
-
-    const rows = compras.map(c => `
-      <tr>
-        <td><strong>${c.nombre_pasajero || '—'}</strong></td>
-        <td>${c.destino || '—'}</td>
-        <td>${tipoBadge(c.tipo_billete)}</td>
-        <td style="font-weight:600">${formatXAF(c.precio || 0)}</td>
-        <td>${estadoBadge(c.estado_compra)}</td>
-        <td style="color:var(--gris-texto)">${formatFecha(c.fecha_compra)}</td>
-      </tr>
-    `).join('');
-
-    document.getElementById('comprasContent').innerHTML = `
-      <div style="overflow-x:auto">
-        <table class="compras-table">
-          <thead>
-            <tr>
-              <th>Pasajero</th><th>Destino</th><th>Tipo</th><th>Precio</th><th>Estado</th><th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  // ─── MAIN LOAD ────────────────────────────────────────────
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    el.textContent = msg;
-    el.style.display = 'block';
-    document.getElementById('statusDot').style.background = '#EF4444';
-  }
-
-  function clearError() {
-    document.getElementById('errorMsg').style.display = 'none';
-    document.getElementById('statusDot').style.background = '#22c55e';
-  }
-
-  async function loadAll() {
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-      showError('⚠ Configura las credenciales de Supabase haciendo clic en "⚙ Configurar" arriba a la derecha.');
-      document.getElementById('kpiGrid').innerHTML = '<div class="empty">Sin conexión a Supabase</div>';
-      document.getElementById('inventarioContent').innerHTML = '';
-      document.getElementById('pagosContent').innerHTML = '';
-      document.getElementById('comprasContent').innerHTML = '';
-      return;
-    }
-
-    clearError();
-    document.getElementById('lastUpdate').textContent = 'Actualizando...';
-
-    try {
-      await loadViaje();
-      await Promise.all([loadKPIs(), loadInventario(), loadPagos(), loadCompras()]);
-      document.getElementById('lastUpdate').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-ES');
-    } catch (err) {
-      showError('Error al conectar con Supabase: ' + err.message + '. Verifica las credenciales.');
-      document.getElementById('lastUpdate').textContent = 'Error de conexión';
-    }
-  }
-
-  // ─── INIT ─────────────────────────────────────────────────
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    openModal();
-  }
-
+function saveConfig() {
+  const u = document.getElementById('iUrl').value.trim().replace(/\/$/, '');
+  const k = document.getElementById('iKey').value.trim();
+  if (!u || !k) { alert('Completa ambos campos'); return; }
+  SB_URL = u; SB_KEY = k;
+  localStorage.setItem('fv_url', u);
+  localStorage.setItem('fv_key', k);
+  closeModal();
   loadAll();
-  setInterval(loadAll, 60000); // auto-refresh cada minuto
+}
+
+async function api(table, qs = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${qs}`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+  });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function loadViaje() {
+  const [v] = await api('viajes', 'activo=eq.true&limit=1');
+  if (!v) {
+    document.getElementById('heroDestino').textContent = 'Sin viaje activo';
+    document.getElementById('heroMeta').textContent = '—';
+    return;
+  }
+  destino = v.destino;
+  const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+  document.getElementById('heroDestino').textContent = v.destino;
+  document.getElementById('heroMeta').textContent = `${fecha}`;
+  document.getElementById('h-estado').textContent = v.estado || '—';
+  document.getElementById('h-hora').textContent = v.hora_salida?.slice(0,5) || '—';
+  document.getElementById('hdrSub').textContent = v.destino;
+}
+
+async function loadKPIs() {
+  const [compras, inv] = await Promise.all([
+    api('compras', 'select=estado_compra,precio'),
+    api('inventario', destino ? `destino=eq.${encodeURIComponent(destino)}` : '')
+  ]);
+  const pagados = compras.filter(c => c.estado_compra === 'Billete pagado');
+  const pend = compras.filter(c => c.estado_compra === 'pendiente_pago');
+  const exp = compras.filter(c => c.estado_compra === 'billete_expirado');
+  const ingresos = pagados.reduce((s,c) => s + (c.precio||0), 0);
+  const stock = inv.reduce((s,i) => s + (i.stock_disponible||0), 0);
+  document.getElementById('k-pagados').textContent = pagados.length;
+  document.getElementById('k-pagados-h').textContent = exp.length + ' expirados';
+  document.getElementById('k-ingresos').textContent = fmt(ingresos);
+  document.getElementById('k-pend').textContent = pend.length;
+  document.getElementById('k-stock').textContent = stock;
+}
+
+async function loadInventario() {
+  const grid = document.getElementById('invGrid');
+  if (!destino) { grid.innerHTML = '<div class="empty">Sin viaje activo</div>'; return; }
+  const inv = await api('inventario', `destino=eq.${encodeURIComponent(destino)}&order=tipo_billete`);
+  if (!inv.length) { grid.innerHTML = '<div class="empty">Sin datos de inventario</div>'; return; }
+
+  const totalStock = inv.reduce((s,i)=>s+(i.stock_disponible||0),0);
+
+  grid.innerHTML = inv.map(i => {
+    const disp = i.stock_disponible || 0;
+    const res  = i.stock_reservado  || 0;
+    const vend = i.stock_vendido    || 0;
+    const total = disp + res + vend;
+    const pctVend = total > 0 ? Math.round((vend / total) * 100) : 0;
+    const pctDisp = total > 0 ? Math.round((disp / total) * 100) : 0;
+
+    let barColor, badgeCls, badgeTxt;
+    if (pctVend >= 90) { barColor='#E05252'; badgeCls='badge-out'; badgeTxt='Agotándose'; }
+    else if (pctVend >= 65) { barColor='#E9A23B'; badgeCls='badge-low'; badgeTxt='Poca disponibilidad'; }
+    else { barColor='#2BBFA3'; badgeCls='badge-ok'; badgeTxt='Disponible'; }
+
+    return `
+    <div class="inv-row">
+      <div class="inv-top">
+        <div>
+          <div class="inv-type">${i.tipo_billete}</div>
+          <div style="font-size:10px;color:var(--text2);font-family:var(--mono);margin-top:2px">${fmt(i.precio)} XAF</div>
+        </div>
+        <span class="badge-sm ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="inv-bar-wrap">
+        <div class="inv-bar" style="width:${pctVend}%;background:${barColor}"></div>
+      </div>
+      <div class="inv-stats">
+        <span class="inv-pct" style="color:${barColor}">${pctVend}% vendido</span>
+        <span class="inv-slots">${disp} libres / ${total} total</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:7px;font-size:10px;font-family:var(--mono);color:var(--text2)">
+        <span>🟢 Libres: ${disp} (${pctDisp}%)</span>
+        <span>🔵 Reservados: ${res}</span>
+        <span>🔴 Vendidos: ${vend}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('lastTs').textContent = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadPagos() {
+  const el = document.getElementById('pagosGrid');
+  const pagos = await api('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=8');
+  document.getElementById('pagos-count').textContent = pagos.length + ' recientes';
+  if (!pagos.length) { el.innerHTML = '<div class="empty">Sin pagos registrados</div>'; return; }
+  el.innerHTML = pagos.map(p => `
+    <div class="pago-row">
+      <div class="pago-avatar">${initials(p.telefono_remitente || 'AN')}</div>
+      <div class="pago-info">
+        <div class="pago-tel">${p.telefono_remitente || 'Anónimo'}</div>
+        <div class="pago-meta">${p.metodo_pago || 'Muni'} · ${fmtDate(p.fecha_pago)}</div>
+      </div>
+      <div class="pago-right">
+        <div class="pago-monto ${p.verificado ? 'ok' : 'pend'}">${fmt(p.monto_detectado)} XAF</div>
+        <div style="font-size:9px;font-family:var(--mono);color:var(--text2);margin-top:2px">${p.verificado ? 'verificado' : 'pendiente'}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function loadCompras() {
+  const el = document.getElementById('comprasGrid');
+  const compras = await api('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=12');
+  document.getElementById('compras-count').textContent = compras.length + ' recientes';
+  if (!compras.length) { el.innerHTML = '<div class="empty">Sin compras</div>'; return; }
+
+  const estadoBadge = e => {
+    if (e === 'Billete pagado') return '<span class="badge-sm badge-ok">Pagado</span>';
+    if (e === 'pendiente_pago') return '<span class="badge-sm badge-low">Pendiente</span>';
+    return '<span class="badge-sm badge-out">Expirado</span>';
+  };
+
+  el.innerHTML = compras.map(c => `
+    <div class="compra-row">
+      <div class="compra-init">${initials(c.nombre_pasajero)}</div>
+      <div class="compra-info">
+        <div class="compra-name">${c.nombre_pasajero || '—'}</div>
+        <div class="compra-dest">${c.destino || '—'} · ${c.tipo_billete || '—'}</div>
+      </div>
+      <div class="compra-right">
+        <div class="compra-price">${fmt(c.precio)} XAF</div>
+        <div style="margin-top:4px">${estadoBadge(c.estado_compra)}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function loadAll() {
+  if (!SB_URL || !SB_KEY) { showAlert('Configura la conexión Supabase pulsando ⚙'); return; }
+  const btn = document.getElementById('refreshBtn');
+  btn.querySelector('svg').style.animation = 'spin 0.8s linear infinite';
+  showAlert(null);
+  try {
+    await loadViaje();
+    await Promise.all([loadKPIs(), loadInventario(), loadPagos(), loadCompras()]);
+    setStatus(true);
+  } catch(e) {
+    showAlert('Error de conexión. Verifica las credenciales.');
+  } finally {
+    btn.querySelector('svg').style.animation = '';
+  }
+}
+
+window.addEventListener('load', () => {
+  if (!SB_URL || !SB_KEY) openModal();
+  else loadAll();
+  setInterval(loadAll, 120000);
+});
+
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('overlay')) closeModal();
+});
 </script>
 </body>
 </html>
