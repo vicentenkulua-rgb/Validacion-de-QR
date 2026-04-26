@@ -45,7 +45,6 @@
 
         .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
         .logo i { font-size: 18px; }
-
         .header-right { display: flex; gap: 10px; align-items: center; }
 
         .status-badge {
@@ -57,7 +56,6 @@
 
         .dot { width: 6px; height: 6px; border-radius: 50%; background: #CBD5E1; }
         .dot.online { background: #22C55E; animation: pulse 2s infinite; }
-
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         .btn-header {
@@ -87,26 +85,39 @@
         .hero-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; }
         .hero-info-item {
             background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px;
-            display: flex; align-items: center; gap: 5px; backdrop-filter: blur(5px);
+            display: flex; align-items: center; gap: 5px;
         }
         .hero-info-label { opacity: 0.7; font-weight: 500; }
         .hero-info-value { font-weight: 700; }
 
-        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        /* KPI — solo 3 en móvil */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
 
         .kpi {
-            background: var(--card); padding: 12px; border-radius: 10px;
+            background: var(--card); padding: 10px 10px; border-radius: 10px;
             box-shadow: var(--shadow); border-left: 3px solid var(--primary);
+            min-width: 0;
         }
         .kpi.success { border-left-color: var(--success); }
         .kpi.warning { border-left-color: var(--warning); }
-        .kpi.danger  { border-left-color: var(--danger); }
 
-        .kpi-label { font-size: 11px; color: var(--text-sec); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
-        .kpi-value  { font-size: 20px; font-weight: 700; color: var(--text); }
-        .kpi-sub    { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+        .kpi-label {
+            font-size: 10px; color: var(--text-sec); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.2px; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .kpi-value { font-size: 18px; font-weight: 700; color: var(--text); }
+        .kpi-sub   { font-size: 9px; color: var(--text-sec); margin-top: 2px; }
 
-        .section { background: var(--card); border-radius: 10px; margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden; }
+        .section {
+            background: var(--card); border-radius: 10px;
+            margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden;
+        }
         .section-header {
             padding: 12px 14px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -114,21 +125,62 @@
         }
         .section-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .section-title i { font-size: 12px; }
-        .section-body { padding: 0; }
 
-        /* TABLA DESGLOSE */
+        /* ===== TABLA MÓVIL: TARJETAS ===== */
+        .ticket-cards { display: flex; flex-direction: column; }
+
+        .ticket-card {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .ticket-card:last-child { border-bottom: none; }
+
+        .ticket-card-header {
+            display: flex; align-items: center; gap: 7px;
+            font-weight: 700; font-size: 13px; margin-bottom: 10px;
+        }
+        .ticket-card-header i { font-size: 12px; color: var(--text-sec); }
+
+        .ticket-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .ticket-stat-box {
+            background: #F8FAFC;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        .ticket-stat-box.full-width {
+            grid-column: 1 / -1;
+        }
+        .tsb-label {
+            font-size: 10px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.3px; color: var(--text-sec); margin-bottom: 3px;
+        }
+        .tsb-value {
+            font-size: 15px; font-weight: 700;
+        }
+        .tsb-value.green  { color: #059669; }
+        .tsb-value.blue   { color: var(--primary); }
+        .tsb-value.dark   { color: var(--text); }
+
+        /* ===== TABLA DESKTOP ===== */
+        .ticket-table-wrap { display: none; }
+
         .ticket-table { width: 100%; border-collapse: collapse; }
         .ticket-table thead tr { background: #F8FAFC; }
         .ticket-table th {
-            padding: 10px 14px; text-align: left;
-            font-size: 10px; font-weight: 700; text-transform: uppercase;
-            color: var(--text-sec); letter-spacing: 0.5px;
+            padding: 12px 16px; text-align: left;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            color: var(--text-sec); letter-spacing: 0.4px;
             border-bottom: 1px solid var(--border);
         }
         .ticket-table th:not(:first-child) { text-align: right; }
         .ticket-table td {
-            padding: 13px 14px; border-bottom: 1px solid var(--border);
-            font-size: 12px; vertical-align: middle;
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            font-size: 13px; vertical-align: middle;
         }
         .ticket-table td:not(:first-child) { text-align: right; font-weight: 600; }
         .ticket-table tr:last-child td { border-bottom: none; }
@@ -139,7 +191,6 @@
 
         .val-disponible { color: #059669; }
         .val-vendido    { color: var(--primary); }
-        .val-total      { color: var(--text); }
 
         .grand-total {
             background: var(--primary); color: white;
@@ -167,7 +218,7 @@
         .modal-body { padding: 16px; }
 
         .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
         .form-control {
             width: 100%; padding: 10px 12px;
             border: 1.5px solid var(--border); border-radius: 8px;
@@ -176,33 +227,40 @@
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,61,165,0.1); }
 
         .modal-footer { padding: 14px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; font-family: inherit; }
+        .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; font-family: inherit; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:active { background: #002D7A; }
-        .btn-ghost { background: var(--bg); color: var(--text); }
-        .btn-ghost:active { background: #E5E7EB; }
+        .btn-ghost   { background: var(--bg); color: var(--text); }
 
         .alert { padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; display: none; }
         .alert-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
 
         .empty-state { text-align: center; padding: 20px 14px; color: var(--text-sec); font-size: 12px; }
 
+        /* ===== DESKTOP ===== */
         @media (min-width: 768px) {
-            header { padding: 16px 24px; }
-            main { padding: 20px 24px 40px; }
-            .hero { padding: 16px 20px; margin-bottom: 20px; }
+            header  { padding: 16px 24px; }
+            main    { padding: 20px 24px 40px; }
+            .hero   { padding: 16px 20px; margin-bottom: 20px; }
             .hero h2 { font-size: 18px; }
             .hero-info { grid-template-columns: repeat(4, 1fr); gap: 12px; }
             .hero-info-item { padding: 8px 12px; font-size: 12px; }
-            .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+
+            .kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px; margin-bottom: 20px;
+            }
             .kpi { padding: 16px; }
             .kpi-label { font-size: 12px; }
             .kpi-value { font-size: 24px; }
+            .kpi-sub   { font-size: 10px; }
+
             .section { margin-bottom: 20px; }
             .section-header { padding: 16px; }
-            .section-title { font-size: 14px; }
-            .ticket-table th { padding: 12px 16px; font-size: 11px; }
-            .ticket-table td { padding: 14px 16px; font-size: 13px; }
+            .section-title  { font-size: 14px; }
+
+            /* En desktop ocultamos tarjetas y mostramos tabla */
+            .ticket-cards     { display: none; }
+            .ticket-table-wrap { display: block; }
         }
     </style>
 </head>
@@ -254,7 +312,7 @@
             </div>
         </div>
 
-        <!-- KPIs -->
+        <!-- KPIs: solo 3 -->
         <div class="kpi-grid">
             <div class="kpi success">
                 <div class="kpi-label"><i class="fas fa-check"></i> Vendidos</div>
@@ -263,18 +321,13 @@
             </div>
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Ingresos</div>
-                <div class="kpi-value" id="kpi-ingresos" style="font-size: 16px;">0</div>
+                <div class="kpi-value" id="kpi-ingresos" style="font-size: 15px;">0</div>
                 <div class="kpi-sub">XAF total</div>
             </div>
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-users"></i> Disponibles</div>
                 <div class="kpi-value" id="kpi-disponibles">0</div>
                 <div class="kpi-sub">Plazas libres</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label"><i class="fas fa-box-open"></i> Stock Total</div>
-                <div class="kpi-value" id="kpi-stock">0</div>
-                <div class="kpi-sub">Capacidad total</div>
             </div>
         </div>
 
@@ -283,7 +336,14 @@
             <div class="section-header">
                 <h3 class="section-title"><i class="fas fa-ticket-alt"></i> Desglose de Billetes</h3>
             </div>
-            <div class="section-body" id="ticketBreakdown">
+
+            <!-- MÓVIL: tarjetas -->
+            <div class="ticket-cards" id="ticketCards">
+                <div class="empty-state">Cargando inventario...</div>
+            </div>
+
+            <!-- DESKTOP: tabla -->
+            <div class="ticket-table-wrap" id="ticketTableWrap">
                 <div class="empty-state">Cargando inventario...</div>
             </div>
         </div>
@@ -296,11 +356,11 @@
         </div>
     </main>
 
-    <!-- MODAL CONFIGURACIÓN -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-database" style="color: var(--primary); margin-right: 8px;"></i>Supabase</h3>
+                <h3><i class="fas fa-database" style="color:var(--primary);margin-right:8px;"></i>Supabase</h3>
                 <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
@@ -326,17 +386,11 @@
         let destinoActual = null;
 
         const formatXAF = (n) => new Intl.NumberFormat('es-GQ').format(Math.round(n));
-
         const formatFecha = (f) => {
             if (!f) return '—';
-            const d = new Date(f);
-            return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+            return new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
         };
-
-        const formatHora = (h) => {
-            if (!h) return '—';
-            return h.slice(0, 5);
-        };
+        const formatHora = (h) => h ? h.slice(0, 5) : '—';
 
         const showAlert = (msg) => {
             const el = document.getElementById('errorAlert');
@@ -345,10 +399,8 @@
         };
 
         const updateStatus = (online) => {
-            const dot  = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-            if (online) { dot.className = 'dot online'; text.textContent = 'Online'; }
-            else        { dot.className = 'dot';        text.textContent = 'Offline'; }
+            document.getElementById('statusDot').className  = online ? 'dot online' : 'dot';
+            document.getElementById('statusText').textContent = online ? 'Online' : 'Offline';
         };
 
         function openModal() {
@@ -369,15 +421,15 @@
         }
 
         async function querySupabase(table, params = '') {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': `Bearer ${SUPABASE_KEY}`,
                     'Content-Type': 'application/json'
                 }
             });
-            if (!response.ok) throw new Error(`Error ${response.status}`);
-            return await response.json();
+            if (!res.ok) throw new Error(`Error ${res.status}`);
+            return await res.json();
         }
 
         async function loadViaje() {
@@ -392,62 +444,95 @@
         }
 
         async function loadInventario() {
-            const container = document.getElementById('ticketBreakdown');
+            const cards    = document.getElementById('ticketCards');
+            const tableWrap = document.getElementById('ticketTableWrap');
+
             if (!destinoActual) {
-                container.innerHTML = '<div class="empty-state">Sin viaje activo</div>';
+                const msg = '<div class="empty-state">Sin viaje activo</div>';
+                cards.innerHTML = msg; tableWrap.innerHTML = msg;
                 return;
             }
 
-            // Inventario ordenado de mayor a menor precio
             const inv = await querySupabase('inventario',
                 `destino=eq.${encodeURIComponent(destinoActual)}&order=precio.desc`);
 
-            // Compras con estado pagado
             const compras = await querySupabase('compras',
                 `destino=eq.${encodeURIComponent(destinoActual)}&select=tipo_billete,precio,estado_compra`);
 
-            // Agrupar ventas por tipo
-            const ventasPorTipo = {};
+            const vpt = {};
             compras.forEach(c => {
-                if (!ventasPorTipo[c.tipo_billete])
-                    ventasPorTipo[c.tipo_billete] = { vendidos: 0, monto: 0 };
+                if (!vpt[c.tipo_billete]) vpt[c.tipo_billete] = { vendidos: 0, monto: 0 };
                 if (c.estado_compra === 'Billete pagado') {
-                    ventasPorTipo[c.tipo_billete].vendidos++;
-                    ventasPorTipo[c.tipo_billete].monto += c.precio || 0;
+                    vpt[c.tipo_billete].vendidos++;
+                    vpt[c.tipo_billete].monto += c.precio || 0;
                 }
             });
 
-            let totalVendidos = 0, totalIngresos = 0, totalDisponibles = 0, totalCapacidad = 0;
+            let totalVendidos = 0, totalIngresos = 0, totalDisponibles = 0;
 
-            const filas = inv.map(i => {
+            const iconoMap = {
+                'Economico': 'fa-chair',
+                'VIP':       'fa-crown',
+                'Cabina':    'fa-door-closed'
+            };
+
+            // --- TARJETAS MÓVIL ---
+            let htmlCards = '';
+            // --- FILAS TABLA DESKTOP ---
+            let htmlFilas = '';
+
+            inv.forEach(i => {
                 const tipo       = i.tipo_billete;
                 const disponibles = i.stock_disponible || 0;
-                const vendidos   = ventasPorTipo[tipo]?.vendidos || 0;
-                const monto      = ventasPorTipo[tipo]?.monto    || 0;
-                const capacidad  = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
+                const vendidos   = vpt[tipo]?.vendidos || 0;
+                const monto      = vpt[tipo]?.monto    || 0;
+                const precio     = i.precio || 0;
+                const icono      = iconoMap[tipo] || 'fa-ticket-alt';
 
-                totalVendidos   += vendidos;
-                totalIngresos   += monto;
+                totalVendidos    += vendidos;
+                totalIngresos    += monto;
                 totalDisponibles += disponibles;
-                totalCapacidad  += capacidad;
 
-                // Icono según tipo
-                const icono = tipo === 'Economico' ? 'fa-chair'
-                            : tipo === 'VIP'       ? 'fa-crown'
-                            : tipo === 'Cabina'    ? 'fa-door-closed'
-                            : 'fa-ticket-alt';
+                // Tarjeta móvil
+                htmlCards += `
+                    <div class="ticket-card">
+                        <div class="ticket-card-header">
+                            <i class="fas ${icono}"></i>${tipo}
+                        </div>
+                        <div class="ticket-card-grid">
+                            <div class="ticket-stat-box">
+                                <div class="tsb-label">Disponible</div>
+                                <div class="tsb-value green">${disponibles}</div>
+                            </div>
+                            <div class="ticket-stat-box">
+                                <div class="tsb-label">Vendido</div>
+                                <div class="tsb-value blue">${vendidos}</div>
+                            </div>
+                            <div class="ticket-stat-box">
+                                <div class="tsb-label">Precio unit.</div>
+                                <div class="tsb-value dark">${formatXAF(precio)} XAF</div>
+                            </div>
+                            <div class="ticket-stat-box">
+                                <div class="tsb-label">Total vendido</div>
+                                <div class="tsb-value dark">${formatXAF(monto)} XAF</div>
+                            </div>
+                        </div>
+                    </div>`;
 
-                return `
+                // Fila tabla desktop
+                htmlFilas += `
                     <tr>
                         <td><span class="ticket-name"><i class="fas ${icono}"></i>${tipo}</span></td>
                         <td class="val-disponible">${disponibles}</td>
                         <td class="val-vendido">${vendidos}</td>
-                        <td>${formatXAF(i.precio || 0)} XAF</td>
-                        <td class="val-total">${formatXAF(monto)} XAF</td>
+                        <td>${formatXAF(precio)} XAF</td>
+                        <td>${formatXAF(monto)} XAF</td>
                     </tr>`;
-            }).join('');
+            });
 
-            container.innerHTML = `
+            cards.innerHTML = htmlCards;
+
+            tableWrap.innerHTML = `
                 <table class="ticket-table">
                     <thead>
                         <tr>
@@ -458,14 +543,13 @@
                             <th>Total vendido</th>
                         </tr>
                     </thead>
-                    <tbody>${filas}</tbody>
+                    <tbody>${htmlFilas}</tbody>
                 </table>`;
 
-            // Actualizar KPIs
+            // KPIs
             document.getElementById('kpi-vendidos').textContent    = totalVendidos;
             document.getElementById('kpi-ingresos').textContent    = formatXAF(totalIngresos);
             document.getElementById('kpi-disponibles').textContent = totalDisponibles;
-            document.getElementById('kpi-stock').textContent       = totalCapacidad;
 
             document.getElementById('grandTotal').innerHTML =
                 `<i class="fas fa-calculator" style="margin-right:8px;"></i>Total General: ${formatXAF(totalIngresos)} XAF`;
@@ -477,8 +561,7 @@
         async function loadAll() {
             if (!SUPABASE_URL || !SUPABASE_KEY) {
                 showAlert('Configura Supabase en ⚙');
-                updateStatus(false);
-                return;
+                updateStatus(false); return;
             }
             showAlert(null);
             try {
