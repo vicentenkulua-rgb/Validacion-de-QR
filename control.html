@@ -724,10 +724,13 @@
   }
 
   // ─── VIAJE ────────────────────────────────────────────────
+  let destinoActual = null;
+
   async function loadViaje() {
     const viajes = await query('viajes', 'activo=eq.true&limit=1');
     const v = viajes[0];
     if (!v) return;
+    destinoActual = v.destino;
     const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     document.getElementById('viajeDestino').textContent = `✈ Destino: ${v.destino}`;
     document.getElementById('viajeDetalle').textContent = `${fecha} · Salida: ${v.hora_salida?.slice(0,5)} · Estado: ${v.estado}`;
@@ -788,8 +791,10 @@
 
   // ─── INVENTARIO ───────────────────────────────────────────
   async function loadInventario() {
-    const inv = await query('inventario', 'select=destino,tipo_billete,precio,stock_disponible,stock_reservado,stock_vendido&order=destino');
-    if (!inv.length) { document.getElementById('inventarioContent').innerHTML = '<div class="empty">Sin datos de inventario</div>'; return; }
+    if (!destinoActual) { document.getElementById('inventarioContent').innerHTML = '<div class="empty">Sin viaje activo</div>'; return; }
+    const inv = await query('inventario', `select=destino,tipo_billete,precio,stock_disponible,stock_reservado,stock_vendido&destino=eq.${encodeURIComponent(destinoActual)}&order=tipo_billete`);
+    if (!inv.length) { document.getElementById('inventarioContent').innerHTML = `<div class="empty">Sin inventario para ${destinoActual}</div>`; return; }
+    document.querySelector('.card-title').textContent = `Inventario — ${destinoActual}`;
 
     const rows = inv.map(i => {
       const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
@@ -902,7 +907,8 @@
     document.getElementById('lastUpdate').textContent = 'Actualizando...';
 
     try {
-      await Promise.all([loadViaje(), loadKPIs(), loadInventario(), loadPagos(), loadCompras()]);
+      await loadViaje();
+      await Promise.all([loadKPIs(), loadInventario(), loadPagos(), loadCompras()]);
       document.getElementById('lastUpdate').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-ES');
     } catch (err) {
       showError('Error al conectar con Supabase: ' + err.message + '. Verifica las credenciales.');
