@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#003DA5">
-    <title>Ferry Viteoca - Dashboard</title>
+    <title>Ferry Viteoca</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,28 +14,16 @@
         :root {
             --primary: #003DA5;
             --primary-light: #0052CC;
-            --primary-dark: #002D7A;
             --accent: #C8102E;
             --success: #10B981;
-            --success-light: #D1FAE5;
-            --success-dark: #065F46;
             --warning: #F59E0B;
-            --warning-light: #FEF3C7;
-            --warning-dark: #92400E;
             --danger: #EF4444;
-            --danger-light: #FEE2E2;
-            --danger-dark: #991B1B;
-            --info: #3B82F6;
-            --info-light: #DBEAFE;
-            --info-dark: #1E40AF;
             --bg: #F1F3F6;
             --card: #FFFFFF;
             --text: #1A1A1A;
             --text-sec: #6B7280;
-            --text-ter: #9CA3AF;
             --border: #E5E7EB;
             --shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
         }
 
         * {
@@ -48,29 +36,16 @@
         html, body {
             width: 100%;
             height: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.5;
+            line-height: 1.4;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* SCROLLBAR PERSONALIZADO */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-sec); }
-
-        /* --- HEADER --- */
+        /* --- HEADER COMPACTO --- */
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: var(--primary);
             color: white;
             padding: 12px 16px;
             display: flex;
@@ -79,27 +54,18 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 700;
             font-size: 16px;
-            letter-spacing: -0.3px;
         }
 
-        .logo i {
-            font-size: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-2px); }
-        }
+        .logo i { font-size: 18px; }
 
         .header-right {
             display: flex;
@@ -110,19 +76,12 @@
         .status-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             font-size: 11px;
             font-weight: 600;
             background: rgba(255,255,255,0.15);
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .status-badge.online {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .dot {
@@ -130,637 +89,27 @@
             height: 6px;
             border-radius: 50%;
             background: #CBD5E1;
-            transition: all 0.3s;
         }
 
         .dot.online {
             background: #22C55E;
-            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
-            50% { box-shadow: 0 0 4px rgba(34, 197, 94, 0.3); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         .btn-header {
             background: rgba(255,255,255,0.1);
             border: none;
             color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn-header:hover {
-            background: rgba(255,255,255,0.15);
-            transform: scale(1.05);
-        }
-
-        .btn-header:active {
-            background: rgba(255,255,255,0.2);
-            transform: scale(0.95);
-        }
-
-        /* --- MAIN CONTENT --- */
-        main {
-            padding: 12px 12px 80px 12px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* --- HERO --- */
-        .hero {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 16px 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h2 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .hero h2 i {
-            font-size: 20px;
-        }
-
-        .hero-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            font-size: 12px;
-        }
-
-        .hero-info-item {
-            background: rgba(255,255,255,0.12);
-            padding: 8px 12px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s;
-        }
-
-        .hero-info-item:hover {
-            background: rgba(255,255,255,0.18);
-        }
-
-        .hero-info-label {
-            opacity: 0.8;
-            font-weight: 500;
-            font-size: 11px;
-        }
-
-        .hero-info-value {
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        /* --- KPI GRID --- */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .kpi {
-            background: var(--card);
-            padding: 14px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, rgba(0,61,165,0.05) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .kpi:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .kpi.success { border-left-color: var(--success); }
-        .kpi.success .kpi-label { color: var(--success); }
-
-        .kpi.warning { border-left-color: var(--warning); }
-        .kpi.warning .kpi-label { color: var(--warning); }
-
-        .kpi.danger { border-left-color: var(--danger); }
-        .kpi.danger .kpi-label { color: var(--danger); }
-
-        .kpi.info { border-left-color: var(--info); }
-        .kpi.info .kpi-label { color: var(--info); }
-
-        .kpi-label {
-            font-size: 11px;
-            color: var(--text-sec);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .kpi-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
-        }
-
-        .kpi-sub {
-            font-size: 11px;
-            color: var(--text-sec);
-            margin-top: 4px;
-        }
-
-        /* --- SECCIONES --- */
-        .section {
-            background: var(--card);
-            border-radius: 10px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .section:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .section-header {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #F8FAFC 0%, #F3F4F6 100%);
-        }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text);
-        }
-
-        .section-title i {
-            font-size: 14px;
-            color: var(--primary);
-        }
-
-        .section-body {
-            padding: 0;
-        }
-
-        /* --- TABLA --- */
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        th {
-            background: #F8FAFC;
-            padding: 10px 14px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-sec);
-            letter-spacing: 0.4px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--text);
-        }
-
-        tr:hover td {
-            background: #F8FAFC;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* --- BADGES --- */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .badge-success {
-            background: var(--success-light);
-            color: var(--success-dark);
-        }
-
-        .badge-warning {
-            background: var(--warning-light);
-            color: var(--warning-dark);
-        }
-
-        .badge-danger {
-            background: var(--danger-light);
-            color: var(--danger-dark);
-        }
-
-        .badge-info {
-            background: var(--info-light);
-            color: var(--info-dark);
-        }
-
-        /* --- PROGRESS BAR --- */
-        .progress {
-            width: 100%;
-            height: 6px;
-            background: var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 6px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 10px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* --- DESGLOSE DE BILLETES --- */
-        .ticket-breakdown {
-            padding: 0;
-        }
-
-        .ticket-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            transition: all 0.2s;
-        }
-
-        .ticket-item:hover {
-            background: #F8FAFC;
-        }
-
-        .ticket-item:last-child {
-            border-bottom: none;
-        }
-
-        .ticket-type {
-            font-weight: 700;
-            font-size: 13px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .ticket-type-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-        }
-
-        .ticket-stat {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-
-        .ticket-stat-label {
-            color: var(--text-sec);
-        }
-
-        .ticket-stat-value {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .ticket-total {
-            background: #F8FAFC;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 700;
-            border-left: 3px solid var(--primary);
-        }
-
-        .grand-total {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 16px 18px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: -0.3px;
-        }
-
-        /* --- MODAL --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal {
-            background: var(--card);
-            width: 100%;
-            max-width: 450px;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            padding: 18px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #F8FAFC 0%, #F3F4F6 100%);
-        }
-
-        .modal-header h3 {
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-sec);
             width: 32px;
             height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .modal-close:hover {
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .modal-body {
-            padding: 18px;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
             border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-            background: white;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(0, 61, 165, 0.1);
-        }
-
-        .form-control::placeholder {
-            color: var(--text-ter);
-        }
-
-        .modal-footer {
-            padding: 14px 18px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-            background: #F8FAFC;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            font-family: inherit;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:active {
-            background: var(--primary-dark);
-            transform: translateY(0);
-        }
-
-        .btn-ghost {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-ghost:hover {
-            background: #E5E7EB;
-        }
-
-        .btn-ghost:active {
-            background: var(--border);
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        /* --- ALERT --- */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            display: none;
-            animation: slideDown 0.3s ease-out;
-            border-left: 4px solid;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .alert.show {
-            display: flex;
-        }
-
-        .alert-danger {
-            background: var(--danger-light);
-            color: var(--danger-dark);
-            border-left-color: var(--danger);
-        }
-
-              display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
@@ -780,7 +129,7 @@
         .hero {
             background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
             color: white;
-            padding: 12px 14px;
+            padding: 14px 16px;
             border-radius: 10px;
             margin-bottom: 12px;
             box-shadow: var(--shadow);
@@ -799,41 +148,37 @@
             opacity: 0.08;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
         .hero h2 {
             font-size: 16px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
 
-        .hero-info {
+        .hero p {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-bottom: 8px;
+        }
+
+        .hero-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            font-size: 11px;
         }
 
-        .hero-info-item {
+        .hero-stat {
             background: rgba(255,255,255,0.1);
             padding: 6px 10px;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 10px;
             backdrop-filter: blur(5px);
         }
 
-        .hero-info-label {
-            opacity: 0.7;
-            font-weight: 500;
-        }
-
-        .hero-info-value {
+        .hero-stat-val {
+            font-size: 13px;
             font-weight: 700;
+            display: block;
+            margin-top: 2px;
         }
 
         /* --- KPI GRID ULTRA-COMPACTO --- */
@@ -966,62 +311,22 @@
             transition: width 0.8s ease;
         }
 
-        /* --- DESGLOSE DE BILLETES --- */
-        .ticket-breakdown {
-            padding: 0;
-        }
-
-        .ticket-item {
-            padding: 12px 14px;
+        /* --- LISTA DE PAGOS --- */
+        .payment-item {
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .ticket-item:last-child { border-bottom: none; }
-
-        .ticket-type {
-            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 12px;
-            margin-bottom: 6px;
         }
 
-        .ticket-stat {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 3px;
-        }
+        .payment-item:last-child { border-bottom: none; }
 
-        .ticket-stat-label {
-            color: var(--text-sec);
-        }
-
-        .ticket-stat-value {
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .ticket-total {
-            background: #F8FAFC;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-top: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .grand-total {
-            background: var(--primary);
-            color: white;
-            padding: 12px 14px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
+        .payment-info { flex: 1; }
+        .payment-user { font-weight: 600; display: block; margin-bottom: 2px; }
+        .payment-meta { font-size: 10px; color: var(--text-sec); }
+        .payment-amount { font-weight: 700; text-align: right; }
 
         /* --- MODAL --- */
         .modal-overlay {
@@ -1158,7 +463,19 @@
             border: 1px solid #FCA5A5;
         }
 
-        /* --- EMPTY STATE --- */
+        /* --- LOADING --- */
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #E5E7EB;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         .empty-state {
             text-align: center;
             padding: 20px 14px;
@@ -1177,21 +494,12 @@
             }
 
             .hero {
-                padding: 16px 20px;
+                padding: 20px 24px;
                 margin-bottom: 20px;
             }
 
-            .hero h2 { font-size: 18px; }
-
-            .hero-info {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-            }
-
-            .hero-info-item {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
+            .hero h2 { font-size: 20px; }
+            .hero p { font-size: 13px; }
 
             .kpi-grid {
                 grid-template-columns: repeat(4, 1fr);
@@ -1216,6 +524,16 @@
 
             .section-title { font-size: 14px; }
 
+            .section-body {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 0;
+            }
+
+            .section-body > :first-child {
+                border-right: 1px solid var(--border);
+            }
+
             table {
                 font-size: 13px;
             }
@@ -1227,10 +545,6 @@
 
             td {
                 padding: 12px 16px;
-            }
-
-            .ticket-item {
-                grid-template-columns: 1fr 1fr 1fr;
             }
 
             .modal {
@@ -1270,37 +584,21 @@
     <main>
         <div id="errorAlert" class="alert alert-danger"></div>
 
-        <!-- HERO CON INFORMACIÓN DEL VIAJE -->
+        <!-- HERO COMPACTO -->
         <div class="hero">
-            <div class="hero-content">
-                <h2 id="viajeDestino">Cargando viaje...</h2>
-                <div class="hero-info">
-                    <div class="hero-info-item">
-                        <span class="hero-info-label"><i class="far fa-calendar"></i> Fecha</span>
-                        <span class="hero-info-value" id="viajeFecha">—</span>
-                    </div>
-                    <div class="hero-info-item">
-                        <span class="hero-info-label"><i class="far fa-clock"></i> Hora</span>
-                        <span class="hero-info-value" id="viajeHora">—</span>
-                    </div>
-                    <div class="hero-info-item">
-                        <span class="hero-info-label"><i class="fas fa-info-circle"></i> Estado</span>
-                        <span class="hero-info-value" id="viajeEstado">—</span>
-                    </div>
-                    <div class="hero-info-item">
-                        <span class="hero-info-label"><i class="far fa-clock"></i> Actualizado</span>
-                        <span class="hero-info-value" id="lastUpdate">—</span>
-                    </div>
-                </div>
+            <h2 id="viajeDestino">Cargando...</h2>
+            <p id="viajeDetalle">—</p>
+            <div class="hero-stats" id="heroStats">
+                <!-- Dinámico -->
             </div>
         </div>
 
         <!-- KPI GRID -->
         <div class="kpi-grid">
             <div class="kpi success">
-                <div class="kpi-label"><i class="fas fa-check"></i> Vendidos</div>
-                <div class="kpi-value" id="kpi-vendidos">0</div>
-                <div class="kpi-sub">Billetes totales</div>
+                <div class="kpi-label"><i class="fas fa-check"></i> Pagados</div>
+                <div class="kpi-value" id="kpi-pagados">0</div>
+                <div class="kpi-sub" id="kpi-pagados-sub">—</div>
             </div>
             <div class="kpi warning">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Ingresos</div>
@@ -1308,31 +606,73 @@
                 <div class="kpi-sub">XAF</div>
             </div>
             <div class="kpi warning">
-                <div class="kpi-label"><i class="fas fa-users"></i> Disponibles</div>
-                <div class="kpi-value" id="kpi-disponibles">0</div>
-                <div class="kpi-sub">Económicos</div>
+                <div class="kpi-label"><i class="fas fa-clock"></i> Pendientes</div>
+                <div class="kpi-value" id="kpi-pendientes">0</div>
+                <div class="kpi-sub">Por pagar</div>
             </div>
             <div class="kpi danger">
-                <div class="kpi-label"><i class="fas fa-chart-pie"></i> Ocupación</div>
-                <div class="kpi-value" id="kpi-ocupacion">0%</div>
-                <div class="kpi-sub">Total</div>
+                <div class="kpi-label"><i class="fas fa-users"></i> Stock</div>
+                <div class="kpi-value" id="kpi-stock">0</div>
+                <div class="kpi-sub">Disponibles</div>
             </div>
         </div>
 
-        <!-- DESGLOSE DE INVENTARIO POR TIPO DE BILLETE -->
+        <!-- INVENTARIO -->
         <div class="section">
             <div class="section-header">
-                <h3 class="section-title"><i class="fas fa-ticket-alt"></i> Desglose de Billetes</h3>
+                <h3 class="section-title"><i class="fas fa-boxes"></i> Inventario</h3>
+                <span id="lastUpdate" style="font-size: 10px; color: var(--text-sec);"></span>
             </div>
-            <div class="section-body ticket-breakdown" id="ticketBreakdown">
-                <div class="empty-state">Cargando inventario...</div>
+            <div class="section-body">
+                <div style="overflow-x: auto;">
+                    <table id="inventarioTable">
+                        <thead>
+                            <tr>
+                                <th>Billete</th>
+                                <th>Precio</th>
+                                <th>Ventas</th>
+                                <th>Libres</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventarioBody">
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- RESUMEN TOTAL -->
+        <!-- PAGOS RECIENTES -->
         <div class="section">
-            <div class="grand-total" id="grandTotal">
-                Total General: 0 XAF
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-history"></i> Pagos Recientes</h3>
+            </div>
+            <div class="section-body" id="pagosContainer">
+                <div class="empty-state">Cargando pagos...</div>
+            </div>
+        </div>
+
+        <!-- COMPRAS -->
+        <div class="section">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> Compras</h3>
+            </div>
+            <div class="section-body">
+                <div style="overflow-x: auto;">
+                    <table id="comprasTable">
+                        <thead>
+                            <tr>
+                                <th>Pasajero</th>
+                                <th>Destino</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comprasBody">
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -1365,841 +705,229 @@
         // --- CONFIGURACIÓN ---
         let SUPABASE_URL = localStorage.getItem('fv_url') || '';
         let SUPABASE_KEY = localStorage.getItem('fv_key') || '';
+        let destinoActual = null;
+
+        // --- UTILIDADES ---
+        const formatXAF = (n) => new Intl.NumberFormat('es-GQ').format(Math.round(n));
         
-@keyframes blink {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.hdr-btn {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.07);
-  border: none;
-  color: rgba(255,255,255,0.7);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  font-size: 13px;
-  transition: background 0.15s;
-}
-.hdr-btn:active { background: rgba(255,255,255,0.14); }
-
-/* ── MAIN ── */
-main {
-  padding: 14px 14px calc(24px + var(--safe-bot));
-}
-
-/* ── ALERT ── */
-.alert {
-  background: #FEE2E2;
-  color: #991B1B;
-  border: 1px solid #FCA5A5;
-  border-radius: 10px;
-  padding: 10px 13px;
-  font-size: 12px;
-  margin-bottom: 12px;
-  display: none;
-}
-.alert.show { display: block; }
-
-/* ── HERO CARD ── */
-.hero {
-  background: var(--navy);
-  border-radius: 16px;
-  padding: 18px;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  right: -30px; top: -30px;
-  width: 150px; height: 150px;
-  border-radius: 50%;
-  background: rgba(233,162,59,0.07);
-  pointer-events: none;
-}
-
-.hero-route {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.hero-dest {
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-
-.hero-wave {
-  width: 22px; height: 22px;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-.hero-meta {
-  font-size: 11px;
-  color: rgba(255,255,255,0.5);
-  font-family: var(--mono);
-  margin-bottom: 14px;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.hero-stat {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-
-.hs-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.4);
-  font-family: var(--mono);
-  margin-bottom: 4px;
-}
-
-.hs-val {
-  font-size: 17px;
-  font-weight: 700;
-  color: #fff;
-  font-family: var(--mono);
-}
-
-.hs-unit {
-  font-size: 9px;
-  color: rgba(255,255,255,0.35);
-  margin-left: 2px;
-  font-family: var(--mono);
-}
-
-/* ── KPI STRIP ── */
-.kpi-strip {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.kpi {
-  background: var(--card);
-  border-radius: 14px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-}
-
-.kpi::after {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  border-radius: 3px 0 0 3px;
-  background: var(--accent-color, var(--navy));
-}
-
-.kpi-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  color: var(--text2);
-  font-family: var(--mono);
-  margin-bottom: 6px;
-}
-
-.kpi-num {
-  font-size: 26px;
-  font-weight: 700;
-  font-family: var(--mono);
-  color: var(--text);
-  line-height: 1;
-  margin-bottom: 3px;
-}
-
-.kpi-num.sm { font-size: 17px; }
-
-.kpi-hint {
-  font-size: 10px;
-  color: var(--text2);
-  font-family: var(--mono);
-}
-
-/* ── SECTION CARD ── */
-.sec {
-  background: var(--card);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  margin-bottom: 14px;
-  overflow: hidden;
-}
-
-.sec-head {
-  padding: 13px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-}
-
-.sec-title {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--navy);
-  font-family: var(--mono);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.sec-icon {
-  width: 22px; height: 22px;
-  background: var(--navy);
-  border-radius: 6px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.sec-icon svg { width: 11px; height: 11px; fill: #fff; }
-
-.sec-badge {
-  font-size: 10px;
-  font-family: var(--mono);
-  color: var(--text2);
-}
-
-/* ── INVENTARIO CARDS ── */
-.inv-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.inv-row {
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.inv-row:last-child { border-bottom: none; }
-
-.inv-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.inv-type { font-size: 13px; font-weight: 600; color: var(--text); }
-.inv-price {
-  font-size: 13px;
-  font-family: var(--mono);
-  font-weight: 500;
-  color: var(--navy);
-}
-
-.inv-bar-wrap {
-  position: relative;
-  height: 7px;
-  background: #EEF0F5;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  overflow: hidden;
-}
-
-.inv-bar {
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
-}
-
-.inv-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.inv-pct {
-  font-size: 11px;
-  font-family: var(--mono);
-  font-weight: 500;
-}
-
-.inv-slots {
-  font-size: 10px;
-  color: var(--text2);
-  font-family: var(--mono);
-}
-
-.badge-sm {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  border-radius: 5px;
-  font-size: 10px;
-  font-family: var(--mono);
-  font-weight: 500;
-}
-
-.badge-ok { background: #DCFCE7; color: #166534; }
-.badge-low { background: #FEF9C3; color: #854D0E; }
-.badge-out { background: #FEE2E2; color: #991B1B; }
-.badge-info { background: #DBEAFE; color: #1E3A8A; }
-
-/* ── PAGOS ── */
-.pago-row {
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
-}
-.pago-row:last-child { border-bottom: none; }
-
-.pago-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: #EEF0F5;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--navy);
-  flex-shrink: 0;
-}
-
-.pago-info { flex: 1; min-width: 0; }
-.pago-tel { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pago-meta { font-size: 10px; color: var(--text2); font-family: var(--mono); margin-top: 2px; }
-
-.pago-right { text-align: right; flex-shrink: 0; }
-.pago-monto { font-size: 13px; font-weight: 600; font-family: var(--mono); }
-.pago-monto.ok { color: var(--teal); }
-.pago-monto.pend { color: var(--amber-dim); }
-
-/* ── COMPRAS TABLE ── */
-.compras-list { display: flex; flex-direction: column; }
-
-.compra-row {
-  padding: 11px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.compra-row:last-child { border-bottom: none; }
-
-.compra-init {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  background: var(--surface);
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--navy-light);
-  flex-shrink: 0;
-  font-family: var(--mono);
-}
-
-.compra-info { flex: 1; min-width: 0; }
-.compra-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.compra-dest { font-size: 10px; color: var(--text2); font-family: var(--mono); margin-top: 2px; }
-
-.compra-right { text-align: right; flex-shrink: 0; }
-.compra-price { font-size: 12px; font-family: var(--mono); font-weight: 500; color: var(--text); }
-
-/* ── EMPTY ── */
-.empty {
-  padding: 28px 16px;
-  text-align: center;
-  color: var(--text2);
-  font-size: 12px;
-  font-family: var(--mono);
-}
-
-/* ── MODAL ── */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(4px);
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 500;
-  padding-bottom: var(--safe-bot);
-}
-.overlay.show { display: flex; }
-
-.modal {
-  background: var(--card);
-  width: 100%;
-  max-width: 520px;
-  border-radius: 20px 20px 0 0;
-  animation: slideUp 0.28s ease-out;
-  padding-bottom: calc(16px + var(--safe-bot));
-}
-
-@keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-handle {
-  width: 36px; height: 4px;
-  background: var(--border);
-  border-radius: 4px;
-  margin: 10px auto 0;
-}
-
-.modal-hdr {
-  padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-hdr h3 {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-}
-
-.modal-close {
-  background: var(--surface);
-  border: none;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text2);
-  display: grid;
-  place-items: center;
-}
-
-.modal-body { padding: 16px 18px; }
-
-.fg { margin-bottom: 14px; }
-.fg label { display: block; font-size: 11px; font-weight: 600; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); margin-bottom: 6px; }
-
-.fc {
-  width: 100%;
-  padding: 11px 13px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 13px;
-  font-family: var(--mono);
-  color: var(--text);
-  background: var(--surface);
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-}
-.fc:focus { outline: none; border-color: var(--navy); background: #fff; }
-
-.modal-ftr {
-  padding: 0 18px;
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  flex: 1;
-  padding: 13px;
-  border: none;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: var(--sans);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-primary { background: var(--navy); color: #fff; }
-.btn-primary:active { background: var(--navy-mid); transform: scale(0.98); }
-.btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-.btn-ghost:active { transform: scale(0.98); }
-
-/* ── TIMESTAMP ── */
-.ts-pill {
-  font-size: 9px;
-  font-family: var(--mono);
-  color: var(--text2);
-  background: var(--surface);
-  padding: 3px 7px;
-  border-radius: 6px;
-}
-
-/* ── SPINNING ── */
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { animation: spin 0.8s linear infinite; display: inline-block; }
-
-/* ── Desktop adjustments ── */
-@media (min-width: 640px) {
-  main { padding: 20px; max-width: 700px; margin: 0 auto; }
-  .kpi-strip { grid-template-columns: repeat(4,1fr); }
-  .hero-grid { grid-template-columns: repeat(4,1fr); }
-  .modal { border-radius: 16px; max-width: 480px; margin-bottom: 40px; }
-  .overlay { align-items: center; }
-}
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="hdr">
-  <div class="hdr-brand">
-    <div class="hdr-icon">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 21H4l-2-5h20l-2 5zm-9-7V8h2v6h-2zm5-6l-1.5 6H9.5L8 8h8zM3 8l2-5h14l2 5H3z"/></svg>
-    </div>
-    <div>
-      <div class="hdr-title">Ferry Viteoca</div>
-      <div class="hdr-sub" id="hdrSub">Panel de control</div>
-    </div>
-  </div>
-  <div class="hdr-actions">
-    <div class="pill-status">
-      <div class="dot" id="statusDot"></div>
-      <span id="statusTxt">Offline</span>
-    </div>
-    <button class="hdr-btn" onclick="openModal()" title="Configurar">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </button>
-    <button class="hdr-btn" onclick="loadAll()" title="Actualizar" id="refreshBtn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-    </button>
-  </div>
-</header>
-
-<main>
-  <div class="alert" id="alertBox"></div>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-route">
-      <div class="hero-dest" id="heroDestino">Cargando...</div>
-    </div>
-    <div class="hero-meta" id="heroMeta">— • — • —</div>
-    <div class="hero-grid" id="heroGrid">
-      <div class="hero-stat"><div class="hs-label">Estado</div><div class="hs-val" id="h-estado">—</div></div>
-      <div class="hero-stat"><div class="hs-label">Salida</div><div class="hs-val" id="h-hora">—</div></div>
-    </div>
-  </div>
-
-  <!-- KPIs -->
-  <div class="kpi-strip">
-    <div class="kpi" style="--accent-color: #2BBFA3">
-      <div class="kpi-label">Pagados</div>
-      <div class="kpi-num" id="k-pagados">0</div>
-      <div class="kpi-hint" id="k-pagados-h">billetes</div>
-    </div>
-    <div class="kpi" style="--accent-color: #E9A23B">
-      <div class="kpi-label">Ingresos</div>
-      <div class="kpi-num sm" id="k-ingresos">0</div>
-      <div class="kpi-hint">XAF</div>
-    </div>
-    <div class="kpi" style="--accent-color: #E9A23B">
-      <div class="kpi-label">Pendientes</div>
-      <div class="kpi-num" id="k-pend">0</div>
-      <div class="kpi-hint">por pagar</div>
-    </div>
-    <div class="kpi" style="--accent-color: #0A1628">
-      <div class="kpi-label">Stock</div>
-      <div class="kpi-num" id="k-stock">0</div>
-      <div class="kpi-hint">disponibles</div>
-    </div>
-  </div>
-
-  <!-- INVENTARIO -->
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title">
-        <div class="sec-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-        </div>
-        Inventario
-      </div>
-      <span class="ts-pill" id="lastTs"></span>
-    </div>
-    <div class="inv-grid" id="invGrid">
-      <div class="empty">Cargando...</div>
-    </div>
-  </div>
-
-  <!-- PAGOS RECIENTES -->
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title">
-        <div class="sec-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-        </div>
-        Pagos recientes
-      </div>
-      <span class="sec-badge" id="pagos-count"></span>
-    </div>
-    <div id="pagosGrid">
-      <div class="empty">Cargando...</div>
-    </div>
-  </div>
-
-  <!-- COMPRAS -->
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title">
-        <div class="sec-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49C24.5 5.24 24.25 5 24 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-        </div>
-        Compras
-      </div>
-      <span class="sec-badge" id="compras-count"></span>
-    </div>
-    <div class="compras-list" id="comprasGrid">
-      <div class="empty">Cargando...</div>
-    </div>
-  </div>
-</main>
-
-<!-- MODAL CONFIGURACIÓN -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-hdr">
-      <h3>Conexión Supabase</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="fg">
-        <label>URL del proyecto</label>
-        <input class="fc" type="text" id="iUrl" placeholder="https://xxxxx.supabase.co">
-      </div>
-      <div class="fg">
-        <label>Clave anon</label>
-        <input class="fc" type="password" id="iKey" placeholder="eyJhbGciOiJIUzI1NiIs...">
-      </div>
-    </div>
-    <div class="modal-ftr">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveConfig()">Guardar y conectar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let SB_URL = localStorage.getItem('fv_url') || '';
-let SB_KEY = localStorage.getItem('fv_key') || '';
-let destino = null;
-
-const fmt = n => new Intl.NumberFormat('es-GQ').format(Math.round(n || 0));
-const fmtDate = s => {
-  if (!s) return '—';
-  const d = new Date(s);
-  return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
-};
-const initials = s => s ? s.trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() : '?';
-
-function setStatus(on) {
-  document.getElementById('statusDot').className = 'dot' + (on ? ' on' : '');
-  document.getElementById('statusTxt').textContent = on ? 'Online' : 'Offline';
-}
-
-function showAlert(msg) {
-  const el = document.getElementById('alertBox');
-  el.textContent = msg || '';
-  el.className = 'alert' + (msg ? ' show' : '');
-  if (msg) setStatus(false);
-}
-
-function openModal() {
-  document.getElementById('iUrl').value = SB_URL;
-  document.getElementById('iKey').value = SB_KEY;
-  document.getElementById('overlay').classList.add('show');
-}
-function closeModal() { document.getElementById('overlay').classList.remove('show'); }
-
-function saveConfig() {
-  const u = document.getElementById('iUrl').value.trim().replace(/\/$/, '');
-  const k = document.getElementById('iKey').value.trim();
-  if (!u || !k) { alert('Completa ambos campos'); return; }
-  SB_URL = u; SB_KEY = k;
-  localStorage.setItem('fv_url', u);
-  localStorage.setItem('fv_key', k);
-  closeModal();
-  loadAll();
-}
-
-async function api(table, qs = '') {
-  const r = await fetch(`${SB_URL}/rest/v1/${table}?${qs}`, {
-    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-  });
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
-}
-
-async function loadViaje() {
-  const [v] = await api('viajes', 'activo=eq.true&limit=1');
-  if (!v) {
-    document.getElementById('heroDestino').textContent = 'Sin viaje activo';
-    document.getElementById('heroMeta').textContent = '—';
-    return;
-  }
-  destino = v.destino;
-  const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
-  document.getElementById('heroDestino').textContent = v.destino;
-  document.getElementById('heroMeta').textContent = `${fecha}`;
-  document.getElementById('h-estado').textContent = v.estado || '—';
-  document.getElementById('h-hora').textContent = v.hora_salida?.slice(0,5) || '—';
-  document.getElementById('hdrSub').textContent = v.destino;
-}
-
-async function loadKPIs() {
-  const [compras, inv] = await Promise.all([
-    api('compras', 'select=estado_compra,precio'),
-    api('inventario', destino ? `destino=eq.${encodeURIComponent(destino)}` : '')
-  ]);
-  const pagados = compras.filter(c => c.estado_compra === 'Billete pagado');
-  const pend = compras.filter(c => c.estado_compra === 'pendiente_pago');
-  const exp = compras.filter(c => c.estado_compra === 'billete_expirado');
-  const ingresos = pagados.reduce((s,c) => s + (c.precio||0), 0);
-  const stock = inv.reduce((s,i) => s + (i.stock_disponible||0), 0);
-  document.getElementById('k-pagados').textContent = pagados.length;
-  document.getElementById('k-pagados-h').textContent = exp.length + ' expirados';
-  document.getElementById('k-ingresos').textContent = fmt(ingresos);
-  document.getElementById('k-pend').textContent = pend.length;
-  document.getElementById('k-stock').textContent = stock;
-}
-
-async function loadInventario() {
-  const grid = document.getElementById('invGrid');
-  if (!destino) { grid.innerHTML = '<div class="empty">Sin viaje activo</div>'; return; }
-  const inv = await api('inventario', `destino=eq.${encodeURIComponent(destino)}&order=tipo_billete`);
-  if (!inv.length) { grid.innerHTML = '<div class="empty">Sin datos de inventario</div>'; return; }
-
-  const totalStock = inv.reduce((s,i)=>s+(i.stock_disponible||0),0);
-
-  grid.innerHTML = inv.map(i => {
-    const disp = i.stock_disponible || 0;
-    const res  = i.stock_reservado  || 0;
-    const vend = i.stock_vendido    || 0;
-    const total = disp + res + vend;
-    const pctVend = total > 0 ? Math.round((vend / total) * 100) : 0;
-    const pctDisp = total > 0 ? Math.round((disp / total) * 100) : 0;
-
-    let barColor, badgeCls, badgeTxt;
-    if (pctVend >= 90) { barColor='#E05252'; badgeCls='badge-out'; badgeTxt='Agotándose'; }
-    else if (pctVend >= 65) { barColor='#E9A23B'; badgeCls='badge-low'; badgeTxt='Poca disponibilidad'; }
-    else { barColor='#2BBFA3'; badgeCls='badge-ok'; badgeTxt='Disponible'; }
-
-    return `
-    <div class="inv-row">
-      <div class="inv-top">
-        <div>
-          <div class="inv-type">${i.tipo_billete}</div>
-          <div style="font-size:10px;color:var(--text2);font-family:var(--mono);margin-top:2px">${fmt(i.precio)} XAF</div>
-        </div>
-        <span class="badge-sm ${badgeCls}">${badgeTxt}</span>
-      </div>
-      <div class="inv-bar-wrap">
-        <div class="inv-bar" style="width:${pctVend}%;background:${barColor}"></div>
-      </div>
-      <div class="inv-stats">
-        <span class="inv-pct" style="color:${barColor}">${pctVend}% vendido</span>
-        <span class="inv-slots">${disp} libres / ${total} total</span>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:7px;font-size:10px;font-family:var(--mono);color:var(--text2)">
-        <span>🟢 Libres: ${disp} (${pctDisp}%)</span>
-        <span>🔵 Reservados: ${res}</span>
-        <span>🔴 Vendidos: ${vend}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('lastTs').textContent = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-}
-
-async function loadPagos() {
-  const el = document.getElementById('pagosGrid');
-  const pagos = await api('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=8');
-  document.getElementById('pagos-count').textContent = pagos.length + ' recientes';
-  if (!pagos.length) { el.innerHTML = '<div class="empty">Sin pagos registrados</div>'; return; }
-  el.innerHTML = pagos.map(p => `
-    <div class="pago-row">
-      <div class="pago-avatar">${initials(p.telefono_remitente || 'AN')}</div>
-      <div class="pago-info">
-        <div class="pago-tel">${p.telefono_remitente || 'Anónimo'}</div>
-        <div class="pago-meta">${p.metodo_pago || 'Muni'} · ${fmtDate(p.fecha_pago)}</div>
-      </div>
-      <div class="pago-right">
-        <div class="pago-monto ${p.verificado ? 'ok' : 'pend'}">${fmt(p.monto_detectado)} XAF</div>
-        <div style="font-size:9px;font-family:var(--mono);color:var(--text2);margin-top:2px">${p.verificado ? 'verificado' : 'pendiente'}</div>
-      </div>
-    </div>`).join('');
-}
-
-async function loadCompras() {
-  const el = document.getElementById('comprasGrid');
-  const compras = await api('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=12');
-  document.getElementById('compras-count').textContent = compras.length + ' recientes';
-  if (!compras.length) { el.innerHTML = '<div class="empty">Sin compras</div>'; return; }
-
-  const estadoBadge = e => {
-    if (e === 'Billete pagado') return '<span class="badge-sm badge-ok">Pagado</span>';
-    if (e === 'pendiente_pago') return '<span class="badge-sm badge-low">Pendiente</span>';
-    return '<span class="badge-sm badge-out">Expirado</span>';
-  };
-
-  el.innerHTML = compras.map(c => `
-    <div class="compra-row">
-      <div class="compra-init">${initials(c.nombre_pasajero)}</div>
-      <div class="compra-info">
-        <div class="compra-name">${c.nombre_pasajero || '—'}</div>
-        <div class="compra-dest">${c.destino || '—'} · ${c.tipo_billete || '—'}</div>
-      </div>
-      <div class="compra-right">
-        <div class="compra-price">${fmt(c.precio)} XAF</div>
-        <div style="margin-top:4px">${estadoBadge(c.estado_compra)}</div>
-      </div>
-    </div>`).join('');
-}
-
-async function loadAll() {
-  if (!SB_URL || !SB_KEY) { showAlert('Configura la conexión Supabase pulsando ⚙'); return; }
-  const btn = document.getElementById('refreshBtn');
-  btn.querySelector('svg').style.animation = 'spin 0.8s linear infinite';
-  showAlert(null);
-  try {
-    await loadViaje();
-    await Promise.all([loadKPIs(), loadInventario(), loadPagos(), loadCompras()]);
-    setStatus(true);
-  } catch(e) {
-    showAlert('Error de conexión. Verifica las credenciales.');
-  } finally {
-    btn.querySelector('svg').style.animation = '';
-  }
-}
-
-window.addEventListener('load', () => {
-  if (!SB_URL || !SB_KEY) openModal();
-  else loadAll();
-  setInterval(loadAll, 120000);
-});
-
-document.getElementById('overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('overlay')) closeModal();
-});
-</script>
+        const formatFecha = (f) => {
+            if (!f) return '—';
+            const d = new Date(f);
+            return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+        };
+
+        const showAlert = (msg) => {
+            const el = document.getElementById('errorAlert');
+            if (msg) {
+                el.textContent = msg;
+                el.style.display = 'block';
+                updateStatus(false);
+            } else {
+                el.style.display = 'none';
+            }
+        };
+
+        const updateStatus = (online) => {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            if (online) {
+                dot.className = 'dot online';
+                text.textContent = 'Online';
+            } else {
+                dot.className = 'dot';
+                text.textContent = 'Offline';
+            }
+        };
+
+        // --- MODAL ---
+        function openModal() {
+            document.getElementById('inputUrl').value = SUPABASE_URL;
+            document.getElementById('inputKey').value = SUPABASE_KEY;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('inputUrl').value.trim().replace(/\/$/, '');
+            const key = document.getElementById('inputKey').value.trim();
+            
+            if (!url || !key) {
+                alert('Completa ambos campos');
+                return;
+            }
+
+            SUPABASE_URL = url;
+            SUPABASE_KEY = key;
+            localStorage.setItem('fv_url', url);
+            localStorage.setItem('fv_key', key);
+            closeModal();
+            loadAll();
+        }
+
+        // --- API ---
+        async function querySupabase(table, params = '') {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`Error en ${table}:`, error);
+                throw error;
+            }
+        }
+
+        // --- CARGA DE DATOS ---
+        async function loadViaje() {
+            const viajes = await querySupabase('viajes', 'activo=eq.true&limit=1');
+            const v = viajes[0];
+            if (!v) {
+                document.getElementById('viajeDestino').textContent = 'Sin viajes activos';
+                document.getElementById('viajeDetalle').textContent = '—';
+                return;
+            }
+            destinoActual = v.destino;
+            const fecha = new Date(v.fecha_salida).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+            document.getElementById('viajeDestino').textContent = `${v.destino}`;
+            document.getElementById('viajeDetalle').textContent = `${fecha} • ${v.hora_salida?.slice(0,5)} • ${v.estado}`;
+        }
+
+        async function loadKPIs() {
+            const [compras, inv] = await Promise.all([
+                querySupabase('compras', 'select=estado_compra,precio'),
+                querySupabase('inventario', destinoActual ? `destino=eq.${encodeURIComponent(destinoActual)}` : '')
+            ]);
+
+            const pagados = compras.filter(c => c.estado_compra === 'Billete pagado');
+            const pendientes = compras.filter(c => c.estado_compra === 'pendiente_pago');
+            const expirados = compras.filter(c => c.estado_compra === 'billete_expirado');
+            const ingresos = pagados.reduce((s, c) => s + (c.precio || 0), 0);
+            const totalStock = inv.reduce((s, i) => s + (i.stock_disponible || 0), 0);
+
+            document.getElementById('kpi-pagados').textContent = pagados.length;
+            document.getElementById('kpi-pagados-sub').textContent = `${expirados.length} expirados`;
+            document.getElementById('kpi-ingresos').textContent = formatXAF(ingresos);
+            document.getElementById('kpi-pendientes').textContent = pendientes.length;
+            document.getElementById('kpi-stock').textContent = totalStock;
+        }
+
+        async function loadInventario() {
+            const container = document.getElementById('inventarioBody');
+            if (!destinoActual) {
+                container.innerHTML = '<tr><td colspan="4" class="empty-state">Sin viaje activo</td></tr>';
+                return;
+            }
+
+            const inv = await querySupabase('inventario', `destino=eq.${encodeURIComponent(destinoActual)}&order=tipo_billete`);
+            
+            container.innerHTML = inv.map(i => {
+                const total = (i.stock_disponible || 0) + (i.stock_reservado || 0) + (i.stock_vendido || 0);
+                const pct = total > 0 ? Math.round(((i.stock_vendido || 0) / total) * 100) : 0;
+                let fillColor = '#10B981';
+                if (pct > 60) fillColor = '#F59E0B';
+                if (pct > 85) fillColor = '#EF4444';
+
+                return `
+                    <tr>
+                        <td><strong>${i.tipo_billete}</strong></td>
+                        <td>${formatXAF(i.precio)}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-fill" style="width:${pct}%; background:${fillColor}"></div>
+                            </div>
+                            <span style="font-size:10px; color:var(--text-sec)">${pct}%</span>
+                        </td>
+                        <td><span class="badge ${i.stock_disponible > 5 ? 'badge-success' : 'badge-danger'}">${i.stock_disponible}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadPagos() {
+            const container = document.getElementById('pagosContainer');
+            const pagos = await querySupabase('pagos', 'select=monto_detectado,telefono_remitente,metodo_pago,fecha_pago,verificado&order=fecha_pago.desc&limit=5');
+            
+            if (!pagos.length) {
+                container.innerHTML = '<div class="empty-state">Sin pagos</div>';
+                return;
+            }
+
+            container.innerHTML = pagos.map(p => `
+                <div class="payment-item">
+                    <div class="payment-info">
+                        <span class="payment-user">${p.telefono_remitente || 'Anónimo'}</span>
+                        <span class="payment-meta">${p.metodo_pago || 'Muni'} • ${formatFecha(p.fecha_pago)}</span>
+                    </div>
+                    <div class="payment-amount" style="color: ${p.verificado ? 'var(--success)' : 'var(--warning)'}">
+                        ${formatXAF(p.monto_detectado || 0)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadCompras() {
+            const container = document.getElementById('comprasBody');
+            const compras = await querySupabase('compras', 'select=nombre_pasajero,destino,tipo_billete,precio,estado_compra,fecha_compra&order=fecha_compra.desc&limit=10');
+            
+            const getEstadoBadge = (e) => {
+                if (e === 'Billete pagado') return '<span class="badge badge-success">Pagado</span>';
+                if (e === 'pendiente_pago') return '<span class="badge badge-warning">Pendiente</span>';
+                return '<span class="badge badge-danger">Expirado</span>';
+            };
+
+            container.innerHTML = compras.map(c => `
+                <tr>
+                    <td><strong>${c.nombre_pasajero || '—'}</strong></td>
+                    <td>${c.destino || '—'}</td>
+                    <td>${formatXAF(c.precio || 0)}</td>
+                    <td>${getEstadoBadge(c.estado_compra)}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadAll() {
+            if (!SUPABASE_URL || !SUPABASE_KEY) {
+                showAlert('Configura Supabase en ⚙');
+                updateStatus(false);
+                return;
+            }
+
+            showAlert(null);
+            
+            try {
+                await loadViaje();
+                await Promise.all([
+                    loadKPIs(),
+                    loadInventario(),
+                    loadPagos(),
+                    loadCompras()
+                ]);
+                
+                updateStatus(true);
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+            } catch (err) {
+                showAlert('Error de conexión. Verifica credenciales.');
+            }
+        }
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            if (!SUPABASE_URL || !SUPABASE_KEY) {
+                openModal();
+            } else {
+                loadAll();
+            }
+            setInterval(loadAll, 120000);
+        });
+    </script>
 </body>
 </html>
