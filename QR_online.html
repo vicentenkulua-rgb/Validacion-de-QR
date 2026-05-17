@@ -1,55 +1,534 @@
-import { useEffect, useRef, useState } from "react";
-import { trpc } from "@/lib/trpc";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-
-declare global {
-  interface Window {
-    Html5Qrcode: any;
-  }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#060B14">
+<title>Ferry Viteoca — Validador QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#060B14;
+  --surface:#0D1625;
+  --surface2:#152033;
+  --border:#FFFFFF12;
+  --border2:#FFFFFF22;
+  --blue:#2563EB;
+  --blue-light:#3B82F6;
+  --green:#16A34A;
+  --green-light:#22C55E;
+  --orange:#EA580C;
+  --orange-light:#F97316;
+  --red:#DC2626;
+  --red-light:#EF4444;
+  --text:#E8EDF8;
+  --muted:#5A6B82;
+  --accent:#38BDF8;
+  --gold:#F59E0B;
+  --nav-h:56px;
+  --tab-h:48px;
 }
 
-interface ScannerProps {
-  verificador: any;
+html,body{
+  height:100%;width:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
 }
 
-interface ScanResult {
-  type: "valid" | "used" | "notfound";
-  data: any;
+#app{
+  height:100dvh;
+  display:grid;
+  grid-template-rows:var(--nav-h) 1fr var(--tab-h);
+  overflow:hidden;
 }
 
-export default function Scanner({ verificador }: ScannerProps) {
-  const [scanning, setScanning] = useState(false);
-  const [scanCount, setScanCount] = useState(0);
-  const [result, setResult] = useState<ScanResult | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<"online" | "offline" | "connecting">("online");
-  const scannerRef = useRef<any>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+  background:linear-gradient(180deg,#0A1120 0%,var(--bg) 100%);
+  border-bottom:1px solid var(--border2);
+  position:relative;z-index:10;
+}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-icon{
+  width:32px;height:32px;
+  background:linear-gradient(135deg,#1E3A5F,#0D1F3C);
+  border:1px solid #2563EB55;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+}
+.nav-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:1.5px;
+  color:#EF4444;
+  text-shadow:0 0 20px rgba(239,68,68,0.4);
+  line-height:1;
+}
+.nav-sub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;margin-top:1px;
+}
+.nav-badge{
+  background:rgba(56,189,248,0.1);
+  border:1px solid rgba(56,189,248,0.25);
+  color:var(--accent);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:4px 10px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;
+}
+.nav-online{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--green-light);
+  box-shadow:0 0 6px var(--green-light);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+.nav-online.offline{
+  background:var(--red-light);
+  box-shadow:0 0 6px var(--red-light);
+  animation:none;
+}
 
-  const marcarEscaneadoMutation = trpc.qr.marcarEscaneado.useMutation();
+.page{overflow:hidden;display:none;flex-direction:column}
+.page.active{display:flex}
 
-  // Initialize audio context
-  useEffect(() => {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    audioContextRef.current = new AudioCtx();
-  }, []);
+.tabs{display:flex;background:var(--surface);border-top:1px solid var(--border2)}
+.tab{
+  flex:1;border:none;background:none;
+  color:var(--muted);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:color 0.2s,background 0.2s;position:relative;
+}
+.tab-icon{font-size:18px;line-height:1}
+.tab::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:2px;
+  background:var(--accent);border-radius:0 0 3px 3px;
+  transform:scaleX(0);transition:transform 0.2s;
+}
+.tab.active{color:var(--accent)}
+.tab.active::before{transform:scaleX(1)}
 
-  // Play sound based on result type
-  const playSound = (type: "valid" | "used" | "invalid") => {
-    if (!audioContextRef.current) return;
+/* SCANNER */
+#page-scanner{padding:12px;gap:10px;background:var(--bg)}
+.scanner-wrapper{
+  flex:1;min-height:0;position:relative;
+  border-radius:16px;overflow:hidden;
+  background:var(--surface);border:1px solid var(--border2);
+}
+#reader{width:100%;height:100%;border:none !important;background:transparent}
+#reader video{width:100% !important;height:100% !important;object-fit:cover}
+#reader > div:first-child{padding:0 !important;border:none !important}
+#reader img,#reader select,#reader button{display:none !important}
+#reader div[style*="text-align"]{display:none !important}
 
-    const ctx = audioContextRef.current;
-    if (ctx.state === "suspended") ctx.resume();
+.scan-overlay{
+  position:absolute;inset:0;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.scan-frame{width:220px;height:220px;position:relative}
+.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:40px;height:40px}
+.scan-frame::before{top:0;left:0;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:4px 0 0 0}
+.scan-frame::after{bottom:0;right:0;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 4px 0}
+.corner-br{position:absolute;bottom:0;left:0;width:40px;height:40px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 4px}
+.corner-tr{position:absolute;top:0;right:0;width:40px;height:40px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 4px 0 0}
+.scan-line{
+  position:absolute;left:8px;right:8px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  top:0;animation:scanline 2.5s ease-in-out infinite;
+  box-shadow:0 0 8px var(--accent);
+}
+@keyframes scanline{0%,100%{top:8px}50%{top:calc(100% - 10px)}}
 
-    if (type === "valid") {
-      // Two beeps for valid
+.scan-status-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:10px 16px;
+}
+.scan-status-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green-light);box-shadow:0 0 8px var(--green-light);
+  animation:pulse-dot 1.5s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+.scan-status-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:1px;
+  color:var(--text);text-transform:uppercase;
+}
+.scan-counter{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--accent)}
+
+/* DATA */
+#page-data{padding:12px;gap:10px;overflow-y:auto;background:var(--bg)}
+
+.connection-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:12px 16px;
+}
+.connection-info{display:flex;align-items:center;gap:10px}
+.conn-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--green-light);box-shadow:0 0 10px var(--green-light);
+  animation:pulse-dot 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+.conn-dot.offline{background:var(--red-light);box-shadow:0 0 10px var(--red-light);animation:none}
+.conn-dot.connecting{background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse-dot 0.8s ease-in-out infinite}
+.conn-label{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;
+}
+.conn-url{font-size:11px;color:var(--accent);margin-top:1px;font-family:'Barlow',monospace}
+.btn-refresh{
+  border:none;background:rgba(56,189,248,0.1);
+  border:1px solid rgba(56,189,248,0.25);
+  color:var(--accent);border-radius:8px;padding:6px 12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:1px;cursor:pointer;text-transform:uppercase;
+  transition:all 0.2s;
+}
+.btn-refresh:active{transform:scale(0.95)}
+.btn-refresh.spinning{animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:14px 10px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.stat-card.total::after{background:var(--accent)}
+.stat-card.pending::after{background:var(--green-light)}
+.stat-card.used::after{background:var(--orange-light)}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:1;margin-bottom:4px}
+.stat-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px}
+.card-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+/* últimas validaciones en la pestaña datos */
+.recent-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.recent-item:last-child{border-bottom:none;padding-bottom:0}
+.recent-item:first-child{padding-top:0}
+.recent-name{font-weight:600}
+.recent-time{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);letter-spacing:0.5px;margin-top:2px}
+.recent-ok{
+  background:rgba(34,197,94,0.15);color:var(--green-light);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:3px 8px;border-radius:4px;text-transform:uppercase;white-space:nowrap;
+}
+
+/* HISTORY */
+#page-history{padding:12px;overflow-y:auto;background:var(--bg);gap:6px}
+.history-item{
+  background:var(--surface);border:1px solid var(--border2);
+  border-left:3px solid var(--green-light);border-radius:10px;
+  padding:12px 14px;display:flex;justify-content:space-between;align-items:center;
+}
+.history-name{font-weight:600;font-size:14px}
+.history-time{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:0.5px;margin-top:2px}
+.history-badge{
+  background:rgba(34,197,94,0.15);color:var(--green-light);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:3px 8px;border-radius:4px;text-transform:uppercase;
+}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px}
+.empty-state-icon{font-size:40px;margin-bottom:10px;display:block;opacity:0.4}
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  backdrop-filter:blur(4px);z-index:200;display:none;
+  align-items:flex-end;justify-content:center;padding:0;
+}
+.modal.show{display:flex}
+.modal-sheet{
+  width:100%;max-width:480px;border-radius:20px 20px 0 0;
+  padding:28px 24px 32px;text-align:center;
+  animation:slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1);position:relative;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:0 auto 20px}
+.modal-icon-wrap{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;margin-bottom:18px}
+.modal-info{text-align:left;background:rgba(255,255,255,0.05);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px}
+.info-row:last-child{border-bottom:none;padding-bottom:0}
+.info-row:first-child{padding-top:0}
+.info-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.info-val{font-weight:600;font-size:13px;max-width:60%;text-align:right;word-break:break-all}
+.btn{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.5px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;
+}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;box-shadow:0 4px 15px rgba(37,99,235,0.3)}
+.btn:active{transform:scale(0.97)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--surface2);padding:10px 20px;border-radius:40px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;
+  z-index:300;opacity:0;transition:all 0.25s;pointer-events:none;
+  border:1px solid var(--border2);white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Loading skeleton */
+.skeleton{
+  background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:6px;height:32px;width:60px;margin:0 auto 4px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.sound-wave{display:flex;align-items:center;gap:2px;height:16px}
+.sound-bar{width:3px;border-radius:2px;animation:wave 0.6s ease-in-out infinite}
+.sound-bar:nth-child(1){height:6px;animation-delay:0s}
+.sound-bar:nth-child(2){height:12px;animation-delay:0.1s}
+.sound-bar:nth-child(3){height:16px;animation-delay:0.2s}
+.sound-bar:nth-child(4){height:10px;animation-delay:0.15s}
+.sound-bar:nth-child(5){height:6px;animation-delay:0.05s}
+@keyframes wave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-icon">⛴</div>
+      <div>
+        <div class="nav-name">Ferry Viteoca</div>
+        <div class="nav-sub">Sistema de Validación</div>
+      </div>
+    </div>
+    <div class="nav-badge" id="scanned-count">
+      <div class="nav-online" id="nav-online-dot"></div>
+      <span id="nav-count-text">0 ESC.</span>
+    </div>
+  </nav>
+
+  <!-- SCANNER -->
+  <div class="page active" id="page-scanner">
+    <div style="flex:1;min-height:0;padding:12px 12px 0;position:relative;">
+      <div class="scanner-wrapper" style="height:100%;border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--border2);">
+        <div id="reader"></div>
+        <div class="scan-overlay" id="scan-overlay">
+          <div class="scan-frame">
+            <div class="scan-line"></div>
+            <div class="corner-br"></div>
+            <div class="corner-tr"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 12px 12px;">
+      <div class="scan-status-bar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="scan-status-dot" id="status-dot"></div>
+          <span class="scan-status-text" id="scan-status">Iniciando cámara…</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="sound-wave" id="sound-indicator" style="display:none">
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+          </div>
+          <span class="scan-counter" id="scan-counter">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA -->
+  <div class="page" id="page-data">
+    <!-- Barra de conexión -->
+    <div style="padding:12px 12px 0;">
+      <div class="connection-bar">
+        <div class="connection-info">
+          <div class="conn-dot" id="conn-dot"></div>
+          <div>
+            <div class="conn-label" id="conn-label">Conectado a Supabase</div>
+            <div class="conn-url">iuciusutdeblfwkfjwfe.supabase.co</div>
+          </div>
+        </div>
+        <button class="btn-refresh" id="btn-refresh" onclick="refreshStats()">↻ Actualizar</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="padding:10px 12px 0;">
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-num" id="stat-total" style="color:var(--accent)">—</div>
+          <div class="stat-label">Total QR</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-num" id="stat-pending" style="color:var(--green-light)">—</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+        <div class="stat-card used">
+          <div class="stat-num" id="stat-used" style="color:var(--orange-light)">—</div>
+          <div class="stat-label">Escaneados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimas validaciones -->
+    <div style="padding:10px 12px 12px;flex:1;overflow-y:auto;">
+      <div class="card" style="height:100%">
+        <div class="card-title">
+          <span>🕐 Últimas validaciones</span>
+          <span id="recent-session" style="color:var(--accent);font-size:11px">Esta sesión</span>
+        </div>
+        <div id="recent-list">
+          <div class="empty-state" style="padding:20px">
+            <span class="empty-state-icon">🎫</span>
+            Sin validaciones aún
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">
+        📋 Historial de sesión
+      </div>
+      <div id="history-count" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent)">0</div>
+    </div>
+    <div id="history-list" style="flex:1;overflow-y:auto;padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;">
+      <div class="empty-state">
+        <span class="empty-state-icon">🎫</span>
+        Sin registros aún
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-page="scanner">
+      <span class="tab-icon">📷</span>
+      Escáner
+    </button>
+    <button class="tab" data-page="data">
+      <span class="tab-icon">📊</span>
+      Datos
+    </button>
+    <button class="tab" data-page="history">
+      <span class="tab-icon">📋</span>
+      Historial
+    </button>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal" onclick="handleModalClick(event)">
+  <div class="modal-sheet" id="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-icon-wrap" id="modal-icon-wrap">
+      <span id="modal-icon">✓</span>
+    </div>
+    <div class="modal-title" id="modal-title">VÁLIDO</div>
+    <div class="modal-info" id="modal-info"></div>
+    <button class="btn btn-primary" onclick="closeModal()" style="letter-spacing:3px">CONTINUAR</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPA_URL = 'https://iuciusutdeblfwkfjwfe.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Y2l1c3V0ZGVibGZ3a2Zqd2ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNzQ0OTYsImV4cCI6MjA4Mzk1MDQ5Nn0.J1OdHSWBbm9nC4dLXTNGyFiIGO_5e4PjF70SchtbfsY';
+
+const HEADERS = {
+  'apikey': SUPA_KEY,
+  'Authorization': `Bearer ${SUPA_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+};
+
+// ── SUPABASE API ──
+async function sbGet(table, params = '') {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${params}`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function sbPatch(table, filter, body) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
+
+async function sbCount(table, filter = '') {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${filter}`, {
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Prefer': 'count=exact',
+      'Range': '0-0'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const range = res.headers.get('content-range') || '0/0';
+  return parseInt(range.split('/')[1]) || 0;
+}
+
+// ── AUDIO ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSound(type) {
+  try {
+    ensureAudio();
+    const ctx = audioCtx;
+    if (type === 'valid') {
       [0, 0.18].forEach((delay, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
         osc.frequency.setValueAtTime(i === 0 ? 880 : 1320, ctx.currentTime + delay);
         gain.gain.setValueAtTime(0, ctx.currentTime + delay);
         gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + delay + 0.02);
@@ -57,253 +536,372 @@ export default function Scanner({ verificador }: ScannerProps) {
         osc.start(ctx.currentTime + delay);
         osc.stop(ctx.currentTime + delay + 0.35);
       });
-    } else if (type === "used") {
-      // Warbling sound for already used
+    } else if (type === 'used') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      lfo.frequency.value = 8;
-      lfoGain.gain.value = 30;
-      osc.type = "triangle";
-      osc.frequency.value = 440;
+      lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+      osc.connect(gain); gain.connect(ctx.destination);
+      lfo.frequency.value = 8; lfoGain.gain.value = 30;
+      osc.type = 'triangle'; osc.frequency.value = 440;
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      lfo.start(ctx.currentTime);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
-      lfo.stop(ctx.currentTime + 0.6);
+      lfo.start(ctx.currentTime); osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6); lfo.stop(ctx.currentTime + 0.6);
     } else {
-      // Error sound
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sawtooth";
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(300, ctx.currentTime);
       osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.4);
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
       gain.gain.setValueAtTime(0.3, ctx.currentTime + 0.3);
       gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.45);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.45);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.45);
     }
-  };
-
-  // Start scanner
-  const startScanner = async () => {
-    if (!window.Html5Qrcode) {
-      console.error("Html5Qrcode library not loaded");
-      return;
-    }
-
-    setScanning(true);
-    setConnectionStatus("connecting");
-
-    try {
-      const Html5Qrcode = window.Html5Qrcode;
-      scannerRef.current = new Html5Qrcode("scanner");
-
-      await scannerRef.current.start(
-        { facingMode: "environment" },
-        { fps: 15, qrbox: { width: 220, height: 220 }, aspectRatio: 1.5 },
-        onScanSuccess
-      );
-
-      setConnectionStatus("online");
-    } catch (err) {
-      console.error("Failed to start scanner:", err);
-      setConnectionStatus("offline");
-      setScanning(false);
-    }
-  };
-
-  // Stop scanner
-  const stopScanner = async () => {
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop();
-        await scannerRef.current.clear();
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
-      }
-      scannerRef.current = null;
-    }
-    setScanning(false);
-  };
-
-  // Handle scan success
-  const onScanSuccess = async (decodedText: string) => {
-    if (!decodedText) return;
-
-    try {
-      setConnectionStatus("connecting");
-
-      // Extract compra_id from QR text
-      const compraMatch = decodedText.match(/Compra:\s*([0-9a-f\-]{36})/i);
-      const compraId = compraMatch ? compraMatch[1].trim() : decodedText;
-
-      // Fetch billete
-      const response = await fetch(`/api/trpc/qr.getBillete?input=${encodeURIComponent(JSON.stringify({ compraId }))}`);
-      const result = await response.json();
-      const billete = result.result?.data;
-
-      if (!billete) {
-        playSound("invalid");
-        setResult({ type: "notfound", data: { compraId } });
-        setConnectionStatus("online");
-        return;
-      }
-
-      if (billete.escaneado) {
-        playSound("used");
-        setResult({ type: "used", data: billete });
-        setConnectionStatus("online");
-        return;
-      }
-
-      // Mark as scanned
-      await marcarEscaneadoMutation.mutateAsync({
-        pagoId: billete.pago_id,
-        escaneadoPor: verificador.nombre,
-      });
-
-      playSound("valid");
-      setScanCount((prev) => prev + 1);
-      setResult({ type: "valid", data: billete });
-      setConnectionStatus("online");
-    } catch (err) {
-      console.error("Scan error:", err);
-      playSound("invalid");
-      setConnectionStatus("offline");
-    }
-  };
-
-  useEffect(() => {
-    startScanner();
-    return () => {
-      stopScanner();
-    };
-  }, []);
-
-  return (
-    <div className="flex flex-col h-full bg-slate-900">
-      {/* Header */}
-      <div className="p-4 bg-gradient-to-b from-slate-800 to-slate-900 border-b border-slate-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white">Escáner QR</h1>
-            <p className="text-xs text-slate-400">Bienvenido, {verificador.nombre}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-400">{scanCount}</div>
-            <p className="text-xs text-slate-400">Escaneados</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Scanner */}
-      <div className="flex-1 p-4 flex flex-col gap-3">
-        <Card className="flex-1 bg-slate-800 border-slate-700 overflow-hidden">
-          <div id="scanner" className="w-full h-full" />
-        </Card>
-
-        {/* Connection Status */}
-        <div className="flex items-center gap-2 p-3 bg-slate-800 rounded-lg border border-slate-700">
-          <div
-            className={`w-2 h-2 rounded-full ${
-              connectionStatus === "online"
-                ? "bg-green-500 animate-pulse"
-                : connectionStatus === "connecting"
-                  ? "bg-yellow-500 animate-pulse"
-                  : "bg-red-500"
-            }`}
-          />
-          <span className="text-xs text-slate-300">
-            {connectionStatus === "online"
-              ? "Conectado"
-              : connectionStatus === "connecting"
-                ? "Conectando..."
-                : "Sin conexión"}
-          </span>
-        </div>
-      </div>
-
-      {/* Result Modal */}
-      {result && (
-        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-          <div
-            className={`w-full p-6 rounded-t-3xl ${
-              result.type === "valid"
-                ? "bg-gradient-to-b from-green-900 to-green-800"
-                : result.type === "used"
-                  ? "bg-gradient-to-b from-orange-900 to-orange-800"
-                  : "bg-gradient-to-b from-red-900 to-red-800"
-            }`}
-          >
-            <div className="text-center">
-              <div
-                className={`text-5xl mb-3 ${
-                  result.type === "valid"
-                    ? "text-green-400"
-                    : result.type === "used"
-                      ? "text-orange-400"
-                      : "text-red-400"
-                }`}
-              >
-                {result.type === "valid" ? "✓" : result.type === "used" ? "⚠" : "✗"}
-              </div>
-              <h2
-                className={`text-2xl font-bold mb-4 ${
-                  result.type === "valid"
-                    ? "text-green-300"
-                    : result.type === "used"
-                      ? "text-orange-300"
-                      : "text-red-300"
-                }`}
-              >
-                {result.type === "valid"
-                  ? "BILLETE VÁLIDO"
-                  : result.type === "used"
-                    ? "YA UTILIZADO"
-                    : "NO ENCONTRADO"}
-              </h2>
-
-              {result.data && (
-                <div className="bg-black/20 rounded-lg p-4 mb-4 text-left text-sm space-y-2">
-                  {result.data.compra_id && (
-                    <div>
-                      <p className="text-slate-400">Compra</p>
-                      <p className="text-white font-mono">
-                        {String(result.data.compra_id).substring(0, 8)}...
-                      </p>
-                    </div>
-                  )}
-                  {result.data.metodo_pago && (
-                    <div>
-                      <p className="text-slate-400">Método</p>
-                      <p className="text-white">{result.data.metodo_pago}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <Button
-                onClick={() => setResult(null)}
-                className="w-full bg-white text-slate-900 font-bold"
-              >
-                Continuar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    const ind = $('sound-indicator');
+    if (ind) { ind.style.display = 'flex'; setTimeout(() => { ind.style.display = 'none'; }, 700); }
+  } catch(e) { console.warn('Audio error:', e); }
 }
+
+// ── STATE ──
+const S = {
+  scanner: null,
+  scannerRunning: false,
+  isScanning: false,
+  lastCode: null,
+  scanCount: 0,
+  online: false
+};
+
+const $ = id => document.getElementById(id);
+
+// ── QR PARSING ──
+// El QR escaneado devuelve el texto del parámetro ?data= (ya decodificado)
+// Ej: "Pasajero: Sonia Fatumata, Compra: 93cad3e5-..., Viaje: 2fed5e3b-..."
+// Extraemos el UUID de Compra para buscar en Supabase por compra_id
+
+function parseQR(raw) {
+  if (!raw) return null;
+  raw = raw.trim();
+
+  // Si viene como URL de qrserver, extraer el parámetro data
+  let text = raw;
+  if (raw.startsWith('http')) {
+    try {
+      const url = new URL(raw);
+      const data = url.searchParams.get('data');
+      if (data) text = decodeURIComponent(data).trim();
+    } catch(e) {
+      const m = raw.match(/[?&]data=([^&]*)/);
+      if (m) text = decodeURIComponent(m[1]).trim();
+    }
+  }
+
+  // Extraer campos del texto
+  const compraMatch  = text.match(/Compra:\s*([0-9a-f\-]{36})/i);
+  const viajeMatch   = text.match(/Viaje:\s*([0-9a-f\-]{36})/i);
+  const pasajeroMatch = text.match(/Pasajero:\s*([^,]+)/i);
+
+  return {
+    raw: text,
+    compra_id:  compraMatch  ? compraMatch[1].trim()   : null,
+    viaje_id:   viajeMatch   ? viajeMatch[1].trim()    : null,
+    pasajero:   pasajeroMatch ? pasajeroMatch[1].trim() : '—',
+  };
+}
+
+function fmt(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleString('es-GQ', {
+    day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+// ── STATS ──
+async function refreshStats() {
+  const btn = $('btn-refresh');
+  btn.classList.add('spinning');
+  setConnStatus('connecting');
+
+  try {
+    const [total, escaneados] = await Promise.all([
+      sbCount('pagos', 'codigo_qr=not.is.null'),
+      sbCount('pagos', 'escaneado=eq.true&codigo_qr=not.is.null')
+    ]);
+    $('stat-total').textContent = total;
+    $('stat-pending').textContent = total - escaneados;
+    $('stat-used').textContent = escaneados;
+    S.online = true;
+    setConnStatus('online');
+  } catch(e) {
+    S.online = false;
+    setConnStatus('offline');
+    showToast('⚠ Sin conexión a Supabase');
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+function setConnStatus(state) {
+  const dot = $('conn-dot');
+  const label = $('conn-label');
+  const navDot = $('nav-online-dot');
+  dot.className = 'conn-dot' + (state === 'offline' ? ' offline' : state === 'connecting' ? ' connecting' : '');
+  navDot.className = 'nav-online' + (state === 'offline' ? ' offline' : '');
+  if (state === 'online')       label.textContent = 'Conectado a Supabase';
+  else if (state === 'offline') label.textContent = 'Sin conexión';
+  else                          label.textContent = 'Conectando…';
+}
+
+// ── SCANNER ──
+function resetReaderDOM() {
+  $('reader').innerHTML = '';
+}
+
+async function startScanner() {
+  if (S.scannerRunning) return;
+  resetReaderDOM();
+  S.scanner = new Html5Qrcode("reader");
+  const config = { fps: 15, qrbox: { width: 220, height: 220 }, aspectRatio: 1.5 };
+
+  try {
+    await S.scanner.start({ facingMode: "environment" }, config, onScanSuccess);
+    S.scannerRunning = true;
+    $('scan-status').textContent = "Escáner activo";
+    $('status-dot').style.background = 'var(--green-light)';
+    $('status-dot').style.boxShadow = '0 0 8px var(--green-light)';
+    $('status-dot').style.animation = '';
+  } catch (err) {
+    S.scanner = null;
+    $('scan-status').textContent = "Sin acceso a la cámara";
+    $('status-dot').style.background = 'var(--red-light)';
+    $('status-dot').style.boxShadow = '0 0 8px var(--red-light)';
+    $('status-dot').style.animation = 'none';
+  }
+}
+
+async function stopScanner() {
+  if (!S.scannerRunning || !S.scanner) return;
+  try { await S.scanner.stop(); } catch(e) {}
+  try { await S.scanner.clear(); } catch(e) {}
+  S.scanner = null;
+  S.scannerRunning = false;
+}
+
+// ── SCAN RESULT → SUPABASE ──
+async function onScanSuccess(decodedText) {
+  if (S.isScanning) return;
+  ensureAudio();
+
+  const parsed = parseQR(decodedText);
+  const cacheKey = parsed?.compra_id || decodedText;
+  if (cacheKey === S.lastCode) return;
+  S.isScanning = true;
+  S.lastCode = cacheKey;
+
+  $('scan-status').textContent = "Consultando…";
+
+  try {
+    let rows = [];
+
+    if (parsed?.compra_id) {
+      // Buscar por compra_id (UUID único extraído del QR)
+      rows = await sbGet('pagos', `compra_id=eq.${parsed.compra_id}&select=pago_id,compra_id,user_id,metodo_pago,fecha_pago,escaneado,fecha_escaneo,escaneado_por`);
+    } else {
+      // Fallback: buscar por codigo_qr exacto
+      rows = await sbGet('pagos', `codigo_qr=eq.${encodeURIComponent(decodedText.trim())}&select=pago_id,compra_id,user_id,metodo_pago,fecha_pago,escaneado,fecha_escaneo,escaneado_por`);
+    }
+
+    S.scanCount++;
+    $('scan-counter').textContent = S.scanCount;
+    $('nav-count-text').textContent = S.scanCount + ' ESC.';
+
+    if (!rows || rows.length === 0) {
+      playSound('invalid');
+      navigator.vibrate?.(500);
+      showModal('notfound', parsed?.raw || decodedText, null, parsed);
+    } else {
+      const rec = rows[0];
+      rec._pasajero = parsed?.pasajero || '—';
+      rec._viaje_id = parsed?.viaje_id || '—';
+
+      if (rec.escaneado === true) {
+        playSound('used');
+        navigator.vibrate?.(200);
+        showModal('used', parsed?.raw || decodedText, rec, parsed);
+      } else {
+        const now = new Date().toISOString();
+        await sbPatch('pagos', `pago_id=eq.${rec.pago_id}`, {
+          escaneado: true,
+          fecha_escaneo: now,
+          escaneado_por: 'Ferry Viteoca App'
+        });
+        rec.fecha_escaneo = now;
+        rec.escaneado = true;
+        playSound('valid');
+        navigator.vibrate?.([80, 40, 80]);
+        showModal('valid', parsed?.raw || decodedText, rec, parsed);
+        addHistory(rec, parsed);
+        refreshStats();
+      }
+    }
+  } catch(e) {
+    playSound('invalid');
+    showToast('⚠ Error de conexión');
+    console.error('Supabase error:', e);
+  }
+
+  $('scan-status').textContent = "Escáner activo";
+  setTimeout(() => { S.isScanning = false; S.lastCode = null; }, 3000);
+}
+
+// ── MODAL ──
+function showModal(type, id, rec, parsed) {
+  const content = $('modal-content');
+  const iconWrap = $('modal-icon-wrap');
+  const icon = $('modal-icon');
+  const title = $('modal-title');
+  const info = $('modal-info');
+
+  if (type === 'valid') {
+    content.style.background = 'linear-gradient(180deg,#14532D 0%,#0D3320 100%)';
+    iconWrap.style.background = 'rgba(34,197,94,0.2)';
+    iconWrap.style.border = '2px solid rgba(34,197,94,0.4)';
+    icon.textContent = '✓'; icon.style.color = '#22C55E';
+    title.textContent = 'BILLETE VÁLIDO'; title.style.color = '#22C55E';
+  } else if (type === 'used') {
+    content.style.background = 'linear-gradient(180deg,#431407 0%,#2A0D04 100%)';
+    iconWrap.style.background = 'rgba(249,115,22,0.2)';
+    iconWrap.style.border = '2px solid rgba(249,115,22,0.4)';
+    icon.textContent = '⚠'; icon.style.color = '#F97316';
+    title.textContent = 'YA UTILIZADO'; title.style.color = '#F97316';
+  } else {
+    content.style.background = 'linear-gradient(180deg,#450A0A 0%,#2D0606 100%)';
+    iconWrap.style.background = 'rgba(239,68,68,0.2)';
+    iconWrap.style.border = '2px solid rgba(239,68,68,0.4)';
+    icon.textContent = '✗'; icon.style.color = '#EF4444';
+    title.textContent = 'NO ENCONTRADO'; title.style.color = '#EF4444';
+  }
+
+  const shortId = (parsed?.compra_id || id).substring(0, 8) + '…';
+  let html = '';
+
+  // Nombre del pasajero (dato más importante)
+  if (parsed?.pasajero && parsed.pasajero !== '—') {
+    html += `<div class="info-row">
+      <span class="info-label">Pasajero</span>
+      <span class="info-val" style="font-size:14px;font-weight:700">${parsed.pasajero}</span>
+    </div>`;
+  }
+
+  if (rec) {
+    if (rec.compra_id) html += `<div class="info-row">
+      <span class="info-label">Compra</span>
+      <span class="info-val">${String(rec.compra_id).substring(0,8)}…</span>
+    </div>`;
+    if (rec.metodo_pago) html += `<div class="info-row">
+      <span class="info-label">Método</span>
+      <span class="info-val">${rec.metodo_pago}</span>
+    </div>`;
+    if (rec.fecha_pago) html += `<div class="info-row">
+      <span class="info-label">Fecha compra</span>
+      <span class="info-val">${fmt(rec.fecha_pago)}</span>
+    </div>`;
+    if (type === 'used' && rec.fecha_escaneo) html += `<div class="info-row">
+      <span class="info-label">Usado a las</span>
+      <span class="info-val" style="color:var(--orange-light)">${fmt(rec.fecha_escaneo)}</span>
+    </div>`;
+    if (type === 'valid' && rec.fecha_escaneo) html += `<div class="info-row">
+      <span class="info-label">Escaneado</span>
+      <span class="info-val" style="color:var(--green-light)">${fmt(rec.fecha_escaneo)}</span>
+    </div>`;
+  } else {
+    html += `<div class="info-row">
+      <span class="info-label">QR leído</span>
+      <span class="info-val">${shortId}</span>
+    </div>`;
+  }
+
+  info.innerHTML = html;
+  $('modal').classList.add('show');
+}
+
+function closeModal() { $('modal').classList.remove('show'); }
+function handleModalClick(e) { if (e.target === $('modal')) closeModal(); }
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── HISTORY ──
+let historyCount = 0;
+
+function addHistory(rec, parsed) {
+  historyCount++;
+  $('history-count').textContent = historyCount;
+  const nombre = parsed?.pasajero || `Usuario #${rec.user_id}`;
+  const compra = String(rec.compra_id || '').substring(0,8);
+
+  const list = $('history-list');
+  const empty = list.querySelector('.empty-state');
+  if (empty) list.innerHTML = '';
+  const item = document.createElement('div');
+  item.className = 'history-item';
+  item.innerHTML = `
+    <div>
+      <div class="history-name">${nombre}</div>
+      <div class="history-time">${new Date().toLocaleTimeString('es-GQ')} · Compra ${compra}…</div>
+    </div>
+    <div class="history-badge">✓ OK</div>
+  `;
+  list.prepend(item);
+
+  const recentList = $('recent-list');
+  const emptyR = recentList.querySelector('.empty-state');
+  if (emptyR) recentList.innerHTML = '';
+  const rItem = document.createElement('div');
+  rItem.className = 'recent-item';
+  rItem.innerHTML = `
+    <div>
+      <div class="recent-name">${nombre}</div>
+      <div class="recent-time">${new Date().toLocaleTimeString('es-GQ')} · Compra ${compra}…</div>
+    </div>
+    <div class="recent-ok">✓ OK</div>
+  `;
+  recentList.prepend(rItem);
+  while (recentList.children.length > 20) recentList.removeChild(recentList.lastChild);
+}
+
+// ── NAVEGACIÓN ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = async () => {
+    ensureAudio();
+    const targetPage = tab.dataset.page;
+    if (targetPage !== 'scanner') await stopScanner();
+    document.querySelectorAll('.tab,.page').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    $('page-' + targetPage).classList.add('active');
+    if (targetPage === 'scanner') startScanner();
+    if (targetPage === 'data') refreshStats();
+  };
+});
+
+document.addEventListener('touchstart', ensureAudio, { once: true });
+document.addEventListener('click', ensureAudio, { once: true });
+
+// ── INIT ──
+refreshStats();
+startScanner();
+</script>
+</body>
+</html>
