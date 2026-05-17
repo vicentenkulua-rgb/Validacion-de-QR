@@ -581,20 +581,38 @@ const S = {
 const $ = id => document.getElementById(id);
 
 // ── QR PARSING ──
-function cleanQR(raw) {
-  if (!raw) return '';
+// El QR escaneado devuelve el texto del parámetro ?data= (ya decodificado)
+// Ej: "Pasajero: Sonia Fatumata, Compra: 93cad3e5-..., Viaje: 2fed5e3b-..."
+// Extraemos el UUID de Compra para buscar en Supabase por compra_id
+
+function parseQR(raw) {
+  if (!raw) return null;
   raw = raw.trim();
+
+  // Si viene como URL de qrserver, extraer el parámetro data
+  let text = raw;
   if (raw.startsWith('http')) {
     try {
       const url = new URL(raw);
       const data = url.searchParams.get('data');
-      if (data) return decodeURIComponent(data).trim();
+      if (data) text = decodeURIComponent(data).trim();
     } catch(e) {
       const m = raw.match(/[?&]data=([^&]*)/);
-      if (m) return decodeURIComponent(m[1]).trim();
+      if (m) text = decodeURIComponent(m[1]).trim();
     }
   }
-  return raw;
+
+  // Extraer campos del texto
+  const compraMatch  = text.match(/Compra:\s*([0-9a-f\-]{36})/i);
+  const viajeMatch   = text.match(/Viaje:\s*([0-9a-f\-]{36})/i);
+  const pasajeroMatch = text.match(/Pasajero:\s*([^,]+)/i);
+
+  return {
+    raw: text,
+    compra_id:  compraMatch  ? compraMatch[1].trim()   : null,
+    viaje_id:   viajeMatch   ? viajeMatch[1].trim()    : null,
+    pasajero:   pasajeroMatch ? pasajeroMatch[1].trim() : '—',
+  };
 }
 
 function fmt(dateStr) {
@@ -680,35 +698,44 @@ async function stopScanner() {
 async function onScanSuccess(decodedText) {
   if (S.isScanning) return;
   ensureAudio();
-  const clean = cleanQR(decodedText);
-  if (clean === S.lastCode) return;
+
+  const parsed = parseQR(decodedText);
+  const cacheKey = parsed?.compra_id || decodedText;
+  if (cacheKey === S.lastCode) return;
   S.isScanning = true;
-  S.lastCode = clean;
+  S.lastCode = cacheKey;
 
   $('scan-status').textContent = "Consultando…";
 
   try {
-    // Buscar el código en Supabase
-    const rows = await sbGet('pagos', `codigo_qr=eq.${encodeURIComponent(clean)}&select=pago_id,compra_id,user_id,metodo_pago,fecha_pago,escaneado,fecha_escaneo,escaneado_por`);
+    let rows = [];
+
+    if (parsed?.compra_id) {
+      // Buscar por compra_id (UUID único extraído del QR)
+      rows = await sbGet('pagos', `compra_id=eq.${parsed.compra_id}&select=pago_id,compra_id,user_id,metodo_pago,fecha_pago,escaneado,fecha_escaneo,escaneado_por`);
+    } else {
+      // Fallback: buscar por codigo_qr exacto
+      rows = await sbGet('pagos', `codigo_qr=eq.${encodeURIComponent(decodedText.trim())}&select=pago_id,compra_id,user_id,metodo_pago,fecha_pago,escaneado,fecha_escaneo,escaneado_por`);
+    }
 
     S.scanCount++;
     $('scan-counter').textContent = S.scanCount;
     $('nav-count-text').textContent = S.scanCount + ' ESC.';
 
     if (!rows || rows.length === 0) {
-      // No encontrado
       playSound('invalid');
       navigator.vibrate?.(500);
-      showModal('notfound', clean, null);
+      showModal('notfound', parsed?.raw || decodedText, null, parsed);
     } else {
       const rec = rows[0];
+      rec._pasajero = parsed?.pasajero || '—';
+      rec._viaje_id = parsed?.viaje_id || '—';
+
       if (rec.escaneado === true) {
-        // Ya usado
         playSound('used');
         navigator.vibrate?.(200);
-        showModal('used', clean, rec);
+        showModal('used', parsed?.raw || decodedText, rec, parsed);
       } else {
-        // Válido → marcar como escaneado
         const now = new Date().toISOString();
         await sbPatch('pagos', `pago_id=eq.${rec.pago_id}`, {
           escaneado: true,
@@ -719,9 +746,8 @@ async function onScanSuccess(decodedText) {
         rec.escaneado = true;
         playSound('valid');
         navigator.vibrate?.([80, 40, 80]);
-        showModal('valid', clean, rec);
-        addHistory(rec, clean);
-        // Actualizar stats en background
+        showModal('valid', parsed?.raw || decodedText, rec, parsed);
+        addHistory(rec, parsed);
         refreshStats();
       }
     }
@@ -736,7 +762,7 @@ async function onScanSuccess(decodedText) {
 }
 
 // ── MODAL ──
-function showModal(type, id, rec) {
+function showModal(type, id, rec, parsed) {
   const content = $('modal-content');
   const iconWrap = $('modal-icon-wrap');
   const icon = $('modal-icon');
@@ -763,17 +789,18 @@ function showModal(type, id, rec) {
     title.textContent = 'NO ENCONTRADO'; title.style.color = '#EF4444';
   }
 
-  const shortId = id.length > 24 ? id.substring(0, 24) + '…' : id;
-  let html = `<div class="info-row">
-    <span class="info-label">Código QR</span>
-    <span class="info-val">${shortId}</span>
-  </div>`;
+  const shortId = (parsed?.compra_id || id).substring(0, 8) + '…';
+  let html = '';
+
+  // Nombre del pasajero (dato más importante)
+  if (parsed?.pasajero && parsed.pasajero !== '—') {
+    html += `<div class="info-row">
+      <span class="info-label">Pasajero</span>
+      <span class="info-val" style="font-size:14px;font-weight:700">${parsed.pasajero}</span>
+    </div>`;
+  }
 
   if (rec) {
-    if (rec.user_id) html += `<div class="info-row">
-      <span class="info-label">Usuario ID</span>
-      <span class="info-val">${rec.user_id}</span>
-    </div>`;
     if (rec.compra_id) html += `<div class="info-row">
       <span class="info-label">Compra</span>
       <span class="info-val">${String(rec.compra_id).substring(0,8)}…</span>
@@ -793,6 +820,11 @@ function showModal(type, id, rec) {
     if (type === 'valid' && rec.fecha_escaneo) html += `<div class="info-row">
       <span class="info-label">Escaneado</span>
       <span class="info-val" style="color:var(--green-light)">${fmt(rec.fecha_escaneo)}</span>
+    </div>`;
+  } else {
+    html += `<div class="info-row">
+      <span class="info-label">QR leído</span>
+      <span class="info-val">${shortId}</span>
     </div>`;
   }
 
@@ -814,11 +846,12 @@ function showToast(msg) {
 // ── HISTORY ──
 let historyCount = 0;
 
-function addHistory(rec, qrCode) {
+function addHistory(rec, parsed) {
   historyCount++;
   $('history-count').textContent = historyCount;
+  const nombre = parsed?.pasajero || `Usuario #${rec.user_id}`;
+  const compra = String(rec.compra_id || '').substring(0,8);
 
-  // Historial tab
   const list = $('history-list');
   const empty = list.querySelector('.empty-state');
   if (empty) list.innerHTML = '';
@@ -826,14 +859,13 @@ function addHistory(rec, qrCode) {
   item.className = 'history-item';
   item.innerHTML = `
     <div>
-      <div class="history-name">Usuario #${rec.user_id} · ${String(rec.compra_id || '').substring(0,8)}…</div>
-      <div class="history-time">${new Date().toLocaleTimeString('es-GQ')} · ${qrCode.substring(0,20)}…</div>
+      <div class="history-name">${nombre}</div>
+      <div class="history-time">${new Date().toLocaleTimeString('es-GQ')} · Compra ${compra}…</div>
     </div>
     <div class="history-badge">✓ OK</div>
   `;
   list.prepend(item);
 
-  // Recents en la pestaña Datos
   const recentList = $('recent-list');
   const emptyR = recentList.querySelector('.empty-state');
   if (emptyR) recentList.innerHTML = '';
@@ -841,13 +873,12 @@ function addHistory(rec, qrCode) {
   rItem.className = 'recent-item';
   rItem.innerHTML = `
     <div>
-      <div class="recent-name">Usuario #${rec.user_id}</div>
-      <div class="recent-time">${new Date().toLocaleTimeString('es-GQ')} · ${String(rec.compra_id || '').substring(0,8)}…</div>
+      <div class="recent-name">${nombre}</div>
+      <div class="recent-time">${new Date().toLocaleTimeString('es-GQ')} · Compra ${compra}…</div>
     </div>
     <div class="recent-ok">✓ OK</div>
   `;
   recentList.prepend(rItem);
-  // Máximo 20 entradas recientes
   while (recentList.children.length > 20) recentList.removeChild(recentList.lastChild);
 }
 
