@@ -881,6 +881,7 @@ async function onScanSuccess(decodedText) {
     const data = await callAPI({
       action: 'scan',
       compra_id: parsed.compra_id,
+      operador_id: S.operador.id,
       operador_nombre: S.operador.nombre
     });
 
@@ -888,7 +889,11 @@ async function onScanSuccess(decodedText) {
     $('scan-counter').textContent  = S.scanCount;
     $('nav-count-text').textContent = S.scanCount + ' ESC.';
 
-    if (data.result === 'notfound') {
+    if (data.result === 'unauthorized') {
+      playSound('invalid');
+      showToast('⚠ Tu cuenta ha sido desactivada');
+      setTimeout(() => doLogout(), 2000);
+    } else if (data.result === 'notfound') {
       playSound('invalid'); navigator.vibrate?.(500);
       showModal('notfound', parsed, null);
     } else if (data.result === 'used') {
