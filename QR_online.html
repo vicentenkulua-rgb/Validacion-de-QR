@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#060B14">
 <title>Ferry Viteoca — Validador QR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Lobster&family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -17,7 +17,7 @@
   --orange:#EA580C;--orange-light:#F97316;
   --red:#DC2626;--red-light:#EF4444;
   --text:#E8EDF8;--muted:#5A6B82;--accent:#38BDF8;
-  --nav-h:72px;--tab-h:48px;
+  --nav-h:56px;--tab-h:48px;
 }
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif}
 
@@ -38,39 +38,23 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .login-bg-circle.c2{width:250px;height:250px;background:#EF4444;bottom:-60px;left:-40px}
 .login-bg-circle.c3{width:180px;height:180px;background:#38BDF8;top:40%;left:50%;transform:translate(-50%,-50%)}
 
-/* ── LOGIN LOGO: igual al billete ── */
-.login-logo{
-  text-align:center;margin-bottom:36px;position:relative;
-  display:flex;flex-direction:column;align-items:center;
-}
-.login-logo-inner{
-  display:flex;align-items:center;justify-content:center;gap:16px;
-  background:linear-gradient(135deg,#7f1d1d 0%,#b31d1d 100%);
+.login-logo{text-align:center;margin-bottom:36px;position:relative}
+.login-ferry-icon{
+  width:80px;height:80px;margin:0 auto 16px;
+  background:linear-gradient(135deg,#1a3a6b,#0d1f3c);
+  border:1px solid rgba(37,99,235,0.4);
   border-radius:24px;
-  padding:20px 28px;
-  box-shadow:0 0 50px rgba(179,29,29,0.45), 0 0 100px rgba(179,29,29,0.2), 0 0 0 1px rgba(255,255,255,0.06);
-  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;
+  box-shadow:0 0 40px rgba(37,99,235,0.25),0 0 80px rgba(37,99,235,0.1);
 }
-.login-logo-inner::before{
-  content:'';position:absolute;inset:0;
-  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 12px);
-  pointer-events:none;
-}
-.login-logo-svg{width:64px;height:64px;flex-shrink:0}
-.login-brand-text{
-  font-family:'Lobster',cursive;
-  font-size:48px;
-  font-weight:400;
-  color:#ffffff;
-  text-shadow:3px 3px 0px rgba(0,0,0,0.25);
-  letter-spacing:2px;
-  white-space:nowrap;
-  line-height:1;
+.login-brand{
+  font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;
+  color:#EF4444;text-shadow:0 0 40px rgba(239,68,68,0.5);line-height:1;
 }
 .login-tagline{
-  font-family:'Montserrat',sans-serif;
-  font-size:11px;letter-spacing:4px;
-  color:var(--muted);text-transform:uppercase;margin-top:14px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;
+  color:var(--muted);text-transform:uppercase;margin-top:6px;
 }
 
 .login-card{
@@ -126,11 +110,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 
 .btn-login{
   width:100%;padding:15px;border:none;border-radius:12px;
-  background:linear-gradient(135deg,#7f1d1d,#b31d1d);
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
   color:#fff;font-family:'Barlow Condensed',sans-serif;
   font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;
   cursor:pointer;transition:all 0.2s;
-  box-shadow:0 4px 20px rgba(179,29,29,0.4),0 0 0 1px rgba(239,68,68,0.3);
+  box-shadow:0 4px 20px rgba(37,99,235,0.4),0 0 0 1px rgba(59,130,246,0.3);
   position:relative;overflow:hidden;
 }
 .btn-login::after{
@@ -162,41 +146,35 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   grid-template-rows:var(--nav-h) 1fr var(--tab-h);overflow:hidden;
 }
 
-/* ── NAV con logo del billete ── */
+/* NAV */
 .nav{
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;
-  background:linear-gradient(135deg,#7f1d1d 0%,#b31d1d 100%);
-  border-bottom:1px solid rgba(255,255,255,0.1);
+  padding:0 16px;
+  background:linear-gradient(180deg,rgba(10,17,32,0.98) 0%,rgba(6,11,20,0.95) 100%);
+  border-bottom:1px solid var(--border2);
   position:relative;z-index:10;
-  overflow:hidden;
+  backdrop-filter:blur(10px);
 }
-.nav::before{
-  content:'';position:absolute;inset:0;
-  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 2px,transparent 2px,transparent 12px);
-  pointer-events:none;
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-icon{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,#1E3A5F,#0D1F3C);
+  border:1px solid rgba(37,99,235,0.35);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 0 12px rgba(37,99,235,0.15);
 }
-.nav-brand{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
-.nav-logo-svg{width:46px;height:46px;flex-shrink:0}
-.nav-brand-text-col{display:flex;flex-direction:column;justify-content:center}
 .nav-name{
-  font-family:'Lobster',cursive;
-  font-size:26px;
-  font-weight:400;
-  color:#ffffff;
-  text-shadow:2px 2px 0px rgba(0,0,0,0.25);
-  letter-spacing:1.5px;
-  line-height:1;
-  white-space:nowrap;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;
+  color:#EF4444;text-shadow:0 0 20px rgba(239,68,68,0.35);line-height:1;
 }
 .nav-operator-name{
-  font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:2px;
-  color:rgba(255,204,204,0.85);text-transform:uppercase;margin-top:3px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;
+  color:var(--accent);text-transform:uppercase;margin-top:1px;opacity:0.8;
 }
-.nav-right{display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+.nav-right{display:flex;align-items:center;gap:8px}
 .nav-badge{
-  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
-  color:#fff;font-family:'Barlow Condensed',sans-serif;
+  background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);
+  color:var(--accent);font-family:'Barlow Condensed',sans-serif;
   font-size:11px;font-weight:700;letter-spacing:1px;
   padding:5px 11px;border-radius:20px;display:flex;align-items:center;gap:6px;
 }
@@ -207,9 +185,9 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 }
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
 .btn-logout{
-  border:none;background:rgba(0,0,0,0.2);
-  border:1px solid rgba(255,255,255,0.2);
-  color:#fff;border-radius:8px;padding:6px 11px;
+  border:none;background:rgba(239,68,68,0.08);
+  border:1px solid rgba(239,68,68,0.2);
+  color:var(--red-light);border-radius:8px;padding:6px 11px;
   font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;
 }
@@ -235,10 +213,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .tab-icon{font-size:18px;line-height:1}
 .tab::before{
   content:'';position:absolute;top:0;left:15%;right:15%;height:2px;
-  background:linear-gradient(90deg,transparent,#b31d1d,transparent);
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
   border-radius:0 0 3px 3px;transform:scaleX(0);transition:transform 0.25s;
 }
-.tab.active{color:#EF4444}
+.tab.active{color:var(--accent)}
 .tab.active::before{transform:scaleX(1)}
 
 /* SCANNER PAGE */
@@ -262,15 +240,15 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 }
 .scan-frame{width:220px;height:220px;position:relative}
 .scan-corner{position:absolute;width:36px;height:36px}
-.scan-corner.tl{top:0;left:0;border-top:3px solid #b31d1d;border-left:3px solid #b31d1d;border-radius:6px 0 0 0;box-shadow:-2px -2px 8px rgba(179,29,29,0.5)}
-.scan-corner.tr{top:0;right:0;border-top:3px solid #b31d1d;border-right:3px solid #b31d1d;border-radius:0 6px 0 0;box-shadow:2px -2px 8px rgba(179,29,29,0.5)}
-.scan-corner.bl{bottom:0;left:0;border-bottom:3px solid #b31d1d;border-left:3px solid #b31d1d;border-radius:0 0 0 6px;box-shadow:-2px 2px 8px rgba(179,29,29,0.5)}
-.scan-corner.br{bottom:0;right:0;border-bottom:3px solid #b31d1d;border-right:3px solid #b31d1d;border-radius:0 0 6px 0;box-shadow:2px 2px 8px rgba(179,29,29,0.5)}
+.scan-corner.tl{top:0;left:0;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:6px 0 0 0;box-shadow:-2px -2px 8px rgba(56,189,248,0.3)}
+.scan-corner.tr{top:0;right:0;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 6px 0 0;box-shadow:2px -2px 8px rgba(56,189,248,0.3)}
+.scan-corner.bl{bottom:0;left:0;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 6px;box-shadow:-2px 2px 8px rgba(56,189,248,0.3)}
+.scan-corner.br{bottom:0;right:0;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 6px 0;box-shadow:2px 2px 8px rgba(56,189,248,0.3)}
 .scan-line{
   position:absolute;left:4px;right:4px;height:2px;
-  background:linear-gradient(90deg,transparent,#b31d1d,rgba(239,68,68,0.6),#b31d1d,transparent);
+  background:linear-gradient(90deg,transparent,var(--accent),rgba(56,189,248,0.6),var(--accent),transparent);
   animation:scanline 2.5s ease-in-out infinite;
-  box-shadow:0 0 12px #b31d1d,0 0 4px #EF4444;
+  box-shadow:0 0 12px var(--accent),0 0 4px var(--accent);
 }
 @keyframes scanline{0%,100%{top:6px;opacity:0.7}50%{top:calc(100% - 8px);opacity:1}}
 
@@ -294,7 +272,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .scan-right{display:flex;align-items:center;gap:10px}
 .scan-counter{
   font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
-  color:#EF4444;line-height:1;
+  color:var(--accent);line-height:1;
 }
 
 /* DATA PAGE */
@@ -312,7 +290,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
 }
 .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 14px 14px}
-.stat-card.total::after{background:linear-gradient(90deg,transparent,#EF4444,transparent)}
+.stat-card.total::after{background:linear-gradient(90deg,transparent,var(--accent),transparent)}
 .stat-card.pending::after{background:linear-gradient(90deg,transparent,var(--green-light),transparent)}
 .stat-card.used::after{background:linear-gradient(90deg,transparent,var(--orange-light),transparent)}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;line-height:1;margin-bottom:5px}
@@ -335,9 +313,9 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   display:flex;justify-content:space-between;align-items:center;
 }
 .btn-refresh{
-  border:none;background:rgba(179,29,29,0.1);
-  border:1px solid rgba(179,29,29,0.3);
-  color:#EF4444;border-radius:8px;padding:6px 12px;
+  border:none;background:rgba(56,189,248,0.08);
+  border:1px solid rgba(56,189,248,0.2);
+  color:var(--accent);border-radius:8px;padding:6px 12px;
   font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
   letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;
 }
@@ -345,20 +323,20 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .btn-refresh.spinning{animation:spin 0.8s linear infinite}
 
 .operador-card{
-  background:linear-gradient(135deg,rgba(179,29,29,0.1),rgba(127,29,29,0.05));
-  border:1px solid rgba(179,29,29,0.2);border-radius:14px;padding:16px;
+  background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(56,189,248,0.04));
+  border:1px solid rgba(56,189,248,0.18);border-radius:14px;padding:16px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .operador-info{display:flex;align-items:center;gap:12px}
 .operador-avatar{
   width:40px;height:40px;border-radius:12px;
-  background:linear-gradient(135deg,rgba(179,29,29,0.3),rgba(127,29,29,0.2));
-  border:1px solid rgba(179,29,29,0.35);
+  background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(56,189,248,0.2));
+  border:1px solid rgba(56,189,248,0.3);
   display:flex;align-items:center;justify-content:center;font-size:20px;
   flex-shrink:0;
 }
 .operador-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
-.operador-name{font-weight:700;font-size:15px;color:#EF4444;margin-top:2px}
+.operador-name{font-weight:700;font-size:15px;color:var(--accent);margin-top:2px}
 
 .recent-item{
   display:flex;justify-content:space-between;align-items:center;
@@ -382,7 +360,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   padding:4px 2px 10px;
 }
 .history-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
-.history-total{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#EF4444;line-height:1}
+.history-total{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);line-height:1}
 
 .history-item{
   background:var(--surface);
@@ -456,8 +434,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   display:flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;
 }
 .btn-primary{
-  background:linear-gradient(135deg,#7f1d1d,#b31d1d);
-  color:#fff;box-shadow:0 4px 20px rgba(179,29,29,0.4);
+  background:linear-gradient(135deg,var(--blue),var(--blue-light));
+  color:#fff;box-shadow:0 4px 20px rgba(37,99,235,0.35);
 }
 .btn:active{transform:scale(0.97)}
 
@@ -494,15 +472,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
 
   <div class="login-logo">
-    <div class="login-logo-inner">
-      <!-- Logo SVG idéntico al billete -->
-      <svg class="login-logo-svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 20,550 C 100,250 400,120 980,100 C 550,150 300,320 220,550 Z" fill="#10613a"/>
-        <path d="M 260,550 C 380,350 580,200 920,150 C 650,230 460,400 380,550 Z" fill="#1437e9"/>
-        <path d="M 430,550 C 550,380 700,260 900,210 C 750,300 680,420 620,550 Z" fill="#d71327"/>
-      </svg>
-      <div class="login-brand-text">FERRY VITEOCA</div>
-    </div>
+    <div class="login-ferry-icon">⛴</div>
+    <div class="login-brand">Ferry Viteoca</div>
     <div class="login-tagline">Sistema de Validación de Billetes</div>
   </div>
 
@@ -539,17 +510,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 
 <!-- ══ APP ══ -->
 <div id="app">
-  <!-- NAV con logo del billete -->
   <nav class="nav">
     <div class="nav-brand">
-      <!-- Logo SVG idéntico al billete -->
-      <svg class="nav-logo-svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 20,550 C 100,250 400,120 980,100 C 550,150 300,320 220,550 Z" fill="#10613a"/>
-        <path d="M 260,550 C 380,350 580,200 920,150 C 650,230 460,400 380,550 Z" fill="#1437e9"/>
-        <path d="M 430,550 C 550,380 700,260 900,210 C 750,300 680,420 620,550 Z" fill="#d71327"/>
-      </svg>
-      <div class="nav-brand-text-col">
-        <div class="nav-name">FERRY VITEOCA</div>
+      <div class="nav-icon">⛴</div>
+      <div>
+        <div class="nav-name">Ferry Viteoca</div>
         <div class="nav-operator-name" id="nav-operator-name">—</div>
       </div>
     </div>
@@ -586,11 +551,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
         </div>
         <div class="scan-right">
           <div class="sound-wave" id="sound-indicator" style="display:none">
-            <div class="sound-bar" style="background:#EF4444"></div>
-            <div class="sound-bar" style="background:#EF4444"></div>
-            <div class="sound-bar" style="background:#EF4444"></div>
-            <div class="sound-bar" style="background:#EF4444"></div>
-            <div class="sound-bar" style="background:#EF4444"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
+            <div class="sound-bar" style="background:var(--accent)"></div>
           </div>
           <span class="scan-counter" id="scan-counter">0</span>
         </div>
@@ -616,7 +581,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div style="padding:8px 12px 0;">
       <div class="stats-grid">
         <div class="stat-card total">
-          <div class="stat-num" id="stat-total" style="color:#EF4444">—</div>
+          <div class="stat-num" id="stat-total" style="color:var(--accent)">—</div>
           <div class="stat-label">Total QR</div>
         </div>
         <div class="stat-card pending">
@@ -634,7 +599,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
       <div class="card" style="height:100%;overflow-y:auto;">
         <div class="card-title">
           <span>🕐 Últimas validaciones</span>
-          <span style="color:#EF4444;font-size:10px;letter-spacing:1px">ESTA SESIÓN</span>
+          <span style="color:var(--accent);font-size:10px;letter-spacing:1px">ESTA SESIÓN</span>
         </div>
         <div id="recent-list">
           <div class="empty-state" style="padding:24px 0">
@@ -813,6 +778,7 @@ function doLogout() {
     historyCount = 0;
     $('app').style.display = 'none';
     $('login-screen').style.display = 'flex';
+    // volver al escáner
     document.querySelectorAll('.tab,.page').forEach(el => el.classList.remove('active'));
     document.querySelector('[data-page="scanner"]').classList.add('active');
     $('page-scanner').classList.add('active');
