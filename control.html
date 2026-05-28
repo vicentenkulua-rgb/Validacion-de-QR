@@ -71,7 +71,7 @@
         @keyframes shipRock    { 0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)} }
 
         /* ══════════════════════════════════════
-           HEADER PREMIUM (estilo billete)
+           HEADER PREMIUM
         ══════════════════════════════════════ */
         header {
             position:sticky; top:0; z-index:100;
@@ -85,13 +85,11 @@
             overflow:hidden;
             position:relative;
         }
-        /* textura diagonal */
         header::before {
             content:''; position:absolute; inset:0;
             background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 12px);
             pointer-events:none; z-index:0;
         }
-        /* línea brillante inferior */
         header::after {
             content:''; position:absolute; bottom:0; left:0;
             height:3px;
@@ -99,14 +97,12 @@
             animation:lineGrow 1.2s ease-out 0.4s both;
         }
 
-        /* ola decorativa derecha */
         .header-wave-deco {
             position:absolute; right:0; bottom:0;
             width:280px; height:92px;
             opacity:0.06; pointer-events:none; z-index:0;
         }
 
-        /* logo wrapper */
         .logo {
             display:flex; align-items:center; gap:14px;
             position:relative; z-index:1;
@@ -114,7 +110,6 @@
             flex:1;
         }
 
-        /* SVG de las 3 velas */
         .logo-svg-wrap {
             width:56px; height:56px;
             flex-shrink:0;
@@ -122,7 +117,6 @@
             animation:float 4s ease-in-out infinite;
         }
 
-        /* columna de texto */
         .logo-text-col {
             display:flex; flex-direction:column;
             line-height:1; gap:4px;
@@ -147,7 +141,6 @@
             color:rgba(255,200,200,0.7);
         }
 
-        /* separador */
         .header-divider {
             width:1px; height:44px;
             background:rgba(255,255,255,0.2);
@@ -155,7 +148,6 @@
             position:relative; z-index:1;
         }
 
-        /* derecha */
         .header-right {
             display:flex; gap:8px; align-items:center;
             animation:fadeInRight 0.6s ease-out;
@@ -366,15 +358,12 @@
 
 <!-- ══ HEADER PREMIUM ══ -->
 <header>
-    <!-- ola decorativa derecha -->
     <svg class="header-wave-deco" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <path d="M0,45 C80,15 160,75 240,45 C320,15 370,55 400,45 L400,100 L0,100Z" fill="white"/>
         <path d="M0,62 C60,38 140,85 220,62 C300,38 360,68 400,62 L400,100 L0,100Z" fill="white" opacity="0.45"/>
     </svg>
 
-    <!-- Logo -->
     <div class="logo">
-        <!-- SVG de las 3 velas / banderas -->
         <svg class="logo-svg-wrap" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
             <path d="M 20,550 C 100,250 400,120 980,100 C 550,150 300,320 220,550 Z" fill="#10613a"/>
             <path d="M 260,550 C 380,350 580,200 920,150 C 650,230 460,400 380,550 Z" fill="#1437e9"/>
@@ -602,34 +591,114 @@ async function loadInventario(){
     }
     const inv=await querySupabase('inventario',`destino=eq.${encodeURIComponent(destinoActual)}&order=precio.desc`);
     const compras=await querySupabase('compras',`destino=eq.${encodeURIComponent(destinoActual)}&select=tipo_billete,precio,estado_compra`);
+
     const vpt={};
+
+    // ─── CORRECCIÓN: comparación normalizada (case-insensitive, sin espacios ni guiones bajos) ───
     compras.forEach(c=>{
         const t=c.tipo_billete;
         if(!vpt[t])vpt[t]={vendidos:0,pendientes:0,expirados:0,monto:0};
-        if(c.estado_compra==='Billete pagado'){vpt[t].vendidos++;vpt[t].monto+=c.precio||0;}
-        else if(c.estado_compra==='pendiente_pago'){vpt[t].pendientes++;}
-        else if(c.estado_compra==='billete_expirado'){vpt[t].expirados++;}
+        const estado=(c.estado_compra||'').toLowerCase().replace(/[\s_]+/g,'');
+        if(estado==='billetepagado'){
+            vpt[t].vendidos++;
+            vpt[t].monto+=c.precio||0;
+        } else if(estado==='pendientepago'||estado==='pendiente'){
+            vpt[t].pendientes++;
+        } else if(estado==='billeteexpirado'||estado==='expirado'){
+            vpt[t].expirados++;
+        }
     });
+
     let totalVendidos=0,totalIngresos=0,totalDisponibles=0,totalCapacidad=0;
     const iconoMap={'Economico':'fa-chair','VIP':'fa-crown','Cabina':'fa-door-closed'};
     let htmlCards='',htmlFilas='';
+
     inv.forEach((i,idx)=>{
-        const tipo=i.tipo_billete,disponibles=i.stock_disponible||0,vendidos=vpt[tipo]?.vendidos||0,pendientes=vpt[tipo]?.pendientes||0,expirados=vpt[tipo]?.expirados||0,monto=vpt[tipo]?.monto||0,precio=i.precio||0;
+        const tipo=i.tipo_billete,
+              disponibles=i.stock_disponible||0,
+              vendidos=vpt[tipo]?.vendidos||0,
+              pendientes=vpt[tipo]?.pendientes||0,
+              expirados=vpt[tipo]?.expirados||0,
+              monto=vpt[tipo]?.monto||0,
+              precio=i.precio||0;
         const capacidad=(i.stock_disponible||0)+(i.stock_reservado||0)+(i.stock_vendido||0);
         const icono=iconoMap[tipo]||'fa-ticket-alt';
-        totalVendidos+=vendidos;totalIngresos+=monto;totalDisponibles+=disponibles;totalCapacidad+=capacidad;
-        htmlCards+=`<div class="ticket-card" style="animation-delay:${idx*0.1}s"><div class="ticket-card-header"><i class="fas ${icono}"></i>${tipo}</div><div class="ticket-card-grid"><div class="ticket-stat-box"><div class="tsb-label"><i class="fas fa-circle-check"></i>Disponible</div><div class="tsb-value green">${disponibles}</div></div><div class="ticket-stat-box"><div class="tsb-label"><i class="fas fa-ticket-alt"></i>Vendido</div><div class="tsb-value blue">${vendidos}</div></div><div class="ticket-stat-box amber-box"><div class="tsb-label"><i class="fas fa-clock"></i>Pend. pago</div><div class="tsb-value amber">${pendientes}</div></div><div class="ticket-stat-box purple-box"><div class="tsb-label"><i class="fas fa-ban"></i>Expirado</div><div class="tsb-value purple">${expirados}</div></div><div class="ticket-stat-box"><div class="tsb-label"><i class="fas fa-tag"></i>Precio unit.</div><div class="tsb-value white">${formatXAF(precio)} XAF</div></div><div class="ticket-stat-box"><div class="tsb-label"><i class="fas fa-coins"></i>Total vendido</div><div class="tsb-value red">${formatXAF(monto)} XAF</div></div></div></div>`;
-        htmlFilas+=`<tr><td><span class="ticket-name"><i class="fas ${icono}"></i>${tipo}</span></td><td class="val-disponible">${disponibles}</td><td class="val-vendido">${vendidos}</td><td class="val-pendiente">${pendientes}</td><td class="val-expirado">${expirados}</td><td style="color:rgba(255,255,255,0.8)">${formatXAF(precio)} XAF</td><td style="color:var(--red-light)">${formatXAF(monto)} XAF</td></tr>`;
+        totalVendidos+=vendidos;
+        totalIngresos+=monto;
+        totalDisponibles+=disponibles;
+        totalCapacidad+=capacidad;
+
+        htmlCards+=`
+        <div class="ticket-card" style="animation-delay:${idx*0.1}s">
+            <div class="ticket-card-header"><i class="fas ${icono}"></i>${tipo}</div>
+            <div class="ticket-card-grid">
+                <div class="ticket-stat-box">
+                    <div class="tsb-label"><i class="fas fa-circle-check"></i>Disponible</div>
+                    <div class="tsb-value green">${disponibles}</div>
+                </div>
+                <div class="ticket-stat-box">
+                    <div class="tsb-label"><i class="fas fa-ticket-alt"></i>Vendido</div>
+                    <div class="tsb-value blue">${vendidos}</div>
+                </div>
+                <div class="ticket-stat-box amber-box">
+                    <div class="tsb-label"><i class="fas fa-clock"></i>Pend. pago</div>
+                    <div class="tsb-value amber">${pendientes}</div>
+                </div>
+                <div class="ticket-stat-box purple-box">
+                    <div class="tsb-label"><i class="fas fa-ban"></i>Expirado</div>
+                    <div class="tsb-value purple">${expirados}</div>
+                </div>
+                <div class="ticket-stat-box">
+                    <div class="tsb-label"><i class="fas fa-tag"></i>Precio unit.</div>
+                    <div class="tsb-value white">${formatXAF(precio)} XAF</div>
+                </div>
+                <div class="ticket-stat-box">
+                    <div class="tsb-label"><i class="fas fa-coins"></i>Total vendido</div>
+                    <div class="tsb-value red">${formatXAF(monto)} XAF</div>
+                </div>
+            </div>
+        </div>`;
+
+        htmlFilas+=`
+        <tr>
+            <td><span class="ticket-name"><i class="fas ${icono}"></i>${tipo}</span></td>
+            <td class="val-disponible">${disponibles}</td>
+            <td class="val-vendido">${vendidos}</td>
+            <td class="val-pendiente">${pendientes}</td>
+            <td class="val-expirado">${expirados}</td>
+            <td style="color:rgba(255,255,255,0.8)">${formatXAF(precio)} XAF</td>
+            <td style="color:var(--red-light)">${formatXAF(monto)} XAF</td>
+        </tr>`;
     });
+
     cards.innerHTML=htmlCards||'<div class="empty-state"><i class="fas fa-anchor"></i>Sin datos de inventario</div>';
-    tableWrap.innerHTML=`<table class="ticket-table"><thead><tr><th>Tipo de billete</th><th>Disponible</th><th>Vendido</th><th>Pend. pago</th><th>Expirado</th><th>Precio unit.</th><th>Total vendido</th></tr></thead><tbody>${htmlFilas}</tbody></table>`;
+    tableWrap.innerHTML=`
+    <table class="ticket-table">
+        <thead>
+            <tr>
+                <th>Tipo de billete</th>
+                <th>Disponible</th>
+                <th>Vendido</th>
+                <th>Pend. pago</th>
+                <th>Expirado</th>
+                <th>Precio unit.</th>
+                <th>Total vendido</th>
+            </tr>
+        </thead>
+        <tbody>${htmlFilas}</tbody>
+    </table>`;
+
     animateCount(document.getElementById('kpi-vendidos'),totalVendidos);
     animateCount(document.getElementById('kpi-ingresos'),formatXAF(totalIngresos));
     animateCount(document.getElementById('kpi-disponibles'),totalDisponibles);
     animateCount(document.getElementById('kpi-stock'),totalCapacidad);
-    if(String(formatXAF(totalIngresos)).length>9)document.getElementById('kpi-ingresos').style.fontSize='14px';
+
+    if(String(formatXAF(totalIngresos)).length>9)
+        document.getElementById('kpi-ingresos').style.fontSize='14px';
+
     const gtv=document.querySelector('.grand-total-value');
     if(gtv){gtv.textContent='0 XAF';animateCount(gtv,formatXAF(totalIngresos)+' XAF');}
+
     document.getElementById('lastUpdate').textContent=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
 }
 
@@ -637,15 +706,26 @@ async function loadAll(){
     const syncBtn=document.getElementById('syncBtn');
     const icon=syncBtn.querySelector('i');
     icon.classList.add('spinning');
-    if(!SUPABASE_URL||!SUPABASE_KEY){showAlert('Configura Supabase pulsando ⚙');updateStatus(false);icon.classList.remove('spinning');return;}
+    if(!SUPABASE_URL||!SUPABASE_KEY){
+        showAlert('Configura Supabase pulsando ⚙');
+        updateStatus(false);
+        icon.classList.remove('spinning');
+        return;
+    }
     showAlert(null);
-    try{await loadViaje();await loadInventario();updateStatus(true);}
-    catch(err){showAlert('Error de conexión. Verifica las credenciales.');}
-    finally{icon.classList.remove('spinning');}
+    try{
+        await loadViaje();
+        await loadInventario();
+        updateStatus(true);
+    } catch(err){
+        showAlert('Error de conexión. Verifica las credenciales.');
+    } finally{
+        icon.classList.remove('spinning');
+    }
 }
 
 window.addEventListener('load',()=>{
-    if(!SUPABASE_URL||!SUPABASE_KEY)openModal();
+    if(!SUPABASE_URL||!SUPABASE_KEY) openModal();
     else loadAll();
     setInterval(loadAll,120000);
 });
