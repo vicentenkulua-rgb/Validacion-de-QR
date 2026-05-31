@@ -88,7 +88,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   box-shadow:0 4px 20px rgba(179,29,29,0.4),0 0 0 1px rgba(239,68,68,0.3);
   position:relative;overflow:hidden;
 }
-.btn-login::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);pointer-events:none}
+.btn-login::after{content:'absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);pointer-events:none}
 .btn-login:active{transform:scale(0.98)}
 .btn-login:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
@@ -546,22 +546,44 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <script>
 const API = 'https://iuciusutdeblfwkfjwfe.supabase.co/functions/v1/ferry-api';
 
-async function callAPI(body) {
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
+// NUEVO: Función para proteger contra inyección de HTML (XSS)
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '—';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
+// CORREGIDO: El estado incluye el Token JWT
 const S = {
   operador: null,
+  token: null, // Guarda el JWT de la API
   scanner: null, scannerRunning: false,
   isScanning: false, lastCode: null, scanCount: 0
 };
 
 const $ = id => document.getElementById(id);
+
+// CORREGIDO: Envía el Token JWT en la cabecera
+async function callAPI(body) {
+  const headers = { 'Content-Type': 'application/json' };
+  
+  // Añadimos el token si está disponible
+  if (S.token) {
+    headers['Authorization'] = `Bearer ${S.token}`;
+  }
+
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
 
 // ══ AUDIO ══
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -621,7 +643,14 @@ async function doLogin() {
   $('login-error').style.display = 'none';
   try {
     const data = await callAPI({ action: 'login', usuario, password });
-    if (data.ok && data.operador) {
+    
+    // CORREGIDO: Requerimos que la API también devuelva un 'token'
+    if (data.ok && data.operador && data.token) {
+      S.operador = data.operador;
+      S.token = data.token; // Guarda el JWT de la respuesta
+      showApp();
+    } else if (data.ok && data.operador) {
+      // Fallback si la API aún no envía token, pero lo ideal es exigir el token.
       S.operador = data.operador;
       showApp();
     } else {
@@ -643,6 +672,7 @@ function showLoginError(msg) {
 function showApp() {
   $('login-screen').style.display = 'none';
   $('app').style.display = 'grid';
+  // TextContent de forma predeterminada ya es seguro, no hace falta sanitizar
   $('nav-operator-name').textContent = S.operador.nombre;
   $('info-operador').textContent = S.operador.nombre + ' · @' + S.operador.usuario;
   refreshStats();
@@ -652,7 +682,8 @@ function showApp() {
 function doLogout() {
   if (!confirm('¿Cerrar sesión de ' + S.operador.nombre + '?')) return;
   stopScanner().then(() => {
-    S.operador = null; S.scanCount = 0; S.isScanning = false; S.lastCode = null;
+    // CORREGIDO: Limpiamos el token al cerrar sesión
+    S.operador = null; S.token = null; S.scanCount = 0; S.isScanning = false; S.lastCode = null;
     $('inp-password').value = '';
     $('login-error').style.display = 'none';
     $('history-list').innerHTML = '<div class="empty-state"><span class="empty-state-icon">🎫</span>Sin registros aún</div>';
@@ -673,30 +704,19 @@ function doLogout() {
   $(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 });
 
-// ══ QR PARSING — versión robusta ══
-// Soporta tres formatos:
-//   1. URL completa tipo https://api.qrserver.com/...?data=Pasajero%3A...
-//   2. Texto plano: "Pasajero: Nombre, Compra: uuid, Viaje: uuid"
-//   3. Solo UUID directo
+// ══ QR PARSING ══
 function parseQR(raw) {
   if (!raw) return null;
   let text = raw.trim();
 
-  // Caso 1: el QR contiene una URL (api.qrserver.com u otra URL con param ?data=)
   if (text.startsWith('http')) {
     try {
-      // Extraer el parámetro 'data' de la URL
       const urlObj = new URL(text);
       const dataParam = urlObj.searchParams.get('data');
       if (dataParam) {
-        // dataParam puede venir ya decodificado o no según el escáner
-        try {
-          text = decodeURIComponent(dataParam).trim();
-        } catch(e) {
-          text = dataParam.trim();
-        }
+        try { text = decodeURIComponent(dataParam).trim(); }
+        catch(e) { text = dataParam.trim(); }
       } else {
-        // No hay param 'data', intentar regex como fallback
         const m = text.match(/[?&]data=([^&]*)/);
         if (m) {
           try { text = decodeURIComponent(m[1]).trim(); }
@@ -704,7 +724,6 @@ function parseQR(raw) {
         }
       }
     } catch(e) {
-      // new URL() falló (URL malformada), intentar regex directo
       const m = text.match(/[?&]data=([^&]*)/);
       if (m) {
         try { text = decodeURIComponent(m[1]).trim(); }
@@ -713,17 +732,8 @@ function parseQR(raw) {
     }
   }
 
-  // Ahora 'text' debería ser algo como:
-  // "Pasajero: Martina Etoho Mane Mbuy, Compra: da80281b-..., Viaje: 2fed5e3b-..."
-  // O directamente un UUID
-
-  // Extraer compra_id
   const compraM = text.match(/Compra:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-
-  // Extraer pasajero
   const pasajeroM = text.match(/Pasajero:\s*([^,]+)/i);
-
-  // Caso 3: el texto es directamente un UUID
   const uuidDirectM = !compraM ? text.match(/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i) : null;
 
   return {
@@ -801,7 +811,6 @@ async function onScanSuccess(decodedText) {
     return;
   }
 
-  // Evitar escanear el mismo código dos veces seguidas
   if (parsed.compra_id === S.lastCode) return;
 
   S.isScanning = true;
@@ -809,11 +818,11 @@ async function onScanSuccess(decodedText) {
   $('scan-status').textContent = "Consultando base de datos…";
 
   try {
+    // CORREGIDO: Solo enviamos los datos del billete. La identidad del operador 
+    // se validará usando el Token JWT en la cabecera por parte del servidor.
     const data = await callAPI({
       action: 'scan',
-      compra_id: parsed.compra_id,
-      operador_id: S.operador.id,
-      operador_nombre: S.operador.nombre
+      compra_id: parsed.compra_id
     });
 
     S.scanCount++;
@@ -822,7 +831,7 @@ async function onScanSuccess(decodedText) {
 
     if (data.result === 'unauthorized') {
       playSound('invalid');
-      showToast('⚠ Tu cuenta ha sido desactivada');
+      showToast('⚠ Sesión inválida o cuenta desactivada');
       setTimeout(() => doLogout(), 2000);
     } else if (data.result === 'notfound') {
       playSound('invalid'); navigator.vibrate?.(500);
@@ -868,23 +877,25 @@ function showModal(type, parsed, rec) {
   }
 
   let html = '';
+  // CORREGIDO: escapeHTML en todas las variables dinámicas
   if (parsed?.pasajero && parsed.pasajero !== '—')
-    html += `<div class="info-row"><span class="info-label">Pasajero</span><span class="info-val" style="font-size:14px;font-weight:700">${parsed.pasajero}</span></div>`;
+    html += `<div class="info-row"><span class="info-label">Pasajero</span><span class="info-val" style="font-size:14px;font-weight:700">${escapeHTML(parsed.pasajero)}</span></div>`;
+  
   if (rec) {
     if (rec.compra_id)
-      html += `<div class="info-row"><span class="info-label">Compra</span><span class="info-val">${String(rec.compra_id).substring(0,8)}…</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Compra</span><span class="info-val">${escapeHTML(String(rec.compra_id).substring(0,8))}…</span></div>`;
     if (rec.metodo_pago)
-      html += `<div class="info-row"><span class="info-label">Método</span><span class="info-val">${rec.metodo_pago}</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Método</span><span class="info-val">${escapeHTML(rec.metodo_pago)}</span></div>`;
     if (rec.fecha_pago)
-      html += `<div class="info-row"><span class="info-label">Fecha compra</span><span class="info-val">${fmt(rec.fecha_pago)}</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Fecha compra</span><span class="info-val">${escapeHTML(fmt(rec.fecha_pago))}</span></div>`;
     if (type === 'used' && rec.fecha_escaneo)
-      html += `<div class="info-row"><span class="info-label">Usado a las</span><span class="info-val" style="color:var(--orange-light)">${fmt(rec.fecha_escaneo)}</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Usado a las</span><span class="info-val" style="color:var(--orange-light)">${escapeHTML(fmt(rec.fecha_escaneo))}</span></div>`;
     if (type === 'used' && rec.escaneado_por)
-      html += `<div class="info-row"><span class="info-label">Escaneado por</span><span class="info-val" style="color:var(--orange-light)">${rec.escaneado_por}</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Escaneado por</span><span class="info-val" style="color:var(--orange-light)">${escapeHTML(rec.escaneado_por)}</span></div>`;
     if (type === 'valid')
-      html += `<div class="info-row"><span class="info-label">Validado por</span><span class="info-val" style="color:var(--green-light)">${S.operador?.nombre}</span></div>`;
+      html += `<div class="info-row"><span class="info-label">Validado por</span><span class="info-val" style="color:var(--green-light)">${escapeHTML(S.operador?.nombre)}</span></div>`;
   } else if (parsed?.compra_id) {
-    html += `<div class="info-row"><span class="info-label">Compra ID</span><span class="info-val">${parsed.compra_id.substring(0,8)}…</span></div>`;
+    html += `<div class="info-row"><span class="info-label">Compra ID</span><span class="info-val">${escapeHTML(parsed.compra_id.substring(0,8))}…</span></div>`;
   }
 
   info.innerHTML = html;
@@ -907,9 +918,12 @@ let historyCount = 0;
 function addHistory(parsed, rec) {
   historyCount++;
   $('history-count').textContent = historyCount;
-  const nombre = parsed?.pasajero && parsed.pasajero !== '—' ? parsed.pasajero : '—';
-  const compra  = String(rec?.compra_id || '').substring(0, 8);
-  const hora    = new Date().toLocaleTimeString('es-GQ');
+  
+  // CORREGIDO: Sanitizamos todas las variables de entrada del código QR o de la API
+  const rawNombre = parsed?.pasajero && parsed.pasajero !== '—' ? parsed.pasajero : '—';
+  const nombre  = escapeHTML(rawNombre);
+  const compra  = escapeHTML(String(rec?.compra_id || '').substring(0, 8));
+  const hora    = escapeHTML(new Date().toLocaleTimeString('es-GQ'));
 
   [[
     $('history-list'),
