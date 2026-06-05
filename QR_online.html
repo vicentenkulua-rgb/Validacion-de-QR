@@ -78,6 +78,33 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .field input:focus{border-color:rgba(56,189,248,0.5);background:rgba(56,189,248,0.05)}
 .field input::placeholder{color:var(--muted)}
 
+/* Remember me toggle */
+.remember-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:0 2px}
+.remember-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.toggle-wrap{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;cursor:pointer}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:22px;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+  transition:background 0.25s,border-color 0.25s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;
+  border-radius:50%;background:#fff;opacity:0.5;
+  transition:transform 0.25s,opacity 0.25s;
+}
+.toggle-wrap input:checked + .toggle-slider{background:rgba(179,29,29,0.5);border-color:rgba(239,68,68,0.5)}
+.toggle-wrap input:checked + .toggle-slider::before{transform:translateX(18px);opacity:1}
+.saved-session-banner{
+  display:none;background:rgba(22,163,74,0.1);border:1px solid rgba(34,197,94,0.25);
+  border-radius:12px;padding:12px 16px;margin-bottom:18px;
+  display:none;align-items:center;gap:10px;
+}
+.saved-session-banner.visible{display:flex}
+.saved-session-text{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--green-light);text-transform:uppercase}
+.saved-session-name{font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-top:2px}
+.btn-session-clear{border:none;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px;margin-left:auto;flex-shrink:0;line-height:1}
+
 .divider{height:1px;background:var(--border);margin:4px 0 20px}
 
 .btn-login{
@@ -336,12 +363,26 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .sound-bar:nth-child(4){height:10px;animation-delay:0.15s}
 .sound-bar:nth-child(5){height:5px;animation-delay:0.05s}
 @keyframes wave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
+
+/* Restoring session overlay */
+#restore-overlay{
+  position:fixed;inset:0;z-index:998;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.restore-spinner{width:40px;height:40px;border:3px solid rgba(179,29,29,0.2);border-top-color:#b31d1d;border-radius:50%;animation:spin 0.8s linear infinite}
+.restore-text{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
 </style>
 </head>
 <body>
 
+<!-- ══ RESTORE SESSION OVERLAY ══ -->
+<div id="restore-overlay">
+  <div class="restore-spinner"></div>
+  <div class="restore-text">Verificando sesión…</div>
+</div>
+
 <!-- ══ LOGIN ══ -->
-<div id="login-screen">
+<div id="login-screen" style="display:none">
   <div class="login-bg">
     <div class="login-bg-circle c1"></div>
     <div class="login-bg-circle c2"></div>
@@ -366,6 +407,16 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
       <div class="login-card-sub">Introduce tus credenciales</div>
     </div>
 
+    <!-- Saved session banner (shown when a saved session exists) -->
+    <div class="saved-session-banner" id="saved-banner">
+      <span style="font-size:18px">🔑</span>
+      <div>
+        <div class="saved-session-text">Sesión guardada</div>
+        <div class="saved-session-name" id="saved-name">—</div>
+      </div>
+      <button class="btn-session-clear" onclick="clearSavedSession()" title="Borrar sesión guardada">✕</button>
+    </div>
+
     <div class="field">
       <label>Usuario</label>
       <div class="input-wrap">
@@ -380,6 +431,17 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
         <span class="input-icon">🔒</span>
         <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password">
       </div>
+    </div>
+
+    <!-- Remember me toggle -->
+    <div class="remember-row">
+      <span class="remember-label">
+        🛡 Mantener sesión
+      </span>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="chk-remember" checked>
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
     <div class="divider"></div>
@@ -546,6 +608,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <script>
 const API = 'https://iuciusutdeblfwkfjwfe.supabase.co/functions/v1/ferry-api';
 
+// ══ SESSION STORAGE KEYS ══
+// Guardamos sólo: operador_id y session_token (hash derivado en el servidor).
+// NUNCA guardamos la contraseña en texto plano.
+const STORAGE_KEY = 'fv_session_v2';
+
 async function callAPI(body) {
   const res = await fetch(API, {
     method: 'POST',
@@ -610,6 +677,89 @@ function playSound(type) {
   } catch(e) {}
 }
 
+// ══ SECURE SESSION PERSISTENCE ══
+// Guardamos un token de sesión (hash SHA-256 del id+password_hash) en localStorage.
+// El servidor verifica el token en cada restauración. Nunca se guarda la contraseña.
+
+function saveSession(operador, token) {
+  try {
+    const data = JSON.stringify({
+      operador_id: operador.id,
+      nombre: operador.nombre,
+      usuario: operador.usuario,
+      token,
+      saved_at: Date.now()
+    });
+    localStorage.setItem(STORAGE_KEY, data);
+  } catch(e) {}
+}
+
+function loadSavedSession() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    // Expirar sesión guardada después de 30 días
+    const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+    if (Date.now() - data.saved_at > MAX_AGE) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function clearSavedSession() {
+  localStorage.removeItem(STORAGE_KEY);
+  $('saved-banner').classList.remove('visible');
+  $('inp-usuario').value = '';
+}
+
+// ══ APP INIT — runs on page load ══
+async function initApp() {
+  const saved = loadSavedSession();
+  if (saved) {
+    // Show saved session banner on login form in case auto-restore fails
+    const banner = $('saved-banner');
+    $('saved-name').textContent = saved.nombre + ' (@' + saved.usuario + ')';
+    banner.classList.add('visible');
+    $('inp-usuario').value = saved.usuario;
+
+    // Try to restore session silently
+    try {
+      const data = await callAPI({
+        action: 'verify_session',
+        operador_id: saved.operador_id,
+        session_token: saved.token
+      });
+      if (data.ok && data.operador) {
+        S.operador = data.operador;
+        hideRestoreOverlay();
+        showApp();
+        return;
+      }
+    } catch(e) {}
+
+    // Token invalid/expired or network error — show login
+    localStorage.removeItem(STORAGE_KEY);
+    hideRestoreOverlay(true);
+  } else {
+    hideRestoreOverlay(true);
+  }
+}
+
+function hideRestoreOverlay(showLogin = false) {
+  const overlay = $('restore-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.3s';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    if (showLogin) $('login-screen').style.display = 'flex';
+  }, 300);
+}
+
 // ══ LOGIN ══
 async function doLogin() {
   const usuario = $('inp-usuario').value.trim();
@@ -623,6 +773,13 @@ async function doLogin() {
     const data = await callAPI({ action: 'login', usuario, password });
     if (data.ok && data.operador) {
       S.operador = data.operador;
+      // Save session if "remember me" is checked
+      if ($('chk-remember').checked && data.session_token) {
+        saveSession(data.operador, data.session_token);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      $('login-screen').style.display = 'none';
       showApp();
     } else {
       showLoginError(data.error || 'Credenciales incorrectas');
@@ -641,20 +798,26 @@ function showLoginError(msg) {
 }
 
 function showApp() {
-  $('login-screen').style.display = 'none';
   $('app').style.display = 'grid';
   $('nav-operator-name').textContent = S.operador.nombre;
   $('info-operador').textContent = S.operador.nombre + ' · @' + S.operador.usuario;
+  // Sync remember-me toggle state with what's actually stored
+  const saved = loadSavedSession();
+  $('chk-remember').checked = !!saved;
   refreshStats();
   startScanner();
 }
 
 function doLogout() {
   if (!confirm('¿Cerrar sesión de ' + S.operador.nombre + '?')) return;
+  // Only clear saved session if explicitly logging out
+  localStorage.removeItem(STORAGE_KEY);
   stopScanner().then(() => {
     S.operador = null; S.scanCount = 0; S.isScanning = false; S.lastCode = null;
     $('inp-password').value = '';
     $('login-error').style.display = 'none';
+    $('saved-banner').classList.remove('visible');
+    $('inp-usuario').value = '';
     $('history-list').innerHTML = '<div class="empty-state"><span class="empty-state-icon">🎫</span>Sin registros aún</div>';
     $('recent-list').innerHTML = '<div class="empty-state" style="padding:24px 0"><span class="empty-state-icon">🎫</span>Sin validaciones aún</div>';
     $('history-count').textContent = '0';
@@ -674,29 +837,18 @@ function doLogout() {
 });
 
 // ══ QR PARSING — versión robusta ══
-// Soporta tres formatos:
-//   1. URL completa tipo https://api.qrserver.com/...?data=Pasajero%3A...
-//   2. Texto plano: "Pasajero: Nombre, Compra: uuid, Viaje: uuid"
-//   3. Solo UUID directo
 function parseQR(raw) {
   if (!raw) return null;
   let text = raw.trim();
 
-  // Caso 1: el QR contiene una URL (api.qrserver.com u otra URL con param ?data=)
   if (text.startsWith('http')) {
     try {
-      // Extraer el parámetro 'data' de la URL
       const urlObj = new URL(text);
       const dataParam = urlObj.searchParams.get('data');
       if (dataParam) {
-        // dataParam puede venir ya decodificado o no según el escáner
-        try {
-          text = decodeURIComponent(dataParam).trim();
-        } catch(e) {
-          text = dataParam.trim();
-        }
+        try { text = decodeURIComponent(dataParam).trim(); }
+        catch(e) { text = dataParam.trim(); }
       } else {
-        // No hay param 'data', intentar regex como fallback
         const m = text.match(/[?&]data=([^&]*)/);
         if (m) {
           try { text = decodeURIComponent(m[1]).trim(); }
@@ -704,7 +856,6 @@ function parseQR(raw) {
         }
       }
     } catch(e) {
-      // new URL() falló (URL malformada), intentar regex directo
       const m = text.match(/[?&]data=([^&]*)/);
       if (m) {
         try { text = decodeURIComponent(m[1]).trim(); }
@@ -713,25 +864,16 @@ function parseQR(raw) {
     }
   }
 
-  // Ahora 'text' debería ser algo como:
-  // "Pasajero: Martina Etoho Mane Mbuy, Compra: da80281b-..., Viaje: 2fed5e3b-..."
-  // O directamente un UUID
-
-  // Extraer compra_id
   const compraM = text.match(/Compra:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-
-  // Extraer pasajero
   const pasajeroM = text.match(/Pasajero:\s*([^,]+)/i);
-
-  // Caso 3: el texto es directamente un UUID
   const uuidDirectM = !compraM ? text.match(/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i) : null;
 
   return {
     raw: text,
-    compra_id: compraM   ? compraM[1].trim()
+    compra_id: compraM    ? compraM[1].trim()
              : uuidDirectM ? uuidDirectM[1].trim()
              : null,
-    pasajero:  pasajeroM ? pasajeroM[1].trim() : '—',
+    pasajero: pasajeroM ? pasajeroM[1].trim() : '—',
   };
 }
 
@@ -801,7 +943,6 @@ async function onScanSuccess(decodedText) {
     return;
   }
 
-  // Evitar escanear el mismo código dos veces seguidas
   if (parsed.compra_id === S.lastCode) return;
 
   S.isScanning = true;
@@ -941,6 +1082,9 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 document.addEventListener('touchstart', ensureAudio, { once: true });
 document.addEventListener('click', ensureAudio, { once: true });
+
+// ══ BOOT ══
+initApp();
 </script>
 </body>
 </html>
