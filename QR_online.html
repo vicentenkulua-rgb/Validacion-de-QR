@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ─── ESTILOS GLOBALES CORPORATIVOS FERRY SAN VALENTÍN ─── -->
     <style>
         :root {
             --red:          #C8102E;
@@ -47,16 +46,17 @@
 
         html, body { 
             width: 100%; 
-            min-height: 100%; 
+            margin: 0 !important;
+            padding: 0 !important;
             font-family: 'DM Sans', sans-serif; 
             background: var(--bg-page); 
             color: var(--text-main); 
-            line-height: 1.5; 
+            line-height: 1.4; 
             -webkit-font-smoothing: antialiased; 
             overflow-x: hidden; 
         }
 
-        /* Fondo limpio con destellos muy suaves */
+        /* Fondo limpio */
         .bg-pattern {
             position: fixed;
             inset: 0;
@@ -65,31 +65,32 @@
             background: 
                 radial-gradient(circle at 10% 15%, rgba(0, 82, 165, 0.035) 0%, transparent 45%),
                 radial-gradient(circle at 90% 85%, rgba(200, 16, 46, 0.025) 0%, transparent 45%),
-                linear-gradient(180deg, #FFFFFF 0%, var(--bg-page) 300px);
+                linear-gradient(180deg, #FFFFFF 0%, var(--bg-page) 260px);
         }
 
-        /* ─── CABECERA FERRY SAN VALENTÍN (autocontenida) ─── */
+        /* ─── CABECERA FERRY SAN VALENTÍN (Sin espacio excesivo) ─── */
         .header-sv {
-            background: #ffffff;                /* Fondo blanco */
-            padding: 22px 16px 18px;
+            background: #ffffff;
+            padding: 10px 16px 12px;
+            margin: 0 !important;
             text-align: center;
             position: sticky;
             top: 0;
             z-index: 100;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);  /* Sombra suave */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             border-bottom: 1px solid var(--border-color);
         }
 
-        /* Círculos decorativos de fondo (azul y rojo claros) */
+        /* Círculos decorativos de fondo */
         .header-sv::before {
             content: '';
             position: absolute;
-            top: -30px;
-            right: -30px;
-            width: 120px;
-            height: 120px;
-            background: rgba(0,82,165,0.06);    /* Azul muy transparente */
+            top: -25px;
+            right: -25px;
+            width: 100px;
+            height: 100px;
+            background: rgba(0,82,165,0.06);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -101,16 +102,63 @@
             left: -20px;
             width: 80px;
             height: 80px;
-            background: rgba(200,16,46,0.08);   /* Rojo muy transparente */
+            background: rgba(200,16,46,0.07);
             border-radius: 50%;
             pointer-events: none;
+        }
+
+        .header-sv-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Texto grande "FERRY SAN VALENTÍN" */
+        .ferry-name-sv {
+            font-size: clamp(20px, 6vw, 32px);
+            font-weight: 900;
+            color: #C8102E;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            line-height: 1.1;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Subtítulo "Reserva tu billete" */
+        .ferry-sub-sv {
+            font-size: 11px;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: #0052A5;
+            margin-top: 3px;
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Línea decorativa central */
+        .header-line-sv {
+            width: 36px;
+            height: 2.5px;
+            background: #0052A5;
+            margin: 6px auto 0;
+            border-radius: 2px;
+            position: relative;
+            z-index: 1;
         }
 
         /* Barra de herramientas / Estado & Acciones */
         .header-sv-tools {
             position: absolute;
             top: 50%;
-            right: 20px;
+            right: 16px;
             transform: translateY(-50%);
             display: flex;
             align-items: center;
@@ -127,15 +175,15 @@
             background: var(--blue-light);
             color: var(--blue);
             border: 1px solid var(--blue-border);
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 20px;
             cursor: default;
             transition: all 0.3s ease;
         }
 
         .dot { 
-            width: 8px; 
-            height: 8px; 
+            width: 7px; 
+            height: 7px; 
             border-radius: 50%; 
             background: #94A3B8; 
             transition: all 0.4s ease; 
@@ -152,9 +200,9 @@
         }
 
         .btn-header {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
             border: 1px solid var(--border-color);
             background: #FFFFFF;
             color: var(--blue);
@@ -162,7 +210,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             box-shadow: var(--shadow-sm);
             transition: all 0.25s ease;
         }
@@ -170,8 +218,8 @@
             background: var(--blue);
             color: #FFFFFF;
             border-color: var(--blue);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 82, 165, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 82, 165, 0.2);
         }
         .btn-header i { transition: transform 0.3s ease; }
         .btn-header i.spinning { animation: spin 0.8s linear infinite; }
@@ -181,54 +229,20 @@
             to { transform: rotate(360deg); } 
         }
 
-        /* Texto grande "FERRY SAN VALENTÍN" */
-        .ferry-name-sv {
-            font-size: clamp(20px, 7vw, 34px);  /* Tamaño fluido, se adapta al ancho */
-            font-weight: 900;
-            color: #C8102E;                     /* Rojo corporativo */
-            letter-spacing: 2px;
-            white-space: nowrap;                /* Evita que se divida en dos líneas */
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Subtítulo "Reserva tu billete" */
-        .ferry-sub-sv {
-            font-size: 11px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #0052A5;                     /* Azul corporativo */
-            margin-top: 4px;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Línea decorativa central */
-        .header-line-sv {
-            width: 40px;
-            height: 2px;
-            background: #0052A5;                /* Azul */
-            margin: 10px auto 0;
-            border-radius: 2px;
-            position: relative;
-            z-index: 1;
-        }
-
         /* ─── CONTENIDO PRINCIPAL ─── */
         main {
             position: relative;
             z-index: 2;
-            padding: 24px 16px 80px;
+            padding: 16px 14px 60px;
             max-width: 1160px;
             margin: 0 auto;
         }
 
         .alert {
             display: none;
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 13px;
             font-weight: 600;
             border: 1px solid transparent;
@@ -244,8 +258,8 @@
         .hero {
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            margin-bottom: 22px;
+            border-radius: 18px;
+            margin-bottom: 16px;
             overflow: hidden;
             box-shadow: var(--shadow-md);
             position: relative;
@@ -258,7 +272,7 @@
         }
 
         .hero-content {
-            padding: 22px 24px;
+            padding: 16px 18px;
             position: relative;
         }
 
@@ -267,103 +281,103 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .hero-eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 11px;
+            gap: 5px;
+            font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             color: var(--blue);
             background: var(--blue-light);
-            padding: 4px 10px;
-            border-radius: 6px;
+            padding: 3px 8px;
+            border-radius: 5px;
         }
 
         .hero h2 {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: clamp(24px, 4vw, 32px);
+            font-size: clamp(22px, 3.5vw, 28px);
             font-weight: 900;
             color: var(--text-main);
             letter-spacing: 0.5px;
             line-height: 1.2;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .hero h2 i {
             color: var(--red);
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .hero-info {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 16px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .hero-info-item {
             background: var(--bg-page);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 12px 14px;
-            transition: all 0.25s ease;
+            border-radius: 12px;
+            padding: 9px 12px;
+            transition: all 0.2s ease;
         }
         .hero-info-item:hover {
             background: #FFFFFF;
             border-color: var(--blue-border);
             box-shadow: var(--shadow-sm);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .hero-info-label {
             color: var(--text-muted);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
         .hero-info-label i {
             color: var(--blue);
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .hero-info-value {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-main);
         }
 
-        /* ─── KPIS METRICS (Tarjetas limpias con fondo blanco) ─── */
+        /* ─── KPIS METRICS ─── */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .kpi {
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 18px 16px;
+            border-radius: 16px;
+            padding: 14px 14px;
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-sm);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .kpi:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
 
@@ -372,7 +386,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 3.5px;
         }
         .kpi.kpi-green .kpi-stripe { background: var(--green); }
         .kpi.kpi-red .kpi-stripe   { background: var(--red); }
@@ -383,11 +397,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .kpi-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.8px;
@@ -395,13 +409,13 @@
         }
 
         .kpi-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
         }
         .kpi.kpi-green .kpi-icon { background: var(--green-light); color: var(--green); }
         .kpi.kpi-red .kpi-icon   { background: var(--red-light); color: var(--red); }
@@ -410,19 +424,19 @@
 
         .kpi-value {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 4px;
+            line-height: 1;
+            margin-bottom: 3px;
         }
         .kpi.kpi-green .kpi-value { color: var(--green); }
         .kpi.kpi-red .kpi-value   { color: var(--red); }
         .kpi.kpi-blue .kpi-value  { color: var(--blue); }
         .kpi.kpi-navy .kpi-value  { color: var(--text-main); }
-        .kpi-value.small { font-size: 22px; }
+        .kpi-value.small { font-size: 20px; }
 
         .kpi-sub {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
             font-weight: 500;
         }
@@ -430,15 +444,15 @@
         /* ─── DESGLOSE DE BILLETES ─── */
         .section {
             background: #FFFFFF;
-            border-radius: 20px;
+            border-radius: 18px;
             border: 1px solid var(--border-color);
-            margin-bottom: 22px;
+            margin-bottom: 16px;
             overflow: hidden;
             box-shadow: var(--shadow-md);
         }
 
         .section-header {
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -448,25 +462,25 @@
 
         .section-title {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: var(--text-main);
         }
 
         .section-title-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: var(--blue-light);
             color: var(--blue);
-            border-radius: 8px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         /* TARJETAS MÓVIL */
@@ -476,9 +490,9 @@
         }
 
         .ticket-card {
-            padding: 16px 18px;
+            padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
         .ticket-card:last-child { border-bottom: none; }
         .ticket-card:hover {
@@ -488,37 +502,37 @@
         .ticket-card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 800;
-            font-size: 18px;
-            margin-bottom: 12px;
+            font-size: 17px;
+            margin-bottom: 10px;
             color: var(--blue-dark);
         }
         .ticket-card-header i {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             background: #FFFFFF;
             border: 1px solid var(--blue-border);
-            border-radius: 8px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--blue);
         }
 
         .ticket-card-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 7px;
         }
 
         .ticket-stat-box {
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 12px;
+            border-radius: 10px;
+            padding: 8px 10px;
             transition: all 0.2s ease;
         }
         .ticket-stat-box:hover {
@@ -527,21 +541,21 @@
         }
 
         .tsb-label {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
-        .tsb-label i { font-size: 9px; }
+        .tsb-label i { font-size: 8px; }
 
         .tsb-value {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 19px;
+            font-size: 17px;
             font-weight: 800;
             line-height: 1;
         }
@@ -570,8 +584,8 @@
         }
 
         .ticket-table th {
-            padding: 14px 18px;
-            font-size: 11px;
+            padding: 12px 16px;
+            font-size: 10.5px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -580,9 +594,9 @@
         .ticket-table th:not(:first-child) { text-align: right; }
 
         .ticket-table td {
-            padding: 15px 18px;
+            padding: 13px 16px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
+            font-size: 13.5px;
             vertical-align: middle;
             color: var(--text-main);
             transition: background 0.2s ease;
@@ -596,21 +610,21 @@
         .ticket-name {
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 800;
-            font-size: 17px;
+            font-size: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: var(--blue-dark);
         }
         .ticket-name i {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             background: var(--blue-light);
-            border-radius: 8px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--blue);
         }
 
@@ -622,11 +636,11 @@
         /* ─── GRAN TOTAL CORPORATIVO ─── */
         .grand-total {
             background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
-            border-radius: 20px;
-            padding: 22px 24px;
+            border-radius: 18px;
+            padding: 18px 20px;
             text-align: center;
             color: #FFFFFF;
-            box-shadow: 0 10px 30px rgba(0, 82, 165, 0.25);
+            box-shadow: 0 8px 25px rgba(0, 82, 165, 0.22);
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -636,41 +650,41 @@
             position: absolute;
             top: -40px;
             right: -40px;
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             background: rgba(200, 16, 46, 0.25);
             border-radius: 50%;
             pointer-events: none;
         }
 
         .grand-total-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
         .grand-total-label::before, .grand-total-label::after {
             content: '';
             display: block;
-            width: 36px;
+            width: 30px;
             height: 1px;
             background: rgba(255, 255, 255, 0.4);
         }
 
         .grand-total-value {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: clamp(32px, 6vw, 42px);
+            font-size: clamp(28px, 5vw, 38px);
             font-weight: 900;
             letter-spacing: 1px;
             line-height: 1.1;
             color: #FFFFFF;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* ─── MODAL SUPABASE LIMPIO ─── */
@@ -689,16 +703,16 @@
 
         .modal {
             background: #FFFFFF;
-            border-radius: 20px;
+            border-radius: 18px;
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             box-shadow: var(--shadow-lg);
             overflow: hidden;
             border: 1px solid var(--border-color);
         }
 
         .modal-header {
-            padding: 18px 20px;
+            padding: 16px 18px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -706,7 +720,7 @@
             background: #F8FAFC;
         }
         .modal-header h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             color: var(--blue-dark);
             display: flex;
@@ -719,14 +733,14 @@
             background: #FFFFFF;
             border: 1px solid var(--border-color);
             color: var(--text-muted);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s ease;
         }
         .modal-close:hover {
@@ -735,9 +749,9 @@
             border-color: var(--red-border);
         }
 
-        .modal-body { padding: 20px; }
+        .modal-body { padding: 18px; }
 
-        .form-group { margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
             font-size: 11px;
@@ -745,15 +759,15 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .form-control {
             width: 100%;
-            padding: 11px 14px;
+            padding: 10px 12px;
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 9px;
+            font-size: 13.5px;
             font-family: inherit;
             color: var(--text-main);
             transition: all 0.2s ease;
@@ -765,33 +779,33 @@
         }
 
         .modal-footer {
-            padding: 14px 20px 18px;
+            padding: 12px 18px 16px;
             border-top: 1px solid var(--border-color);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: #F8FAFC;
         }
 
         .btn {
             flex: 1;
-            padding: 11px 16px;
+            padding: 10px 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 9px;
             font-weight: 700;
             cursor: pointer;
             font-size: 13px;
             font-family: inherit;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
         .btn-primary {
             background: var(--red);
             color: #FFFFFF;
-            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.25);
+            box-shadow: 0 3px 10px rgba(200, 16, 46, 0.25);
         }
         .btn-primary:hover {
             background: var(--red-dark);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(200, 16, 46, 0.35);
+            box-shadow: 0 5px 14px rgba(200, 16, 46, 0.35);
         }
         .btn-ghost {
             background: #FFFFFF;
@@ -805,15 +819,15 @@
 
         .empty-state {
             text-align: center;
-            padding: 36px 20px;
+            padding: 30px 16px;
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
         }
         .empty-state i {
             display: block;
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 28px;
+            margin-bottom: 8px;
             color: var(--blue);
             opacity: 0.6;
         }
@@ -821,17 +835,17 @@
         /* ─── RESPONSIVE ─── */
         @media (min-width: 768px) {
             .header-sv {
-                padding: 24px 32px 20px;
+                padding: 12px 32px 14px;
             }
             .header-sv-tools {
-                right: 32px;
+                right: 28px;
             }
-            main { padding: 30px 24px 80px; }
-            .hero-content { padding: 26px 28px; }
-            .hero-info { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-            .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 26px; }
-            .kpi { padding: 20px 18px; }
-            .kpi-value { font-size: 36px; }
+            main { padding: 22px 24px 60px; }
+            .hero-content { padding: 20px 22px; }
+            .hero-info { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+            .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+            .kpi { padding: 16px 16px; }
+            .kpi-value { font-size: 32px; }
             .ticket-cards { display: none; }
             .ticket-table-wrap { display: block; }
         }
@@ -841,7 +855,7 @@
                 position: static;
                 transform: none;
                 justify-content: center;
-                margin-top: 14px;
+                margin-top: 8px;
             }
         }
     </style>
@@ -850,11 +864,13 @@
 
 <div class="bg-pattern"></div>
 
-<!-- ─── CABECERA FERRY SAN VALENTÍN (autocontenida) ─── -->
+<!-- ─── CABECERA FERRY SAN VALENTÍN (autocontenida y sin espacio superior) ─── -->
 <div class="header-sv">
-    <div class="ferry-name-sv">FERRY SAN VALENTÍN</div>
-    <div class="ferry-sub-sv">Reserva tu billete</div>
-    <div class="header-line-sv"></div>
+    <div class="header-sv-inner">
+        <div class="ferry-name-sv">FERRY SAN VALENTÍN</div>
+        <div class="ferry-sub-sv">Reserva tu billete</div>
+        <div class="header-line-sv"></div>
+    </div>
 
     <!-- Herramientas de estado y sincronización -->
     <div class="header-sv-tools">
@@ -999,7 +1015,6 @@
 </div>
 
 <script>
-// Soporta tanto las nuevas claves como las anteriores para compatibilidad
 let SUPABASE_URL = localStorage.getItem('fsv_url') || localStorage.getItem('fv_url') || '';
 let SUPABASE_KEY = localStorage.getItem('fsv_key') || localStorage.getItem('fv_key') || '';
 let destinoActual = null;
